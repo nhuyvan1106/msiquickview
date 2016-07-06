@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="front-end-frameworks/external/bootstrap-3.3.6-dist/css/bootstrap.min.css"/>
+        <link rel="stylesheet" href="front-end-frameworks/external/font-awesome-4.6.3/css/font-awesome.min.css"/>
+        <link rel="stylesheet" href="front-end-frameworks/css/main.css"/>
+        <script src="front-end-frameworks/external/jquery-3.0.0.min.js"></script>
+        <script src="front-end-frameworks/external/d3/d3.4.0.0.min.js"></script>
+        <script src="front-end-frameworks/javascript/pnnl.js"></script>
+    </head>
+    <body>
+        <form>
+            <div class="form-group">
+                <input type="file" multiple="multiple" required="required" accept="application/cdf" class="form-control" name="file-name" id="file-name"/>
+            </div>
+            <div class="form-group">
+                <button type="button" class="btn btn-default load-data">
+                    Load Data
+                </button>
+
+                <button type="button" class="btn btn-default forward">
+                    Forward
+                </button>
+
+                <button type="button" class="btn btn-default backward">
+                    Backward
+                </button>
+
+                <button type="button" class="btn btn-default stop">
+                    Stop
+                </button>
+            </div>
+        </form>
+        <div class="nav-buttons">
+            <button type="button" class="btn btn-default prev" title="Show data for previous point">
+                <i class="fa fa-arrow-left fa-1x"></i>
+            </button> 
+            <button type="button" class="btn btn-default next" title="Show data for next point">
+                <i class="fa fa-arrow-right fa-1x"></i>
+            </button>
+        </div>
+        <script src="front-end-frameworks/javascript/main.js"></script>
+        <script>
+            (function ($) {
+
+                var handle;
+                $(".forward").click(function () {
+                    handle = setInterval(function () {
+                        $(".next").get(0).click();
+                    }, 500);
+                });
+
+                $(".backward").click(function () {
+                    handle = setInterval(function () {
+                        $(".prev").get(0).click();
+                    }, 500);
+                });
+
+                $(".stop").click(function () {
+                    clearInterval(handle);
+                });
+            })(jQuery);
+        </script>
+    </body>
+</html>
