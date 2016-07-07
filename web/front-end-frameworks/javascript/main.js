@@ -1,5 +1,5 @@
 /* global pnnl, d3 */
-
+/* Dummy change */
 (function ($) {
     var currentIndex = 0;
     var resultData = {};
@@ -164,7 +164,7 @@
         var messageBody = "<div>Status Code: " + xhr.status + "</div>" + 
                           "<div>Status Message: " + xhr.statusText + "</div>Please contact technical support";
         d3.select("." + pnnl.dialog.dialogClassName).remove();
-            pnnl.dialog.createAlertDialog("error-alert-dialog")
+            pnnl.dialog.createAlertDialog()
                 .setHeaderIcon("fa-frown-o")
                 .setMessageBody(messageBody)
                 .setCloseActionButton()
