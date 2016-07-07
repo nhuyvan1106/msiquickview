@@ -207,39 +207,51 @@ var pnnl = {
         dialogClassName: "alert-dialog",
         // Create a new dialog with the given class name if exists or falls back to default value otherwise
         createAlertDialog: function (alertDialogClass) {
-            if (alertDialogClass)
+            var cssClass = "alert-dialog";
+            if (alertDialogClass) {
                 this.dialogClassName = alertDialogClass;
-            var alertDialog = d3.select("body").append("div").attr("class", pnnl.dialog.dialogClassName);
-            alertDialog.append("div").attr("class", "alert-dialog-header");
-            alertDialog.append("div").attr("class", "message-body");
+                cssClass += " " + alertDialogClass;
+            }
+            d3.select("body").append("div").attr("class", cssClass);
             return this;
         },
         /*
          * EITHER dialog header's icon OR title can be set at any give time.
          * @param {string} faHeaderIcon Check FontAwesome website for a list of available icon classes. Default value is fa-info-circle
+         * @param {string} headerClass Optional clas for dialog header. Default is "alert-dialog-header"
          * @returns This dialog object
          */
-        setHeaderIcon: function (faHeaderIcon) {
-            d3.select(".alert-dialog-header .alert-dialog-header-title").remove();
+        setHeaderIcon: function (faHeaderIcon, headerClass) {
             if (!faHeaderIcon)
                 faHeaderIcon = "fa-info-circle";
-            d3.select(".alert-dialog-header")
-                    .append("i")
+            var alertDialogHeader = d3.select(".alert-dialog .alert-dialog-header");
+            if (alertDialogHeader.empty())
+                d3.select(".alert-dialog")
+                        .append("div")
+                        .attr("class", "alert-dialog-header" + (headerClass ? " " + headerClass : ""));
+            alertDialogHeader.select(".alert-dialog-header-title").remove();
+            d3.select(".alert-dialog .alert-dialog-header").append("i")
                     .attr("class", "fa fa-2x alert-dialog-header-icon" + " " + faHeaderIcon);
             return this;
         },
         /*
          * EITHER dialog header's icon OR title can be set at any give time.
          * @param {string} title Title for our dialog box
+         * @param {string} headerClass Optional clas for dialog header. Default is "alert-dialog-header"
          * @returns This dialog object
          */
-        setHeaderTitle: function (title) {
+        setHeaderTitle: function (title, headerClass) {
             if (!title)
                 throw new Error("Header title must contain a value");
-            d3.select(".alert-dialog-header .alert-dialog-header-icon").remove();
-            d3.select(".alert-dialog-header")
+            var alertDialogHeader = d3.select(".alert-dialog .alert-dialog-header");
+            if (alertDialogHeader.empty())
+                d3.select(".alert-dialog")
+                        .append("div")
+                        .attr("class", "alert-dialog-header" + (headerClass ? " " + headerClass : ""));
+            alertDialogHeader.select(".alert-dialog-header-icon").remove();
+            d3.select(".alert-dialog .alert-dialog-header")
                     .append("span")
-                    .attr("class", "alert-dialog-header-title")
+                    .attr("class", "alert-dialog-header-title" + " " + headerClass)
                     .html(title);
             return this;
         },
@@ -263,16 +275,23 @@ var pnnl = {
                         closeAction("." + pnnl.dialog.dialogClassName);
                         pnnl.dialog.hide();
                         pnnl.draw.removeSpinnerOverlay();
-                    } : function() { pnnl.dialog.hide(); pnnl.draw.removeSpinnerOverlay(); });
+                    } : function () {
+                        pnnl.dialog.hide();
+                        pnnl.draw.removeSpinnerOverlay();
+                    });
             return this;
         },
         /*
          * @param {string} content Could contain HTML markup to create custom message body or just plain text.
+         * @param {string} bodyClass Optional class for dialog body. Default is "message-body"
          * @returns This dialog object
          */
-        setMessageBody: function (content) {
+        setMessageBody: function (content, bodyClass) {
             if (!content)
                 throw new Error("Message body can't be null");
+            d3.select(".alert-dialog")
+                    .append("div")
+                    .attr("class", "message-body" + (bodyClass ? " " + bodyClass : ""));
             $(".message-body").append(content);
             return this;
         },
@@ -310,7 +329,7 @@ var pnnl = {
         setNegativeButton: function (negBtnlabel, negBtnBehavior, negBtnClassName) {
             var dialogClass = "." + pnnl.dialog.dialogClassName;
             var btnGroup = d3.select(dialogClass + " " + ".btn-group");
-            negBtnClassName = negBtnClassName ? negBtnClassName : "btn btn-default no-btn";
+            negBtnClassName = negBtnClassName ? negBtnClassName : "btn btn-default negative-btn";
             if (!negBtnlabel)
                 throw new Error("Label for no button is null.");
             if (btnGroup.empty())
@@ -322,7 +341,10 @@ var pnnl = {
                         pnnl.dialog.hide();
                         negBtnBehavior(dialogClass);
                         pnnl.draw.removeSpinnerOverlay();
-                    } : function() { pnnl.dialog.hide(); pnnl.draw.removeSpinnerOverlay(); })
+                    } : function () {
+                        pnnl.dialog.hide();
+                        pnnl.draw.removeSpinnerOverlay();
+                    })
                     .text(negBtnlabel);
             return this;
         },
@@ -335,10 +357,11 @@ var pnnl = {
                 showBehavior = function (dialogClassName) {
                     pnnl.draw.drawOverlay();
                     $(dialogClassName).slideDown();
-                    if (d3.event) d3.event.stopImmediatePropagation();
+                    if (d3.event)
+                        d3.event.stopImmediatePropagation();
                 };
-            /*$(".message-body").appendTo(".alert-dialog-header");
-             $("btn-group").appendTo(".message-body");*/
+            $(".message-body").insertAfter(".alert-dialog-header");
+            $(".btn-group").insertAfter(".message-body");
             showBehavior("." + pnnl.dialog.dialogClassName);
         },
         /*
