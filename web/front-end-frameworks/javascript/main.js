@@ -1,52 +1,74 @@
-/* global pnnl, d3 */
-/* Dummy change */
+/* global d3, pnnl */
+
 (function ($) {
-    var currentIndex = 0;
+    var currentIndex = -1;
     var resultData = {};
     var offset = 0;
-    var pointWidth = 0;
+    var moveTo = 0;
     var totalElementsRead = 0;
-    d3.select(document.documentElement).on("click", function () {
-        if (!$(d3.event.target).parents().hasClass(pnnl.dialog.dialogClassName) && $(".alert-dialog").css("display") !== "none") {
-            pnnl.dialog.hide();
-            pnnl.draw.removeSpinnerOverlay();
-        }
+    var dispatch = d3.dispatch("selectionchange");
+    dispatch.on("selectionchange", function () {
+        d3.selectAll(".file-selection-dialog li i")
+                .transition()
+                .duration(200)
+                .style("opacity", 0)
+                .each(function () {
+                    $(this).removeClass("fa-check fa-hand-o-left");
+                });
+        $(this).find("i").addClass("fa-hand-o-left").animate({"opacity": "1.0"});
     });
+    $("#user-dir").val(window.localStorage.getItem("user-dir") ? window.localStorage.getItem("user-dir") : "");
     d3.select(".load-data").on("click", function () {
         d3.event.stopImmediatePropagation();
-        if (window.localStorage.getItem("should-show") !== "true") {
-            var messageBody = "<span>" +
-                    "Initial request to load a new file often takes more or less than 20 seconds." +
-                    " Do you wish to proceed?" +
-                    "</span>" +
-                    "<form style='text-align: center; width:320px'>" +
-                    "<input type='checkbox' class='should-show' id='should-show'/>&nbsp;" +
-                    "<label for='should-show'>Never show me this</label>" +
-                    "</form>";
-            pnnl.dialog.createAlertDialog()
-                    .setHeaderIcon()
-                    .setCloseActionButton()
-                    .setPositiveButton("Yes", loadData)
-                    .setNegativeButton("Cancel")
-                    .setMessageBody(messageBody)
-                    .show();
-            d3.select("#should-show").on("change", function() {
-                window.localStorage.setItem("should-show", this.checked);
-            });
-        } else
-            loadData();
+        pnnl.data.upload(document.getElementById("user-dir").value, document.getElementById("file-name").files,
+                function () {
+                    log("DONE");
+                    /*var dispatch = d3.dispatch("selectionchange");
+                     dispatch.on("selectionchange", function () {
+                     d3.selectAll(".file-selection-dialog li i")
+                     .transition()
+                     .duration(500)
+                     .style("opacity", 0)
+                     .each(function () {
+                     $(this).removeClass("fa-check fa-hand-o-left");
+                     });
+                     $(this).find("i").addClass("fa-hand-o-left");
+                     });*/
+                    $(".file-selection-dialog .alert-dialog-header-title").html("Click on file to load");
+                    d3.select(".file-selection-dialog").selectAll("li").each(function (d, i) {
+                        $(this).find(".file-upload-spinner" + i).removeClass("fa-pulse fa-spinner").addClass("fa-check");
+                        var elem = this;
+                        /*setTimeout(function () {
+                         d3.select(elem).select("i")
+                         .transition()
+                         .duration(500)
+                         .style("opacity", 0)
+                         .each(function () {
+                         $(this).removeClass("fa-check");
+                         });
+                         }, 2000);*/
+                        d3.select(this).on("click", function () {
+                            if (window.sessionStorage.getItem("file-name") !== this.id || d3.select(".intensity-scan-chart").empty()) {
+                                pnnl.draw.drawSpinner().drawOverlay();
+                                loadData(window.localStorage.getItem("user-dir"), this.id);
+                                window.sessionStorage.setItem("file-name", this.id);
+                                dispatch.call("selectionchange", this);
+                            }
+                        });
+                    });
+                }, errorCallback);
     });
 
     $(".next").click(function () {
         if (currentIndex < resultData.pointCount.length - 1) {
             currentIndex++;
-            if (currentIndex !== resultData.pointCount.length) {
-                pointWidth += 690 / resultData.pointCount.length;
-                pnnl.draw.moveIndicatorBar(pointWidth);
-            }
+            //if (currentIndex !== resultData.pointCount.length) {
+            moveTo += 690 / resultData.pointCount.length;
+            pnnl.draw.moveIndicatorBar(moveTo);
+            //}
             if (currentIndex % 20 === 0 && currentIndex !== 0 && currentIndex !== resultData.length - 1) {
                 pnnl.draw.drawOverlay().drawSpinner();
-                pnnl.data.fetch(offset, "forward", currentIndex, currentIndex + 20, successCallback, errorHandler);
+                pnnl.data.fetch(offset, "forward", currentIndex, currentIndex + 20, successCallback, errorCallback);
                 function successCallback(intensityMass) {
                     totalElementsRead = 0;
                     resultData.intensityMass = intensityMass;
@@ -69,8 +91,8 @@
     });
     $(".prev").click(function () {
         if (currentIndex > 0) {
-            pointWidth -= 690 / resultData.pointCount.length;
-            pnnl.draw.moveIndicatorBar(pointWidth);
+            moveTo -= 690 / resultData.pointCount.length;
+            pnnl.draw.moveIndicatorBar(moveTo);
             offset -= resultData.pointCount[currentIndex];
             totalElementsRead -= resultData.pointCount[currentIndex];
         }
@@ -79,7 +101,7 @@
             drawIntensityMassChart(resultData.intensityMass.slice(totalElementsRead - resultData.pointCount[currentIndex], totalElementsRead));
         } else if (currentIndex > 0) {
             pnnl.draw.drawSpinner().drawOverlay();
-            pnnl.data.fetch(offset, "backward", currentIndex - 20, currentIndex, successCallback, errorHandler);
+            pnnl.data.fetch(offset, "backward", currentIndex - 20, currentIndex, successCallback, errorCallback);
             function successCallback(intensityMass) {
                 resultData.intensityMass = intensityMass;
                 totalElementsRead = intensityMass.length;
@@ -130,15 +152,13 @@
                             }));
         }, 500);
     }
-    // Just a convinient function to remove code duplication.
-    function loadData() {
-        pnnl.draw.drawSpinner();
-        pnnl.draw.drawOverlay();
-        var file = document.getElementById("file-name").files[0];
-        if (d3.select("svg").empty() || window.sessionStorage.getItem("file-name") !== pnnl.data.getFileName(file)) {
-            pnnl.data.loadData(file, successCallback, errorHandler);
-            currentIndex = -1;
-        }
+    // Just a convenient function to remove code duplication.
+    function loadData(userDir, file) {
+        pnnl.data.loadData(userDir, file, successCallback, errorCallback);
+        currentIndex = -1;
+        offset = 0;
+        totalElementsRead = 0;
+        moveTo = 0;
         function successCallback(totalIntensity, scanAcquisitionTime, intensityValues, massValues, pointCount) {
             var config = {"width": 760, "height": 500,
                 "margin": {"top": 30, "right": 20, "bottom": 20, "left": 50}, "yLabel": "1.0e+8", "className": "intensity-scan-chart"
@@ -158,17 +178,19 @@
                     .css({"position": "absolute", "top": config.height + config.top + config.bottom, "left": config.width / 2 - 25});
         }
     }
-    
-    function errorHandler(xhr) {
+    // Global HTTP request response error handling
+    function errorCallback(xhr) {
         pnnl.draw.removeSpinnerOverlay();
-        var messageBody = "<div>Status Code: " + xhr.status + "</div>" + 
-                          "<div>Status Message: " + xhr.statusText + "</div>Please contact technical support";
-        d3.select("." + pnnl.dialog.dialogClassName).remove();
-            pnnl.dialog.createAlertDialog()
+        var messageBody = "<div>Status Code: " + xhr.status + "</div>" +
+                "<div>Status Message: " + xhr.statusText + "</div>Please contact technical support";
+        /*if ($(".alert-dialog").attr("class").split(" ").length === 1)
+         d3.select("." + pnnl.dialog.dialogClassName).remove();*/
+        pnnl.dialog.newDialogBuilder()
+                .createAlertDialog("alert-dialog")
                 .setHeaderIcon("fa-frown-o")
                 .setMessageBody(messageBody)
                 .setCloseActionButton()
-                .show(); 
+                .show();
     }
     function log(msg) {
         console.log(msg);

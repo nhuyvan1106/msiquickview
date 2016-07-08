@@ -5,7 +5,7 @@ form {
     width: 500px;
     margin: 3px;
 }
-#file-name {
+#file-name, #user-dir {
     width: 275px;
 }
 .line {
@@ -25,7 +25,7 @@ form {
 .alert-dialog {
     display: none;
     position: absolute;
-    width: 320px;
+    width: 350px;
     box-shadow: 0px 0px 0px 1px #d3d3d3;
     border-radius: 3px;
     text-align: center;
@@ -34,11 +34,12 @@ form {
     right: 10px;
     z-index: 12;
     background-color: white;
+    padding-bottom: 5px;
+    bottom: 10px;
+    z-index: 9;
 }
 
 .alert-dialog {
-    padding-bottom: 5px;
-    bottom: 10px;
     .alert-dialog-header {
         border-bottom: 1px solid #d3d3d3;
         padding: 10px;
@@ -46,6 +47,8 @@ form {
         margin-right: 0;
         background: #ff9907;
         color: green;
+        min-height: 50px;
+        
     }
     .message-body {
         font-size: large;
@@ -73,25 +76,42 @@ form {
         background-color: lightblue;
     }
 }
+
 .file-selection-dialog {
+    @extend .alert-dialog;
     .file-selection-dialog-header {
         background-color: lightblue;
-        line-height: 50px;
+        font-weight: bold;
+    }
+    .file-selection-dialog-header:hover {
+        cursor: move;
+    }
+    ul {
+        margin: 0;
+        margin-left: -5px;
+        margin-right: -5px;
     }
     li {
         position: relative;
         list-style-type: none;
         text-align: left;
         margin: 0;
-        line-height: 40px;
+        line-height: 45px;
         display: block;
         margin-left: -2.2em;
         padding-left: 30px;
+        border-bottom: 1px solid #d3d3d3;
+        transition: background-color .18s ease-in;
+    }
+    li:first-child {
+        margin-top: -10px;
     }
     li:last-child {
-        margin-bottom: -10px;
+        margin-bottom: -9.5px;
+        border-bottom: none;
     }
     li:hover {
         background: #e3e3e3;
+        cursor:  pointer;
     }
 }
