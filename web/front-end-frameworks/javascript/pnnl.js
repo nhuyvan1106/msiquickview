@@ -99,7 +99,7 @@ var pnnl = {
             d3.select("." + config.className).remove();
             var width = config.width - config.margin.left - config.margin.right;
             var height = config.height - config.margin.top - config.margin.bottom;
-            var svg = d3.select("body")
+            var svg = d3.select("#" + config.idName)
                     .append("svg")
                     .attr("class", config.className)
                     .attr("height", height + config.margin.top + config.margin.bottom)
@@ -151,7 +151,7 @@ var pnnl = {
                                 .attr("x", 50)
                                 .text(config.yLabel)
                                 .style("fill", "black");
-                    });
+                    });                                
 
             svg.append("path")
                     .attr("class", "line")
