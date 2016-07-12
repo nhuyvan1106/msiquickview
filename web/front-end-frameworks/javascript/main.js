@@ -124,11 +124,13 @@
                 "top": 30,
                 "right": 20,
                 "bottom": 20,
-                "left": 50
+                "left": 100
             },
             "yLabel": "1.0e+7",
             "className": "intensity-mass-chart",
-            "idName": "intensity-mass-chart-id"
+            "idName": "intensity-mass-chart-id",
+            "x": "m/z Values", 
+            "y": "Intensity"
         };
         pnnl.draw.drawLineGraph(config, data);
         /*
@@ -164,7 +166,7 @@
         moveTo = 0;
         function successCallback(totalIntensity, scanAcquisitionTime, intensityValues, massValues, pointCount) {
             var config = {"width": parseInt(d3.select('#intensity-scan-chart-id').style('width'), 10), "height": 500,
-                "margin": {"top": 30, "right": 20, "bottom": 20, "left": 50}, "yLabel": "1.0e+8", "className": "intensity-scan-chart", "idName": "intensity-scan-chart-id"
+                "margin": {"top": 30, "right": 20, "bottom": 20, "left": 100}, "yLabel": "1.0e+8", "className": "intensity-scan-chart", "idName": "intensity-scan-chart-id", "x": "Scan Acquisition Time", "y": "Intensity"
             };
             resultData.pointCount = pointCount;
             resultData.intensityMass = intensityValues.map(function (d, i) {

@@ -135,6 +135,7 @@ pnnl.draw = {
         d3.select("." + config.className).remove();
         var width = config.width - config.margin.left - config.margin.right;
         var height = config.height - config.margin.top - config.margin.bottom;
+        var padding = 4;
         var svg = d3.select("#" + config.idName)
                 .append("svg")
                 .attr("class", config.className)
@@ -193,6 +194,16 @@ pnnl.draw = {
                 .transition()
                 .duration(500)
                 .style("opacity", "1");
+                // now add titles to the axes
+        svg.append("text")
+            .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
+            .attr("transform", "translate("+ (-50) +","+(height/2)+")rotate(-90)")  // text is drawn off the screen top left, move down and out and rotate
+            .text(config.x);
+
+        svg.append("text")
+            .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
+            .attr("transform", "translate("+ (width/2) +","+(0)+")")  // centre below axis
+            .text(config.y);
     },
     drawOverlay: function () {
         $("body").css("overflow", "hidden");
