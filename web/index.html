@@ -38,18 +38,6 @@
                 <button type="button" class="btn btn-default load-data">
                     Load Data
                 </button>
-
-                <button type="button" class="btn btn-default backward">
-                    Backward
-                </button>
-                
-                <button type="button" class="btn btn-default forward">
-                    Forward
-                </button>
-
-                <button type="button" class="btn btn-default stop">
-                    Stop
-                </button>
             </div>
         </form>
         <div class="panel panel-info lobipanel">
@@ -65,12 +53,25 @@
                             </div>
                             <div class="panel-body">
                                 <div id="intensity-scan-chart-id" style="padding-bottom: 50px;"></div>
-                                <button type="button" class="btn btn-default prev" title="Show data for previous point">
-                                    <i class="fa fa-arrow-left fa-1x"></i>
-                                </button> 
-                                <button type="button" class="btn btn-default next" title="Show data for next point">
-                                    <i class="fa fa-arrow-right fa-1x"></i>
-                                </button>
+                                <div class="panel panel-default">
+                                    <div class="panel-body">
+                                        <button type="button" class="btn btn-default prev" title="Show data for previous point">
+                                            <i class="fa fa-arrow-left fa-1x"></i>
+                                        </button> 
+                                        <button type="button" class="btn btn-default next" title="Show data for next point">
+                                            <i class="fa fa-arrow-right fa-1x"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-default backward" title="Start continuous BACKWARD scroll through the different Scan Acquisition Times and corresponding Intensity vs m/z spectra">
+                                            <i class="fa fa-fast-backward fa-1x"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-default forward" title="Start continuous FORWARD scroll through the different Scan Acquisition Times and corresponding Intensity vs m/z spectra">
+                                            <i class="fa fa-play fa-1x"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-default stop" title="STOP continuous scroll through the different Scan Acquisition Times and corresponding Intensity vs m/z spectra">
+                                            <i class="fa fa-stop fa-1x"></i>
+                                        </button>                                        
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="panel panel-default lobipanel" data-sortable="true">
