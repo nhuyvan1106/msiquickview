@@ -7,9 +7,13 @@
         <link rel="stylesheet" href="front-end-frameworks/external/bootstrap-3.3.6-dist/css/bootstrap.min.css"/>
         <link rel="stylesheet" href="front-end-frameworks/external/font-awesome-4.6.3/css/font-awesome.min.css"/>
         <link rel="stylesheet" href="front-end-frameworks/css/main.css"/>
-        <script src="front-end-frameworks/external/jquery-3.0.0.min.js"></script>
+        <link rel="stylesheet" href="front-end-frameworks/css/jquery-ui.min.css"/>
+        <link rel="stylesheet" href="front-end-frameworks/external/lobipanel/lobipanel.css"/>
+        <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+        <script src="front-end-frameworks/external/jquery-ui.min.js"></script>
+        <script src="front-end-frameworks/external/bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
         <script src="front-end-frameworks/external/d3/d3.4.0.0.min.js"></script>
-        <script src="front-end-frameworks/javascript/pnnl.js"></script>
+        <script src="front-end-frameworks/javascript/pnnl.js"></script>        
     </head>
     <body>
         <nav class="navbar navbar-inverse">
@@ -34,29 +38,80 @@
                 <button type="button" class="btn btn-default upload">
                     Upload
                 </button>
-
-                <button type="button" class="btn btn-default backward">
-                    Backward
-                </button>
-                
-                <button type="button" class="btn btn-default forward">
-                    Forward
-                </button>
-
-                <button type="button" class="btn btn-default stop">
-                    Stop
-                </button>
             </div>
         </form>
-        <div class="nav-buttons">
-            <button type="button" class="btn btn-default prev" title="Show data for previous point">
-                <i class="fa fa-arrow-left fa-1x"></i>
-            </button> 
-            <button type="button" class="btn btn-default next" title="Show data for next point">
-                <i class="fa fa-arrow-right fa-1x"></i>
-            </button>
-        </div>
+        <div class="panel panel-info lobipanel">
+            <div class="panel-heading">Spectral Details</div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="panel panel-default lobipanel" data-sortable="true">
+                            <div class="panel-heading">
+                                <div class="panel-title">
+                                    <h4>Intensity-Time Spectra</h4>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <div id="intensity-scan-chart-id" style="padding-bottom: 50px;"></div>
+                                <div class="panel panel-default">
+                                    <div class="panel-body">
+                                        <button type="button" class="btn btn-default prev" title="Show data for previous point">
+                                            <i class="fa fa-arrow-left fa-1x"></i>
+                                        </button> 
+                                        <button type="button" class="btn btn-default next" title="Show data for next point">
+                                            <i class="fa fa-arrow-right fa-1x"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-default backward" title="Start continuous BACKWARD scroll through the different Scan Acquisition Times and corresponding Intensity vs m/z spectra">
+                                            <i class="fa fa-fast-backward fa-1x"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-default forward" title="Start continuous FORWARD scroll through the different Scan Acquisition Times and corresponding Intensity vs m/z spectra">
+                                            <i class="fa fa-play fa-1x"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-default stop" title="STOP continuous scroll through the different Scan Acquisition Times and corresponding Intensity vs m/z spectra">
+                                            <i class="fa fa-stop fa-1x"></i>
+                                        </button>                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default lobipanel" data-sortable="true">
+                            <div class="panel-heading">
+                                <div class="panel-title">
+                                    <h4>Intensity-m/z Spectra</h4>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <div id="intensity-mass-chart-id" style="padding-bottom: 50px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="panel panel-default lobipanel" data-sortable="true">
+                            <div class="panel-heading">
+                                <div class="panel-title">
+                                    <h4>Ion Image</h4>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <div id="ion-image" style="padding-bottom: 50px;"></div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default lobipanel" data-sortable="true">
+                            <div class="panel-heading">
+                                <div class="panel-title">
+                                    <h4>Panel title</h4>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                Panel 5
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+        </div>     
         <script src="front-end-frameworks/javascript/main.js"></script>
+        <script src="front-end-frameworks/external/lobipanel/lobipanel.min.js"></script>
         <script>
             (function ($) {
 
@@ -82,12 +137,34 @@
                 });
                 $("#nav_to_kibana_dashboard").click(function() {
                     window.open("http://172.18.10.36:5601/app/kibana#/dashboard/Default-Mass-Spec-1?_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:now-15m,mode:quick,to:now))&_a=(filters:!(),options:(darkTheme:!t),panels:!((col:1,id:%23-of-Datasets-per-Scientist-with-Dataset-Name-and-Date-of-acquisition,panelIndex:1,row:1,size_x:7,size_y:5,type:visualization),(col:1,id:%23-of-Raw-Files-Per-Dataset,panelIndex:2,row:6,size_x:4,size_y:9,type:visualization),(col:9,id:Aspect-Ratios-per-Dataset,panelIndex:3,row:6,size_x:4,size_y:9,type:visualization),(col:8,id:'Table-with-Scientist-Name-and-basic-stats-like-Unique-%23-of-user-selected-m-slash-z-list-to-save,-std-dev-of-%23-of-raw-files,-Average-%23-of-Raw-files',panelIndex:4,row:1,size_x:5,size_y:5,type:visualization),(col:1,columns:!('Scientist%20Name','%23%20Raw%20Files','Dataset%20Name',Notes,'Folder%20Location','User%20Selected%20m%2Fz%20list%20to%20save','m%2Fz%20Excel%20File','m%2Fz%20Excel%20File%20Sheet%20Name'),id:'Scientist-Name,-Dataset-Name,-Notes,-Folder-Location,-m-slash-z-list,-m-slash-z-list-file-name-and-sheet-name,-%23-of-raw-files-per-dataset',panelIndex:5,row:15,size_x:12,size_y:6,sort:!(_score,desc),type:search),(col:5,id:Dataset-Types-vs.-Scientists-for-Nano-Desi,panelIndex:6,row:6,size_x:4,size_y:5,type:visualization),(col:5,id:Avergae-%23-of-Raw-files-vs.-Dataset-Type,panelIndex:7,row:11,size_x:4,size_y:4,type:visualization)),query:(query_string:(analyze_wildcard:!t,query:'*')),title:'Default%20Mass%20Spec%201',uiState:(P-2:(spy:(mode:(fill:!f,name:table)))))");
-                });
-                
+                });                
                 $(".file-selection-dialog-header").mousemove(function(event) {
                     $(this).css({"top": event.clientY, "left": event.clientX});
                 });
+
             })(jQuery);
+            
+            $(function(){
+                $('.row').each(function(){ 
+                $('.lobipanel').lobiPanel({
+                     reload: false,
+                     close: false,
+                     editTitle: false,            
+                     unpin: {
+                         icon: 'fa fa-arrows'
+                     },
+                     minimize: {
+                         icon: 'fa fa-chevron-up',
+                         icon2: 'fa fa-chevron-down'
+                     },
+                     expand: {
+                         icon: 'fa fa-expand',
+                         icon2: 'fa fa-compress'
+                     }
+
+                 });
+                });
+             });            
         </script>
     </body>
 </html>

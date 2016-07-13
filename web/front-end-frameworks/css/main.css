@@ -144,4 +144,14 @@ form {
     margin-bottom: -5px;
     border-bottom: none; }
 
+.panel-int-mz {
+  width: 40%;
+  float: right;
+  padding: 10px; }
+
+.panel-int-time {
+  width: 40%;
+  float: left;
+  padding: 10px; }
+
 /*# sourceMappingURL=main.css.map */

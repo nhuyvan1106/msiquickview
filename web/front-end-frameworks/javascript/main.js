@@ -156,16 +156,19 @@
     // Convinient function so we don't have to repeat codes for next and previous buttons' event handlers.
     function drawIntensityMassChart(data) {
         var config = {
-            "width": 760,
+            "width": parseInt(d3.select('#intensity-mass-chart-id').style('width'), 10),
             "height": 500,
             "margin": {
                 "top": 30,
                 "right": 20,
                 "bottom": 20,
-                "left": 50
+                "left": 100
             },
             "yLabel": "1.0e+7",
-            "className": "intensity-mass-chart"
+            "className": "intensity-mass-chart",
+            "idName": "intensity-mass-chart-id",
+            "x": "m/z Values", 
+            "y": "Intensity"
         };
         pnnl.draw.drawLineGraph(config, data);
         /*
@@ -300,8 +303,8 @@
         totalElementsRead = 0;
         moveTo = 0;
         function successCallback(totalIntensity, scanAcquisitionTime, intensityValues, massValues, pointCount) {
-            var config = {"width": 760, "height": 500,
-                "margin": {"top": 30, "right": 20, "bottom": 20, "left": 50}, "yLabel": "1.0e+8", "className": "intensity-scan-chart"
+            var config = {"width": parseInt(d3.select('#intensity-scan-chart-id').style('width'), 10), "height": 500,
+                "margin": {"top": 30, "right": 20, "bottom": 20, "left": 100}, "yLabel": "1.0e+8", "className": "intensity-scan-chart", "idName": "intensity-scan-chart-id", "x": "Scan Acquisition Time", "y": "Intensity"
             };
             resultData.pointCount = pointCount;
             resultData.intensityMass = intensityValues.map(function (d, i) {
@@ -315,7 +318,7 @@
             $(".nav-buttons").hide();
             $(".nav-buttons").show()
                     .insertAfter("svg")
-                    .css({"position": "absolute", "top": config.height + config.top + config.bottom, "left": config.width / 2 - 25});
+                    .css({"position": "relative", "top": config.height + config.top + config.bottom, "left": config.width / 2 - 25});
         }
     }
     // Global HTTP request response error handling
@@ -354,4 +357,5 @@
     function log(msg) {
         console.log(msg);
     }
+    
 })(jQuery);
