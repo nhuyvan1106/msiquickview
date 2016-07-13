@@ -106,4 +106,9 @@ form {
   float: left;
   padding: 10px; }
 
+.zoom {
+  fill: none;
+  pointer-events: all;
+}
+
 /*# sourceMappingURL=main.css.map */

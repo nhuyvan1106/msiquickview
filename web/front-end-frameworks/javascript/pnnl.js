@@ -136,18 +136,6 @@ pnnl.draw = {
         var width = config.width - config.margin.left - config.margin.right;
         var height = config.height - config.margin.top - config.margin.bottom;
         var padding = 4;
-        var zoom = d3.zoom()
-            .x(x)
-            .scaleExtent([1, 10])
-            .on("zoom", zoomed);      
-        var svg = d3.select("#" + config.idName)
-                .append("svg")
-                .attr("class", config.className)
-                .attr("height", height + config.margin.top + config.margin.bottom)
-                .attr("width", width + config.margin.left + config.margin.right)
-                .append("g")
-                .attr("transform", "translate(" + config.margin.left + "," + config.margin.top + ")")
-                .call(zoom);
         var xScale = d3.scaleLinear()
                 .domain(d3.extent(data, function (d) {
                     return d.x;
@@ -159,7 +147,14 @@ pnnl.draw = {
                     return d.y;
                 }))
                 .range([height, 0])
-                .nice();
+                .nice();            
+        var svg = d3.select("#" + config.idName)
+                .append("svg")
+                .attr("class", config.className)
+                .attr("height", height + config.margin.top + config.margin.bottom)
+                .attr("width", width + config.margin.left + config.margin.right)
+                .append("g")
+                .attr("transform", "translate(" + config.margin.left + "," + config.margin.top + ")");
         var xAxis = d3.axisBottom(xScale);
         var yAxis = d3.axisLeft(yScale);
         var lineData = d3.line()
@@ -209,6 +204,14 @@ pnnl.draw = {
             .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
             .attr("transform", "translate("+ (width/2) +","+(0)+")")  // centre below axis
             .text(config.y);
+        svg.append("rect")
+            .attr("class", "zoom")
+            .attr("width", width + config.margin.left + config.margin.right)
+            .attr("height", height + config.margin.top + config.margin.bottom)
+            .call(d3.zoom()
+                .scaleExtent([1, 5])
+                .translateExtent([[-100, -100], [width + 90, height + 100]])
+                .on("zoom", zoomed));
 
         function zoomed() {
             svg.attr("transform", d3.event.transform);
