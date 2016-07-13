@@ -222,6 +222,11 @@
                                                                 pnnl.draw.removeSpinnerOverlay();
                                                                 data = pnnl.data.parseData(data);
                                                                 log(data);
+                                                                var config = {
+                                                                    "idName": "ion-image-id",
+                                                                    "className" : "ion-image"
+                                                                };
+                                                                //$(".ion-image").remove();
                                                                 var dimensions = data[0];
                                                                 data = data[1];
                                                                 var result = [];
@@ -231,15 +236,15 @@
                                                                         result[i].push(data[j]);
                                                                 }
 
-                                                                drawImage(d3.extent(data, function (d) {
+                                                                drawImage(config, d3.extent(data, function (d) {
                                                                     return d;
                                                                 }), result, dimensions[0]);
 
-                                                                function drawImage(bounds, dataArray, dimension) {
+                                                                function drawImage(config, bounds, dataArray, dimension) {
                                                                     var margin = {top: 100, right: 90, bottom: 30, left: 50};
                                                                     var width = 400 - margin.left - margin.right;
                                                                     var height = 500 - margin.top - margin.bottom;
-                                                                    var svg = d3.select("body").append("svg")
+                                                                    var svg = d3.select("#" + config.idName).append("svg")
                                                                             .attr("width", width + margin.left + margin.right)
                                                                             .attr("height", height + margin.top + margin.bottom)
                                                                             .append("g")
