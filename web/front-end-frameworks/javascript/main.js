@@ -48,6 +48,8 @@
                     .setCloseActionButton()
                     .setMessageBody(ul)
                     .show();
+            
+
             $(".file-selection-dialog-header").mousedown(function (e) {
                 var fileDialog = document.getElementById("file-selection-dialog");
                 var top = e.clientY - fileDialog.getBoundingClientRect().top;
@@ -55,15 +57,15 @@
 
                 $(fileDialog).mousemove(function (event) {
                     event.stopImmediatePropagation();
-                    $(this).css({"top": event.clientY - top, "left": event.clientX - left, "bottom": "initial", "right": "initial"});
+                    $(this).css({"top": event.clientY + window.scrollTop - top, "left": event.clientX + window.scrollLeft - left, "bottom": "initial", "right": "initial"});
                 });
             });
-            $(document.documentElement).on("mouseup", function () {
+            $(document.body).on("mouseup", function () {
                 $(".file-selection-dialog").off("mousemove");
             });
             pnnl.data.upload(url, userDir, files,
                     function () {
-                        $(document.documentElement).off("contextmenu click").contextmenu(function (event) {
+                        $(document.body).off("contextmenu click").contextmenu(function (event) {
                             var body = "<ul><li id='show-dialog'>Show file selection widget</li></ul>";
                             if ($(".file-selection-dialog").css("display") === "block")
                                 body = "<ul><li id='hide-dialog'>Hide file selection widget</li></ul>";
@@ -344,13 +346,13 @@
                     .setMessageBody(body)
                     .setCloseActionButton()
                     .show(function (id) {
-                        $(id).show().css({"top": event.clientY, "left": event.clientX});
+                        $(id).show().css({"top": event.clientX, "left": event.clientX});
                     });
         else {
             dialog.find(".message-body").remove();
             dialog.append("<div class='message-body'>" + body + "</div>")
                     .show()
-                    .css({"top": event.clientY, "left": event.clientX});
+                    .css({"top": event.clientX, "left": event.clientX});
         }
         $(".context-menu-dialog li").click(clickFunction);
     }
