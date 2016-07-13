@@ -48,24 +48,24 @@
                     .setCloseActionButton()
                     .setMessageBody(ul)
                     .show();
-            
+
 
             $(".file-selection-dialog-header").mousedown(function (e) {
                 var fileDialog = document.getElementById("file-selection-dialog");
-                var top = e.clientY - fileDialog.getBoundingClientRect().top;
-                var left = e.clientX - fileDialog.getBoundingClientRect().left;
+                var top = e.pageY - fileDialog.getBoundingClientRect().top - document.body.scrollTop;
+                var left = e.pageX - fileDialog.getBoundingClientRect().left - document.body.scrollLeft;
 
                 $(fileDialog).mousemove(function (event) {
                     event.stopImmediatePropagation();
-                    $(this).css({"top": event.clientY + window.scrollTop - top, "left": event.clientX + window.scrollLeft - left, "bottom": "initial", "right": "initial"});
+                    $(this).css({"top": event.pageY - top, "left": event.pageX - left, "bottom": "initial", "right": "initial"});
                 });
             });
-            $(document.body).on("mouseup", function () {
+            $(document.documentElement).on("mouseup", function () {
                 $(".file-selection-dialog").off("mousemove");
             });
             pnnl.data.upload(url, userDir, files,
                     function () {
-                        $(document.body).off("contextmenu click").contextmenu(function (event) {
+                        $(document.documentElement).off("contextmenu click").contextmenu(function (event) {
                             var body = "<ul><li id='show-dialog'>Show file selection widget</li></ul>";
                             if ($(".file-selection-dialog").css("display") === "block")
                                 body = "<ul><li id='hide-dialog'>Hide file selection widget</li></ul>";
@@ -169,7 +169,7 @@
             "yLabel": "1.0e+7",
             "className": "intensity-mass-chart",
             "idName": "intensity-mass-chart-id",
-            "x": "m/z Values", 
+            "x": "m/z Values",
             "y": "Intensity"
         };
         pnnl.draw.drawLineGraph(config, data);
@@ -194,7 +194,7 @@
                                         .range([0, config.width - config.margin.left - config.margin.right]);
                                 var bounds = d3.event.selection.map(x.invert);
                                 log(bounds);
-                                $("." + config.className).off("contextmenu").contextmenu(function (event) {
+                                $("." + config.className).off("contextmenu click").contextmenu(function (event) {
                                     var body = "<ul><li id='show-dialog'>Show file selection widget</li>";
                                     if ($(".file-selection-dialog").css("display") === "block")
                                         body = "<ul><li id='hide-dialog'>Hide file selection widget</li>";
@@ -346,18 +346,18 @@
                     .setMessageBody(body)
                     .setCloseActionButton()
                     .show(function (id) {
-                        $(id).show().css({"top": event.clientX, "left": event.clientX});
+                        $(id).show().css({"top": event.pageY, "left": event.pageX});
                     });
         else {
             dialog.find(".message-body").remove();
             dialog.append("<div class='message-body'>" + body + "</div>")
                     .show()
-                    .css({"top": event.clientX, "left": event.clientX});
+                    .css({"top": event.pageY, "left": event.pageX});
         }
         $(".context-menu-dialog li").click(clickFunction);
     }
     function log(msg) {
         console.log(msg);
     }
-    
+
 })(jQuery);
