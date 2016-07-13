@@ -166,26 +166,10 @@ pnnl.draw = {
                 });
         svg.append("g")
                 .attr("class", "x axis")
-                .attr("transform", "translate(0," + height + ")")
-                .style("opacity", "0")
-                .call(xAxis)
-                .transition()
-                .duration(500)
-                .style("opacity", "1");
-        svg.append("g")
-                .call(yAxis)
-                .style("opacity", "0")
+                .call(xAxis);
+        svg.append("g")              
                 .attr("class", "y axis")
-                .transition()
-                .duration(500)
-                .style("opacity", "1")
-                .each(function () {
-                    d3.select(this)
-                            .append("text")
-                            .attr("x", 50)
-                            .text(config.yLabel)
-                            .style("fill", "black");
-                });
+                .call(yAxis);
         svg.append("path")
                 .attr("class", "line")
                 .style("opacity", "0")
@@ -210,7 +194,6 @@ pnnl.draw = {
             .attr("height", height + config.margin.top + config.margin.bottom)
             .call(d3.zoom()
                 .scaleExtent([1, 5])
-                .translateExtent([[-100, -100], [width + 90, height + 100]])
                 .on("zoom", zoomed));
 
         function zoomed() {
