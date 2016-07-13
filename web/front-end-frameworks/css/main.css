@@ -22,7 +22,7 @@ form {
   width: 100px;
   margin: auto auto; }
 
-.alert-dialog, .file-selection-dialog {
+.alert-dialog, .error-dialog, .file-selection-dialog, .context-menu-dialog {
   display: none;
   position: absolute;
   width: 350px;
@@ -31,14 +31,14 @@ form {
   text-align: center;
   font-size: large;
   margin: auto auto;
-  right: 10px;
   z-index: 12;
   background-color: white;
   padding-bottom: 5px;
+  right: 10px;
   bottom: 10px;
   z-index: 9; }
 
-.alert-dialog .alert-dialog-header, .file-selection-dialog .alert-dialog-header {
+.alert-dialog .alert-dialog-header, .error-dialog .alert-dialog-header, .file-selection-dialog .alert-dialog-header, .context-menu-dialog .alert-dialog-header {
   border-bottom: 1px solid #d3d3d3;
   padding: 10px;
   margin-left: 0;
@@ -46,37 +46,37 @@ form {
   background: #ff9907;
   color: green;
   min-height: 50px; }
-.alert-dialog .message-body, .file-selection-dialog .message-body {
+.alert-dialog .message-body, .error-dialog .message-body, .file-selection-dialog .message-body, .context-menu-dialog .message-body {
   font-size: large;
   line-height: 30px;
   padding: 5px;
   padding-top: 10px; }
-.alert-dialog .alert-dialog-header-close-action-icon, .file-selection-dialog .alert-dialog-header-close-action-icon {
+.alert-dialog .alert-dialog-header-close-action-icon, .error-dialog .alert-dialog-header-close-action-icon, .file-selection-dialog .alert-dialog-header-close-action-icon, .context-menu-dialog .alert-dialog-header-close-action-icon {
   right: 10px;
   top: 5px;
   position: absolute;
   transition: transform .2s linear; }
-.alert-dialog .alert-dialog-header-close-action-icon:hover, .file-selection-dialog .alert-dialog-header-close-action-icon:hover {
+.alert-dialog .alert-dialog-header-close-action-icon:hover, .error-dialog .alert-dialog-header-close-action-icon:hover, .file-selection-dialog .alert-dialog-header-close-action-icon:hover, .context-menu-dialog .alert-dialog-header-close-action-icon:hover {
   transform-origin: 50% 50%;
   transform: rotate(90deg);
   cursor: pointer; }
-.alert-dialog button, .file-selection-dialog button {
+.alert-dialog button, .error-dialog button, .file-selection-dialog button, .context-menu-dialog button {
   transition: background-color .2s ease-in;
   width: 75px;
   margin: 5px; }
-.alert-dialog button:hover, .file-selection-dialog button:hover {
+.alert-dialog button:hover, .error-dialog button:hover, .file-selection-dialog button:hover, .context-menu-dialog button:hover {
   background-color: lightblue; }
 
-.file-selection-dialog .file-selection-dialog-header {
+.file-selection-dialog .file-selection-dialog-header, .context-menu-dialog .file-selection-dialog-header {
   background-color: lightblue;
   font-weight: bold; }
-.file-selection-dialog .file-selection-dialog-header:hover {
+.file-selection-dialog .file-selection-dialog-header:hover, .context-menu-dialog .file-selection-dialog-header:hover {
   cursor: move; }
-.file-selection-dialog ul {
+.file-selection-dialog ul, .context-menu-dialog ul {
   margin: 0;
   margin-left: -5px;
   margin-right: -5px; }
-.file-selection-dialog li {
+.file-selection-dialog li, .context-menu-dialog li {
   position: relative;
   list-style-type: none;
   text-align: left;
@@ -87,13 +87,61 @@ form {
   padding-left: 30px;
   border-bottom: 1px solid #d3d3d3;
   transition: background-color .18s ease-in; }
-.file-selection-dialog li:first-child {
+.file-selection-dialog li:first-child, .context-menu-dialog li:first-child {
   margin-top: -10px; }
-.file-selection-dialog li:last-child {
+.file-selection-dialog li:last-child, .context-menu-dialog li:last-child {
   margin-bottom: -9.5px;
   border-bottom: none; }
-.file-selection-dialog li:hover {
+.file-selection-dialog li:hover, .context-menu-dialog li:hover {
   background: #e3e3e3;
   cursor: pointer; }
+
+.validation-error-dialog {
+  bottom: initial;
+  right: initial; }
+  .validation-error-dialog :before {
+    content: "";
+    border: 15px solid transparent;
+    border-left: 14px solid #d3d3d3;
+    position: absolute;
+    left: -28px;
+    top: 1px;
+    width: 25px;
+    height: 25px;
+    transform: rotate(180deg); }
+  .validation-error-dialog :after {
+    content: "";
+    border: 15px solid transparent;
+    border-right: 18px solid white;
+    position: absolute;
+    left: -27px;
+    top: 1px;
+    width: 28px;
+    height: 25px;
+    transform: scale(0.7, 0.7); }
+  .validation-error-dialog .message-body {
+    line-height: 13px; }
+  .validation-error-dialog .alert-dialog-header {
+    display: none; }
+
+.context-menu-dialog {
+  width: 250px;
+  padding-bottom: 0;
+  top: initial;
+  left: initial;
+  bottom: initial;
+  right: initial;
+  z-index: 19; }
+  .context-menu-dialog .alert-dialog-header {
+    display: none; }
+  .context-menu-dialog li {
+    font-size: small;
+    margin-left: -3.1em;
+    line-height: 30px; }
+  .context-menu-dialog li:first-child {
+    margin-top: -10px; }
+  .context-menu-dialog li:last-child {
+    margin-bottom: -5px;
+    border-bottom: none; }
 
 /*# sourceMappingURL=main.css.map */

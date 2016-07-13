@@ -26,6 +26,7 @@ public class ControllerServlet extends HttpServlet {
                             userDir = r.readLine();
                             userDirectory = new File(request.getServletContext().getRealPath("/WEB-INF/temp") + File.separator + userDir);
                             if (!userDirectory.exists()) {
+                                System.out.println("CREATING USER-DIR");
                                 userDirectory.mkdir();
                             }
                         }
@@ -35,6 +36,7 @@ public class ControllerServlet extends HttpServlet {
                     try (InputStream is = part.getInputStream()) {
                         if (!file.exists()) {
                             Files.copy(is, file.toPath());
+                            System.out.println("COPYING FILES");
                         }
                     }
                 }

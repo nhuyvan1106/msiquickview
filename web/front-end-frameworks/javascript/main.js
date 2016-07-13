@@ -6,70 +6,107 @@
     var offset = 0;
     var moveTo = 0;
     var totalElementsRead = 0;
-    var dispatch = d3.dispatch("selectionchange");
-    dispatch.on("selectionchange", function () {
-        d3.selectAll(".file-selection-dialog li i")
-                .transition()
-                .duration(200)
-                .style("opacity", 0)
-                .each(function () {
-                    $(this).removeClass("fa-check fa-hand-o-left");
-                });
-        $(this).find("i").addClass("fa-hand-o-left").animate({"opacity": "1.0"});
-    });
+
     $("#user-dir").val(window.localStorage.getItem("user-dir") ? window.localStorage.getItem("user-dir") : "");
-    d3.select(".load-data").on("click", function () {
+    d3.select(".upload").on("click", function () {
+        var url = "http://localhost:8080/Java-Matlab-Integration/ControllerServlet/upload";
+        //window.history.pushState({}, "", url);
         d3.event.stopImmediatePropagation();
-        pnnl.data.upload(document.getElementById("user-dir").value, document.getElementById("file-name").files,
-                function () {
-                    log("DONE");
-                    /*var dispatch = d3.dispatch("selectionchange");
-                     dispatch.on("selectionchange", function () {
-                     d3.selectAll(".file-selection-dialog li i")
-                     .transition()
-                     .duration(500)
-                     .style("opacity", 0)
-                     .each(function () {
-                     $(this).removeClass("fa-check fa-hand-o-left");
-                     });
-                     $(this).find("i").addClass("fa-hand-o-left");
-                     });*/
-                    $(".file-selection-dialog .alert-dialog-header-title").html("Click on file to load");
-                    d3.select(".file-selection-dialog").selectAll("li").each(function (d, i) {
-                        $(this).find(".file-upload-spinner" + i).removeClass("fa-pulse fa-spinner").addClass("fa-check");
-                        var elem = this;
-                        /*setTimeout(function () {
-                         d3.select(elem).select("i")
-                         .transition()
-                         .duration(500)
-                         .style("opacity", 0)
-                         .each(function () {
-                         $(this).removeClass("fa-check");
-                         });
-                         }, 2000);*/
-                        d3.select(this).on("click", function () {
-                            if (window.sessionStorage.getItem("file-name") !== this.id || d3.select(".intensity-scan-chart").empty()) {
-                                pnnl.draw.drawSpinner().drawOverlay();
-                                loadData(window.localStorage.getItem("user-dir"), this.id);
-                                window.sessionStorage.setItem("file-name", this.id);
-                                dispatch.call("selectionchange", this);
-                            }
+        if (!pnnl.validation.validate("upload"))
+            return;
+        else {
+            // We are using D3 Dispatches module to handle updating icon when an item is clicked in file selection dialog.
+            var dispatch = d3.dispatch("selectionchange");
+            dispatch.on("selectionchange", function () {
+                d3.selectAll(".file-selection-dialog li i")
+                        .transition()
+                        .duration(200)
+                        .style("opacity", 0)
+                        .each(function () {
+                            $(this).removeClass("fa-check fa-hand-o-left");
                         });
-                    });
-                }, errorCallback);
+                $(this).find("i").addClass("fa-hand-o-left").animate({"opacity": "1.0"});
+            });
+            $(".file-selection-dialog").fadeOut().remove();
+            var ul = $("<ul></ul>");
+            var files = Array.prototype.map.call(document.getElementById("file-name").files, function (file) {
+                return file;
+            });
+            // Store user-entered directory in browser-specific database to improve UI
+            var userDir = document.getElementById("user-dir").value;
+            window.sessionStorage.setItem("file-names", files.map(function (file) {
+                var fileName = pnnl.data.getFileName(file);
+                ul.append("<li id='" + fileName + "'>" + fileName + "<i class='fa fa-spinner fa-pulse file-upload-spinner' style='position: absolute; right: 20px; top: 15px;'></i></li>");
+                return fileName;
+            }).reduce(function (prev, next) {
+                return prev + "," + next;
+            }));
+            window.localStorage.setItem("user-dir", userDir);
+            pnnl.dialog.newDialogBuilder()
+                    .createAlertDialog("file-selection-dialog", "file-selection-dialog")
+                    .setHeaderTitle("Uploading...", "file-selection-dialog-header")
+                    .setCloseActionButton()
+                    .setMessageBody(ul)
+                    .show();
+            $(".file-selection-dialog-header").mousedown(function (e) {
+                var fileDialog = document.getElementById("file-selection-dialog");
+                var top = e.clientY - fileDialog.getBoundingClientRect().top;
+                var left = e.clientX - fileDialog.getBoundingClientRect().left;
+
+                $(fileDialog).mousemove(function (event) {
+                    event.stopImmediatePropagation();
+                    $(this).css({"top": event.clientY - top, "left": event.clientX - left, "bottom": "initial", "right": "initial"});
+                });
+            });
+            $(document.documentElement).on("mouseup", function () {
+                $(".file-selection-dialog").off("mousemove");
+            });
+            pnnl.data.upload(url, userDir, files,
+                    function () {
+                        $(document.documentElement).off("contextmenu click").contextmenu(function (event) {
+                            var body = "<ul><li id='show-dialog'>Show file selection widget</li></ul>";
+                            if ($(".file-selection-dialog").css("display") === "block")
+                                body = "<ul><li id='hide-dialog'>Hide file selection widget</li></ul>";
+                            showContextDialog(event, body, function () {
+                                switch (this.id) {
+                                    case "hide-dialog":
+                                        $(".file-selection-dialog").slideUp();
+                                        break;
+                                    case "show-dialog":
+                                        $(".file-selection-dialog").slideDown();
+                                        break;
+                                }
+                            });
+                        }).click(function () {
+                            $(".context-menu-dialog").hide();
+                        });
+                        $(".file-selection-dialog .alert-dialog-header-title").html("Click on file to load");
+                        d3.select(".file-selection-dialog").selectAll("li").each(function (d, i) {
+                            $(this).find(".file-upload-spinner").removeClass("fa-pulse fa-spinner").addClass("fa-check");
+                            d3.select(this).on("click", function () {
+                                if (window.sessionStorage.getItem("file-name") !== this.id || d3.select(".intensity-scan-chart").empty()) {
+                                    pnnl.draw.drawSpinner().drawOverlay();
+                                    loadData(window.localStorage.getItem("user-dir"), this.id);
+                                    window.sessionStorage.setItem("file-name", this.id);
+                                    dispatch.call("selectionchange", this);
+                                }
+                            });
+                        });
+                    }, errorCallback);
+        }
     });
+
 
     $(".next").click(function () {
         if (currentIndex < resultData.pointCount.length - 1) {
             currentIndex++;
-            //if (currentIndex !== resultData.pointCount.length) {
             moveTo += 690 / resultData.pointCount.length;
             pnnl.draw.moveIndicatorBar(moveTo);
-            //}
-            if (currentIndex % 20 === 0 && currentIndex !== 0 && currentIndex !== resultData.length - 1) {
+            if (currentIndex % 20 === 0 && currentIndex !== 0 /*&& currentIndex !== resultData.length - 1*/) {
+                var url = "http://localhost:8080/Java-Matlab-Integration/DataFetcherServlet/load-more";
+                //window.history.pushState({}, "", url);
                 pnnl.draw.drawOverlay().drawSpinner();
-                pnnl.data.fetch(offset, "forward", currentIndex, currentIndex + 20, successCallback, errorCallback);
-                function successCallback(intensityMass) {
+                pnnl.data.fetch(url, offset, "forward", currentIndex, currentIndex + 20, function (intensityMass) {
                     totalElementsRead = 0;
                     resultData.intensityMass = intensityMass;
                     drawIntensityMassChart(resultData.intensityMass.slice(totalElementsRead,
@@ -77,7 +114,7 @@
                     totalElementsRead += resultData.pointCount[currentIndex];
                     offset += resultData.pointCount[currentIndex];
                     pnnl.draw.removeSpinnerOverlay();
-                }
+                }, errorCallback);
             } else {
                 drawIntensityMassChart(resultData.intensityMass.slice(totalElementsRead,
                         totalElementsRead + resultData.pointCount[currentIndex]));
@@ -88,6 +125,7 @@
                 log("CURRENT INDEX: " + currentIndex);
             }
         }
+
     });
     $(".prev").click(function () {
         if (currentIndex > 0) {
@@ -95,19 +133,20 @@
             pnnl.draw.moveIndicatorBar(moveTo);
             offset -= resultData.pointCount[currentIndex];
             totalElementsRead -= resultData.pointCount[currentIndex];
-        }
-        if (currentIndex > 0 && currentIndex % 20 !== 0) {
-            currentIndex--;
-            drawIntensityMassChart(resultData.intensityMass.slice(totalElementsRead - resultData.pointCount[currentIndex], totalElementsRead));
-        } else if (currentIndex > 0) {
-            pnnl.draw.drawSpinner().drawOverlay();
-            pnnl.data.fetch(offset, "backward", currentIndex - 20, currentIndex, successCallback, errorCallback);
-            function successCallback(intensityMass) {
-                resultData.intensityMass = intensityMass;
-                totalElementsRead = intensityMass.length;
+            if (currentIndex % 20 !== 0) {
                 currentIndex--;
-                drawIntensityMassChart(intensityMass.slice(totalElementsRead - resultData.pointCount[currentIndex], totalElementsRead));
-                pnnl.draw.removeSpinnerOverlay();
+                drawIntensityMassChart(resultData.intensityMass.slice(totalElementsRead - resultData.pointCount[currentIndex], totalElementsRead));
+            } else {
+                var url = "http://localhost:8080/Java-Matlab-Integration/DataFetcherServlet/load-more";
+                //window.history.pushState({}, "", url);
+                pnnl.draw.drawSpinner().drawOverlay();
+                pnnl.data.fetch(url, offset, "backward", currentIndex - 20, currentIndex, function (intensityMass) {
+                    resultData.intensityMass = intensityMass;
+                    totalElementsRead = intensityMass.length;
+                    currentIndex--;
+                    drawIntensityMassChart(intensityMass.slice(totalElementsRead - resultData.pointCount[currentIndex], totalElementsRead));
+                    pnnl.draw.removeSpinnerOverlay();
+                }, errorCallback);
             }
         }
         log("***************************");
@@ -134,7 +173,7 @@
          * will not be empty which will not render the brushable area otherwise.
          */
         setTimeout(function () {
-            d3.select(".intensity-mass-chart").append("g")
+            d3.select("." + config.className).append("g")
                     .attr("class", "brush")
                     .attr("transform", "translate(" + config.margin.left + "," + config.margin.top + ")")
                     .call(d3.brushX().extent([[0, 0], [config.width - config.margin.left - config.margin.right, config.height - config.margin.top - config.margin.bottom]])
@@ -148,13 +187,114 @@
                                             return d.x;
                                         }))
                                         .range([0, config.width - config.margin.left - config.margin.right]);
-                                log(d3.event.selection.map(x.invert));
+                                var bounds = d3.event.selection.map(x.invert);
+                                log(bounds);
+                                $("." + config.className).off("contextmenu").contextmenu(function (event) {
+                                    var body = "<ul><li id='show-dialog'>Show file selection widget</li>";
+                                    if ($(".file-selection-dialog").css("display") === "block")
+                                        body = "<ul><li id='hide-dialog'>Hide file selection widget</li>";
+                                    body += "<li id='generate-image'>Generate ion image</li></ul>";
+                                    showContextDialog(event, body, function () {
+                                        switch (this.id) {
+                                            case "hide-dialog":
+                                                $(".file-selection-dialog").slideUp();
+                                                break;
+                                            case "show-dialog":
+                                                $(".file-selection-dialog").slideDown();
+                                                break;
+                                            case "generate-image":
+                                                pnnl.draw.drawOverlay().drawSpinner();
+                                                $.ajax("http://localhost:8080/Java-Matlab-Integration/IonImageGeneratorServlet/generate-image",
+                                                        {
+                                                            "method": "GET",
+                                                            "data": {
+                                                                "user-dir": window.localStorage.getItem("user-dir"),
+                                                                "lower-bound": bounds[0],
+                                                                "upper-bound": bounds[1],
+                                                                "file-names": window.sessionStorage.getItem("file-names")
+                                                            },
+                                                            "success": function (data) {
+                                                                pnnl.draw.removeSpinnerOverlay();
+                                                                data = pnnl.data.parseData(data);
+                                                                log(data);
+                                                                var dimensions = data[0];
+                                                                data = data[1];
+                                                                var result = [];
+                                                                for (var i = 0; i < dimensions[0]; i++) {
+                                                                    result.push([]);
+                                                                    for (var j = i; j < data.length; j += dimensions[0])
+                                                                        result[i].push(data[j]);
+                                                                }
+
+                                                                drawImage(d3.extent(data, function (d) {
+                                                                    return d;
+                                                                }), result, dimensions[0]);
+
+                                                                function drawImage(bounds, dataArray, dimension) {
+                                                                    var margin = {top: 100, right: 90, bottom: 30, left: 50};
+                                                                    var width = 400 - margin.left - margin.right;
+                                                                    var height = 500 - margin.top - margin.bottom;
+                                                                    var svg = d3.select("body").append("svg")
+                                                                            .attr("width", width + margin.left + margin.right)
+                                                                            .attr("height", height + margin.top + margin.bottom)
+                                                                            .append("g")
+                                                                            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+                                                                    for (var i = 0; i < dimension; ++i) {
+                                                                        var xScale = d3.scaleBand()
+                                                                                .domain(dataArray[i])
+                                                                                .range([0, width]);
+                                                                        var yScale = d3.scaleOrdinal()
+                                                                                .domain([i])
+                                                                                .range([height / dimension]);
+                                                                        var interval = Math.floor(bounds[1] / 5);
+                                                                        var colorScale = d3.scaleLinear()
+                                                                                .domain([bounds[0], interval, interval * 2, interval * 3, interval * 4, bounds[1]])
+                                                                                .range(["#0a0", "#6c0", "#ee0", "#eb4", "#eb9", "#fff"]);
+
+
+                                                                        svg.selectAll(".tile-" + i)
+                                                                                .data(dataArray[i])
+                                                                                .enter()
+                                                                                .append("rect")
+                                                                                .attr("class", "tile-" + i)
+                                                                                .attr("x", function (d) {
+                                                                                    return xScale(d);
+                                                                                })
+                                                                                .attr("y", function (d) {
+                                                                                    return (yScale(i) / 2) * i;
+                                                                                })
+                                                                                .attr("width", function (d) {
+                                                                                    return xScale.bandwidth();
+                                                                                })
+                                                                                .attr("height", function () {
+                                                                                    return yScale(i) / 2;
+                                                                                })
+                                                                                .style("stroke-width", "0")
+                                                                                .style("fill", function (d) {
+                                                                                    return colorScale(d);
+                                                                                });
+
+                                                                        console.log("yScale(i) is " + yScale(i));
+                                                                    }
+                                                                }
+                                                            },
+                                                            "error": function (xhr) {
+                                                                errorCallback(xhr);
+                                                            }
+                                                        });
+                                                break;
+                                        }
+                                    });
+                                });
                             }));
         }, 500);
     }
     // Just a convenient function to remove code duplication.
     function loadData(userDir, file) {
-        pnnl.data.loadData(userDir, file, successCallback, errorCallback);
+        var url = "http://localhost:8080/Java-Matlab-Integration/DataFetcherServlet/load-data";
+        //window.history.pushState({}, "", url);
+        pnnl.data.loadData(url, userDir, file, successCallback, errorCallback);
         currentIndex = -1;
         offset = 0;
         totalElementsRead = 0;
@@ -181,16 +321,35 @@
     // Global HTTP request response error handling
     function errorCallback(xhr) {
         pnnl.draw.removeSpinnerOverlay();
-        var messageBody = "<div>Status Code: " + xhr.status + "</div>" +
-                "<div>Status Message: " + xhr.statusText + "</div>Please contact technical support";
-        /*if ($(".alert-dialog").attr("class").split(" ").length === 1)
-         d3.select("." + pnnl.dialog.dialogClassName).remove();*/
+        var messageBody = "<div>Error Code: " + xhr.status + "</div>" +
+                "<div>Error Message: " + xhr.statusText + "</div>Please contact technical support";
+        $(".error-dialog").remove();
         pnnl.dialog.newDialogBuilder()
-                .createAlertDialog("alert-dialog")
+                .createAlertDialog("error-dialog", "error-dialog")
                 .setHeaderIcon("fa-frown-o")
                 .setMessageBody(messageBody)
                 .setCloseActionButton()
                 .show();
+    }
+    function showContextDialog(event, body, clickFunction) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        var dialog = $(".context-menu-dialog");
+        if (dialog.length === 0)
+            pnnl.dialog.newDialogBuilder()
+                    .createAlertDialog("context-menu-dialog", "context-menu-dialog")
+                    .setMessageBody(body)
+                    .setCloseActionButton()
+                    .show(function (id) {
+                        $(id).show().css({"top": event.clientY, "left": event.clientX});
+                    });
+        else {
+            dialog.find(".message-body").remove();
+            dialog.append("<div class='message-body'>" + body + "</div>")
+                    .show()
+                    .css({"top": event.clientY, "left": event.clientX});
+        }
+        $(".context-menu-dialog li").click(clickFunction);
     }
     function log(msg) {
         console.log(msg);

@@ -31,10 +31,10 @@ form {
     text-align: center;
     font-size: large;
     margin: auto auto;
-    right: 10px;
     z-index: 12;
     background-color: white;
     padding-bottom: 5px;
+    right: 10px;
     bottom: 10px;
     z-index: 9;
 }
@@ -48,7 +48,6 @@ form {
         background: #ff9907;
         color: green;
         min-height: 50px;
-        
     }
     .message-body {
         font-size: large;
@@ -76,7 +75,9 @@ form {
         background-color: lightblue;
     }
 }
-
+.error-dialog {
+    @extend .alert-dialog;
+}
 .file-selection-dialog {
     @extend .alert-dialog;
     .file-selection-dialog-header {
@@ -113,5 +114,63 @@ form {
     li:hover {
         background: #e3e3e3;
         cursor:  pointer;
+    }
+}
+.validation-error-dialog {
+    bottom: initial;
+    right: initial;
+
+    :before {
+        content: "";
+        border: 15px solid transparent;
+        border-left: 14px solid #d3d3d3;
+        position: absolute;
+        left: -28px;
+        top: 1px;
+        width: 25px;
+        height: 25px;
+        transform: rotate(180deg);
+    }
+    :after {
+        content: "";
+        border: 15px solid transparent;
+        border-right: 18px solid white;
+        position: absolute;
+        left: -27px;
+        top: 1px;
+        width: 28px;
+        height: 25px;
+        transform: scale(0.7,0.7);
+    }
+    .message-body {
+        line-height: 13px;
+    }
+    .alert-dialog-header {
+        display: none;
+    }
+}
+.context-menu-dialog {
+    @extend .file-selection-dialog;
+    width: 250px;
+    padding-bottom: 0;
+    top: initial;
+    left: initial;
+    bottom: initial;
+    right: initial;
+    z-index: 19;
+    .alert-dialog-header {
+        display: none;
+    }
+    li {
+        font-size: small;
+        margin-left: -3.1em;
+        line-height: 30px;
+    }
+    li:first-child {
+        margin-top: -10px; 
+    }
+    li:last-child {
+        margin-bottom: -5px;
+        border-bottom: none; 
     }
 }

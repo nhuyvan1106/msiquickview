@@ -32,18 +32,17 @@ public class DataFetcherServlet extends HttpServlet {
                 long startTime = System.currentTimeMillis();
                 Object[] result = reader.read(request.getServletContext().getRealPath("/WEB-INF/temp/" + request.getParameter("user-dir")) + File.separator + request.getParameter("file-name"));
                 println("READING TOOK: " + (System.currentTimeMillis() - startTime) + " milliseconds");
-                request.getSession().setAttribute("cdfReader", reader);
+                System.out.println(reader.toString());
                 sendLoadData(response.getWriter(), result);
                 break;
 
             case "/DataFetcherServlet/load-more":
                 println("========================");
-                reader = (CdfReader) request.getSession().getAttribute("cdfReader");
                 int offset = Integer.parseInt(request.getParameter("offset"));
                 int start = Integer.parseInt(request.getParameter("start"));
                 int end = Integer.parseInt(request.getParameter("end"));
                 String fileName = request.getServletContext().getRealPath("/WEB-INF/temp/" + request.getParameter("user-dir")) + File.separator + request.getParameter("file-name");
-
+                System.out.println(reader.toString());
                 result = reader.read(fileName);
                 int nextSum = 0;
                 for (int i : Arrays.copyOfRange(cast(result[4]).getIntData(), start, end)) {
