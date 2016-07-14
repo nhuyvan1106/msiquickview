@@ -48,8 +48,7 @@
                     .setCloseActionButton()
                     .setMessageBody(ul)
                     .show();
-
-
+            $(".file-selection-dialog").css("position", "absolute");
             $(".file-selection-dialog-header").mousedown(function (e) {
                 var fileDialog = document.getElementById("file-selection-dialog");
                 var top = e.pageY - fileDialog.getBoundingClientRect().top - document.body.scrollTop;
@@ -72,10 +71,10 @@
                             showContextDialog(event, body, function () {
                                 switch (this.id) {
                                     case "hide-dialog":
-                                        $(".file-selection-dialog").slideUp();
+                                        $(".file-selection-dialog").fadeOut();
                                         break;
                                     case "show-dialog":
-                                        $(".file-selection-dialog").slideDown();
+                                        $(".file-selection-dialog").fadeIn().css({"top": event.clientY, "left": event.clientX});
                                         break;
                                 }
                             });
@@ -224,7 +223,7 @@
                                                                 log(data);
                                                                 var config = {
                                                                     "idName": "ion-image-id",
-                                                                    "className" : "ion-image"
+                                                                    "className": "ion-image"
                                                                 };
                                                                 //$(".ion-image").remove();
                                                                 var dimensions = data[0];

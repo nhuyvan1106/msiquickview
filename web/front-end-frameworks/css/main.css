@@ -1,6 +1,10 @@
 body {
   margin: 0; }
 
+/* global hover style for <a></a> elements */
+a:hover {
+  cursor: pointer; }
+
 form {
   width: 500px;
   margin: 3px; }
@@ -67,34 +71,41 @@ form {
 .alert-dialog button:hover, .error-dialog button:hover, .file-selection-dialog button:hover, .context-menu-dialog button:hover {
   background-color: lightblue; }
 
-.file-selection-dialog .file-selection-dialog-header, .context-menu-dialog .file-selection-dialog-header {
-  background-color: lightblue;
-  font-weight: bold; }
-.file-selection-dialog .file-selection-dialog-header:hover, .context-menu-dialog .file-selection-dialog-header:hover {
-  cursor: move; }
-.file-selection-dialog ul, .context-menu-dialog ul {
-  margin: 0;
-  margin-left: -5px;
-  margin-right: -5px; }
-.file-selection-dialog li, .context-menu-dialog li {
-  position: relative;
-  list-style-type: none;
-  text-align: left;
-  margin: 0;
-  line-height: 45px;
-  display: block;
-  margin-left: -2.2em;
-  padding-left: 30px;
-  border-bottom: 1px solid #d3d3d3;
-  transition: background-color .18s ease-in; }
-.file-selection-dialog li:first-child, .context-menu-dialog li:first-child {
-  margin-top: -10px; }
-.file-selection-dialog li:last-child, .context-menu-dialog li:last-child {
-  margin-bottom: -9.5px;
-  border-bottom: none; }
-.file-selection-dialog li:hover, .context-menu-dialog li:hover {
-  background: #e3e3e3;
-  cursor: pointer; }
+.file-selection-dialog, .context-menu-dialog {
+  position: initial;
+  float: right; }
+  .file-selection-dialog .message-body, .context-menu-dialog .message-body {
+    overflow-y: auto;
+    max-height: 200px;
+    min-height: 30px; }
+  .file-selection-dialog .file-selection-dialog-header, .context-menu-dialog .file-selection-dialog-header {
+    background-color: lightblue;
+    font-weight: bold; }
+  .file-selection-dialog .file-selection-dialog-header:hover, .context-menu-dialog .file-selection-dialog-header:hover {
+    cursor: move; }
+  .file-selection-dialog ul, .context-menu-dialog ul {
+    margin: 0;
+    margin-left: -5px;
+    margin-right: -5px; }
+  .file-selection-dialog li, .context-menu-dialog li {
+    position: relative;
+    list-style-type: none;
+    text-align: left;
+    margin: 0;
+    line-height: 45px;
+    display: block;
+    margin-left: -2.2em;
+    padding-left: 30px;
+    border-bottom: 1px solid #d3d3d3;
+    transition: background-color .18s ease-in; }
+  .file-selection-dialog li:first-child, .context-menu-dialog li:first-child {
+    margin-top: -10px; }
+  .file-selection-dialog li:last-child, .context-menu-dialog li:last-child {
+    margin-bottom: -9.5px;
+    border-bottom: none; }
+  .file-selection-dialog li:hover, .context-menu-dialog li:hover {
+    background: #e3e3e3;
+    cursor: pointer; }
 
 .validation-error-dialog {
   bottom: initial;
@@ -127,11 +138,16 @@ form {
 .context-menu-dialog {
   width: 250px;
   padding-bottom: 0;
+  position: absolute;
+  float: none;
   top: initial;
   left: initial;
   bottom: initial;
   right: initial;
   z-index: 19; }
+  .context-menu-dialog .message-body {
+    overflow: hidden;
+    max-height: none; }
   .context-menu-dialog .alert-dialog-header {
     display: none; }
   .context-menu-dialog li {

@@ -188,11 +188,11 @@ var pnnl = {
                     .call(d3.zoom()
                             .scaleExtent([1, 5])
                             .translateExtent([[-100, -100], [width + 90, height + 100]])
-                            .on("zoom", zoomed));*/
+                            .on("zoom", zoomed));
 
             function zoomed() {
                 svg.attr("transform", d3.event.transform);
-            }
+            }*/
         },
         drawOverlay: function () {
             $("body").css("overflow", "hidden");
@@ -247,10 +247,10 @@ var pnnl = {
                  * @returns An empty dialog object
                  */
                 createAlertDialog: function (alertDialogClass, id) {
-                    if (!alertDialogClass || !id)
-                        throw new Error("Dialog class name and id are required.");
+                    if (!alertDialogClass)
+                        throw new Error("Dialog class name is required.");
                     this.dialogClassName = alertDialogClass;
-                    this.dialogId = id;
+                    this.dialogId = id ? id : alertDialogClass;
                     d3.select("body")
                             .append("div")
                             .attr("class", this.dialogClassName)
@@ -310,10 +310,9 @@ var pnnl = {
                             .append("i")
                             .attr("class", faIcon + " " + closeButtonClass)
                             .on("click", closeAction ? function () {
-                                closeAction("#" + this.dialogId);
+                                closeAction("#" + dialog.dialogId);
                                 dialog.hide();
                             } : function () {
-                                console.log(this.dialogClassName);
                                 dialog.hide();
                             });
                     return this;
@@ -324,13 +323,13 @@ var pnnl = {
                  * @returns This dialog object
                  */
                 setMessageBody: function (content, bodyClass) {
-                    var dialogClass = "#" + this.dialogId;
+                    var id = "#" + this.dialogId;
                     if (!content)
                         throw new Error("Message body can't be null");
-                    d3.select(dialogClass)
+                    d3.select(id)
                             .append("div")
                             .attr("class", "message-body" + (bodyClass ? " " + bodyClass : ""));
-                    $(dialogClass + " " + ".message-body").append(content);
+                    $(id + " " + ".message-body").append(content);
                     return this;
                 },
                 /*
@@ -341,23 +340,23 @@ var pnnl = {
                  * @returns This dialog object
                  */
                 setPositiveButton: function (posBtnLabel, posBtnBehavior, posBtnClassName) {
-                    var dialogClass = "#" + this.dialogId;
+                    var id = "#" + this.dialogId;
                     var dialog = this;
-                    var btnGroup = d3.select(dialogClass + " " + ".btn-group");
+                    var btnGroup = d3.select(id + " " + ".btn-group");
                     posBtnClassName = posBtnClassName ? posBtnClassName : "btn btn-default positive-btn";
                     if (!posBtnLabel)
                         throw new Error("Label for positive button is null.");
                     if (!posBtnBehavior)
                         throw new Error("Positive button click behavior is null.");
                     if (btnGroup.empty())
-                        btnGroup = d3.select(dialogClass).append("div").attr("class", "btn-group");
+                        btnGroup = d3.select(id).append("div").attr("class", "btn-group");
                     btnGroup.append("button")
                             .attr("type", "button")
                             .attr("class", posBtnClassName)
                             .text(posBtnLabel)
                             .on("click", function () {
                                 dialog.hide();
-                                posBtnBehavior(dialogClass);
+                                posBtnBehavior(id);
                             });
                     return this;
                 },
@@ -366,20 +365,20 @@ var pnnl = {
                  * negBtnBehavior argument is optional. Default behavior is used if not given.
                  */
                 setNegativeButton: function (negBtnlabel, negBtnBehavior, negBtnClassName) {
-                    var dialogClass = "#" + this.dialogId;
-                    var btnGroup = d3.select(dialogClass + " " + ".btn-group");
+                    var id = "#" + this.dialogId;
+                    var btnGroup = d3.select(id + " " + ".btn-group");
                     var dialog = this;
                     negBtnClassName = negBtnClassName ? negBtnClassName : "btn btn-default negative-btn";
                     if (!negBtnlabel)
                         throw new Error("Label for no button is null.");
                     if (btnGroup.empty())
-                        btnGroup = d3.select(dialogClass).append("div").attr("class", "btn-group");
+                        btnGroup = d3.select(id).append("div").attr("class", "btn-group");
                     btnGroup.append("button")
                             .attr("type", "button")
                             .attr("class", negBtnClassName)
                             .on("click", negBtnBehavior ? function () {
                                 dialog.hide();
-                                negBtnBehavior(dialogClass);
+                                negBtnBehavior(id);
                             } : dialog.hide)
                             .text(negBtnlabel);
                     return this;
@@ -408,7 +407,7 @@ var pnnl = {
                 hide: function (hideBehavior) {
                     var id = "#" + this.dialogId;
                     if (!hideBehavior)
-                        $(id).slideUp();
+                        $(id).fadeOut();
                     else
                         hideBehavior(id);
                     d3.event.stopImmediatePropagation();
@@ -426,6 +425,8 @@ var pnnl = {
          * @return true if validation passes, false otherwise
          */
         validate: function (formName) {
+            if (document.forms[formName].length === 0)
+                throw new Error("Form with name \"" + formName + "\" does not exist.");
             var emptyInputElements = Array.prototype.filter.call(document.forms[formName].elements, function (elem) {
                 return (elem.tagName === "INPUT" || elem.tagName === "SELECT" || elem.tagName === "TEXTAREA") && !elem.value;
             });

@@ -17,15 +17,15 @@
     </head>
     <body>
         <nav class="navbar navbar-inverse">
-          <div class="container-fluid">
-            <!-- Brand and toggle get grouped for better mobile display -->
-            <div id="discoveryPage" class="navbar-header">
-              <a id="nav_to_kibana_discovery_page" class="navbar-brand"> Discovery </a>
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div id="discoveryPage" class="navbar-header">
+                    <a id="nav_to_kibana_discovery_page" class="navbar-brand"> Discovery </a>
+                </div>
+                <div id="dashboard" class="navbar-header">
+                    <a id="nav_to_kibana_dashboard" class="navbar-brand"> Dashboard </a>
+                </div>
             </div>
-            <div id="dashboard" class="navbar-header">
-              <a id="nav_to_kibana_dashboard" class="navbar-brand"> Dashboard </a>
-            </div>
-          </div>
         </nav>        
         <form name="upload">
             <div class="form-group">
@@ -114,7 +114,7 @@
         <script src="front-end-frameworks/external/lobipanel/lobipanel.min.js"></script>
         <script>
             (function ($) {
-
+                
                 var handle;
                 $(".forward").click(function () {
                     handle = setInterval(function () {
@@ -131,40 +131,36 @@
                 $(".stop").click(function () {
                     clearInterval(handle);
                 });
-                
-                $("#nav_to_kibana_discovery_page").click(function() {
+
+                $("#nav_to_kibana_discovery_page").click(function () {
                     window.open("http://172.18.10.36:5601/app/kibana#/discover/Scientist-Name,-Dataset-Name,-Notes,-Folder-Location,-m-slash-z-list,-m-slash-z-list-file-name-and-sheet-name,-%23-of-raw-files-per-dataset?_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:now-15m,mode:quick,to:now))&_a=(columns:!('Scientist%20Name','%23%20Raw%20Files','Dataset%20Name',Notes,'Folder%20Location','User%20Selected%20m%2Fz%20list%20to%20save','m%2Fz%20Excel%20File','m%2Fz%20Excel%20File%20Sheet%20Name'),filters:!(),index:multi-modal,interval:auto,query:(query_string:(analyze_wildcard:!t,query:'*')),sort:!(_score,desc))");
                 });
-                $("#nav_to_kibana_dashboard").click(function() {
+                $("#nav_to_kibana_dashboard").click(function () {
                     window.open("http://172.18.10.36:5601/app/kibana#/dashboard/Default-Mass-Spec-1?_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:now-15m,mode:quick,to:now))&_a=(filters:!(),options:(darkTheme:!t),panels:!((col:1,id:%23-of-Datasets-per-Scientist-with-Dataset-Name-and-Date-of-acquisition,panelIndex:1,row:1,size_x:7,size_y:5,type:visualization),(col:1,id:%23-of-Raw-Files-Per-Dataset,panelIndex:2,row:6,size_x:4,size_y:9,type:visualization),(col:9,id:Aspect-Ratios-per-Dataset,panelIndex:3,row:6,size_x:4,size_y:9,type:visualization),(col:8,id:'Table-with-Scientist-Name-and-basic-stats-like-Unique-%23-of-user-selected-m-slash-z-list-to-save,-std-dev-of-%23-of-raw-files,-Average-%23-of-Raw-files',panelIndex:4,row:1,size_x:5,size_y:5,type:visualization),(col:1,columns:!('Scientist%20Name','%23%20Raw%20Files','Dataset%20Name',Notes,'Folder%20Location','User%20Selected%20m%2Fz%20list%20to%20save','m%2Fz%20Excel%20File','m%2Fz%20Excel%20File%20Sheet%20Name'),id:'Scientist-Name,-Dataset-Name,-Notes,-Folder-Location,-m-slash-z-list,-m-slash-z-list-file-name-and-sheet-name,-%23-of-raw-files-per-dataset',panelIndex:5,row:15,size_x:12,size_y:6,sort:!(_score,desc),type:search),(col:5,id:Dataset-Types-vs.-Scientists-for-Nano-Desi,panelIndex:6,row:6,size_x:4,size_y:5,type:visualization),(col:5,id:Avergae-%23-of-Raw-files-vs.-Dataset-Type,panelIndex:7,row:11,size_x:4,size_y:4,type:visualization)),query:(query_string:(analyze_wildcard:!t,query:'*')),title:'Default%20Mass%20Spec%201',uiState:(P-2:(spy:(mode:(fill:!f,name:table)))))");
-                });                
-                $(".file-selection-dialog-header").mousemove(function(event) {
-                    $(this).css({"top": event.clientY, "left": event.clientX});
                 });
-
             })(jQuery);
-            
-            $(function(){
-                $('.row').each(function(){ 
-                $('.lobipanel').lobiPanel({
-                     reload: false,
-                     close: false,
-                     editTitle: false,            
-                     unpin: {
-                         icon: 'fa fa-arrows'
-                     },
-                     minimize: {
-                         icon: 'fa fa-chevron-up',
-                         icon2: 'fa fa-chevron-down'
-                     },
-                     expand: {
-                         icon: 'fa fa-expand',
-                         icon2: 'fa fa-compress'
-                     }
 
-                 });
+            $(function () {
+                $('.row').each(function () {
+                    $('.lobipanel').lobiPanel({
+                        reload: false,
+                        close: false,
+                        editTitle: false,
+                        unpin: {
+                            icon: 'fa fa-arrows'
+                        },
+                        minimize: {
+                            icon: 'fa fa-chevron-up',
+                            icon2: 'fa fa-chevron-down'
+                        },
+                        expand: {
+                            icon: 'fa fa-expand',
+                            icon2: 'fa fa-compress'
+                        }
+
+                    });
                 });
-             });            
+            });
         </script>
     </body>
 </html>

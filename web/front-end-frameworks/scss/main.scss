@@ -1,6 +1,10 @@
 body {
     margin: 0;
 }
+/* global hover style for <a></a> elements */
+a:hover {
+    cursor: pointer;
+}
 form {
     width: 500px;
     margin: 3px;
@@ -80,6 +84,14 @@ form {
 }
 .file-selection-dialog {
     @extend .alert-dialog;
+    position: initial;
+    float: right;
+    .message-body {
+        overflow-y: auto;
+        max-height: 200px;
+        min-height: 30px;
+    }
+    
     .file-selection-dialog-header {
         background-color: lightblue;
         font-weight: bold;
@@ -90,7 +102,7 @@ form {
     ul {
         margin: 0;
         margin-left: -5px;
-        margin-right: -5px;
+        margin-right: -5px;      
     }
     li {
         position: relative;
@@ -153,11 +165,17 @@ form {
     @extend .file-selection-dialog;
     width: 250px;
     padding-bottom: 0;
+    position: absolute;
+    float: none;
     top: initial;
     left: initial;
     bottom: initial;
     right: initial;
     z-index: 19;
+    .message-body {
+        overflow: hidden;
+        max-height: none;
+    }
     .alert-dialog-header {
         display: none;
     }
