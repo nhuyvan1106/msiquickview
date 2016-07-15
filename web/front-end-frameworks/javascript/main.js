@@ -370,7 +370,7 @@
                 .show();
     }
     function showContextDialog(event, dialogBody, clickFunction) {
-        event.preventDefault();
+        //event.preventDefault();
         event.stopImmediatePropagation();
         var body = "<ul><li id='show-dialog'>Show file selection widget</li>";
         if ($(".file-selection-dialog").css("display") === "block")

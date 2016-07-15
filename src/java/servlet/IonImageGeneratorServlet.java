@@ -28,8 +28,8 @@ public class IonImageGeneratorServlet extends HttpServlet {
         double lowerBound = Double.parseDouble(request.getParameter("lower-bound"));
         double upperBound = Double.parseDouble(request.getParameter("upper-bound"));
         String[] fileNames = request.getParameter("file-names").split(",");
-        String dir = request.getServletContext().getRealPath("/WEB-INF/temp/" + request.getParameter("user-dir")
-                + "/" + request.getParameter("dataset-name") + "/" + request.getParameter("file-type"));
+        String dir = request.getServletContext().getRealPath("/WEB-INF/temp") + File.separator + request.getParameter("user-dir")
+                + File.separator + request.getParameter("dataset-name") + File.separator + request.getParameter("file-type");
         Writer writer = response.getWriter();
         
         for (int i = 0; i < fileNames.length; i++)

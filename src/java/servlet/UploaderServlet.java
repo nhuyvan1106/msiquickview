@@ -28,7 +28,7 @@ public class UploaderServlet extends HttpServlet {
                             break;
                         case "dataset-name":
                             datasetName = getFileName(part);
-                            tempDir = request.getServletContext().getRealPath("/WEB-INF/temp/" + userDir + "/" + datasetName);
+                            tempDir = request.getServletContext().getRealPath("/WEB-INF/temp") + File.separator + userDir + File.separator + datasetName;
                             File userDirectory = new File(tempDir);
                             if (!userDirectory.exists()) {
                                 userDirectory.mkdirs();
