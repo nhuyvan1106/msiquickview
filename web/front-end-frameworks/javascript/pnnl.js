@@ -1,9 +1,11 @@
 /* global d3 */
 var pnnl = {
+    /*********** DATA LOADING RELATED MODULE ***********/
     data: {
-        upload: function (url, userDir, files, successCallback, errorCallback) {
+        upload: function (url, userDir, datasetName, files, successCallback, errorCallback) {
             var formData = new FormData();
             formData.append("user-dir", userDir);
+            formData.append("dataset-name", datasetName);
             var xhr = new XMLHttpRequest();
             files.forEach(function (file, i) {
                 formData.append("file-" + i, file);
@@ -21,11 +23,11 @@ var pnnl = {
             xhr.setRequestHeader("enctype", "multipart/form-data");
             xhr.send(formData);
         },
-        loadData: function (url, userDir, fileName, successCallback, errorCallback) {
+        loadData: function (url, data, successCallback, errorCallback) {
             //window.history.pushState({"user-dir": userDir, "file-name": fileName}, "", "http://localhost:8080/Java-Matlab-Integration/DataFetcherServlet/load-data");
             $.ajax(url, {
                 "method": "GET",
-                "data": {"user-dir": userDir, "file-name": fileName},
+                "data": data,
                 "success": function (data) {
                     var result = pnnl.data.parseData(data);
                     var totalIntensity = result[0];
@@ -52,16 +54,7 @@ var pnnl = {
          *                                  error object, and the error message;
          * @returns {undefined}
          */
-        fetch: function (url, offset, direction, start, end, successCallback, errorCallback) {
-
-            var requestParams = {
-                "file-name": window.sessionStorage.getItem("file-name"),
-                "user-dir": window.localStorage.getItem("user-dir"),
-                "offset": offset,
-                "direction": direction,
-                "start": start,
-                "end": end
-            };
+        fetch: function (url, requestParams, successCallback, errorCallback) {
             $.ajax(url, {
                 "method": "GET",
                 "data": requestParams,
@@ -165,6 +158,9 @@ var pnnl = {
                     });
             svg.append("path")
                     .attr("class", "line")
+                    .attr("fill", "none")
+                    .attr("stroke", "steelblue")
+                    .attr("stroke-width", "1.75px")
                     .style("opacity", "0")
                     .datum(data)
                     .attr("d", lineData)

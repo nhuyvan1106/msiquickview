@@ -13,6 +13,7 @@
         <script src="front-end-frameworks/external/jquery-ui.min.js"></script>
         <script src="front-end-frameworks/external/bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
         <script src="front-end-frameworks/external/d3/d3.4.0.0.min.js"></script>
+        <script src="front-end-frameworks/external/saveSvgAsPng.js"></script>
         <script src="front-end-frameworks/javascript/pnnl.js"></script>        
     </head>
     <body>
@@ -29,14 +30,25 @@
         </nav>        
         <form name="upload">
             <div class="form-group">
+                <label class="label label-primary">Select Files</label>
                 <input type="file" multiple="multiple" required="required" class="form-control" name="file-name" id="file-name"/>
             </div>
             <div class="form-group">
+                <label class="label label-primary">Folder Name to Store Files</label>
                 <input type="text" required="required" class="form-control" name="user-dir" id="user-dir"/>
+            </div>
+            <div class="form-group">
+                <label class="label label-primary">DataSet Name</label>
+                <input type="text" required="required" class="form-control" name="dataset-name" id="dataset-name"/>
             </div>
             <div class="form-group">
                 <button type="button" class="btn btn-default upload">
                     Upload
+                </button>
+            </div>
+            <div class="form-group">
+                <button type="button" class="btn btn-default save-data-uri">
+                    Save data URI
                 </button>
             </div>
         </form>
@@ -114,7 +126,15 @@
         <script src="front-end-frameworks/external/lobipanel/lobipanel.min.js"></script>
         <script>
             (function ($) {
-                
+                $(".save-data-uri").click(function() {
+                    svgAsPngUri($("#ion-image-id svg:first-child").get(0), {}, function(uri) {
+                        var image = document.createElement("img");
+                        image.src = uri;
+                        image.onload = function() {
+                            document.body.appendChild(image);
+                        };
+                    });
+                });
                 var handle;
                 $(".forward").click(function () {
                     handle = setInterval(function () {

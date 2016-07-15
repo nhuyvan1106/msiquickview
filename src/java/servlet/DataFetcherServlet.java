@@ -25,99 +25,73 @@ public class DataFetcherServlet extends HttpServlet {
     private CdfReader reader;
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, MWException {
+        String userDir = request.getParameter("user-dir");
+        String datasetName = request.getParameter("dataset-name");
+        String fileType = request.getParameter("file-type");
+        String filePath = request.getServletContext().getRealPath("/WEB-INF/temp/" + userDir + "/"
+                + datasetName + "/" + fileType + "/" + request.getParameter("file-name"));
+        Object[] result = reader.read(filePath);
         
         switch (request.getServletPath()) {
             case "/DataFetcherServlet/load-data":
-                println("READING...");
-                long startTime = System.currentTimeMillis();
-                Object[] result = reader.read(request.getServletContext().getRealPath("/WEB-INF/temp/" + request.getParameter("user-dir")) + File.separator + request.getParameter("file-name"));
-                println("READING TOOK: " + (System.currentTimeMillis() - startTime) + " milliseconds");
-                System.out.println(reader.toString());
                 sendLoadData(response.getWriter(), result);
                 break;
 
             case "/DataFetcherServlet/load-more":
-                println("========================");
+                int nextSum = Integer.parseInt(request.getParameter("next-sum"));
                 int offset = Integer.parseInt(request.getParameter("offset"));
-                int start = Integer.parseInt(request.getParameter("start"));
-                int end = Integer.parseInt(request.getParameter("end"));
-                String fileName = request.getServletContext().getRealPath("/WEB-INF/temp/" + request.getParameter("user-dir")) + File.separator + request.getParameter("file-name");
-                System.out.println(reader.toString());
-                result = reader.read(fileName);
-                int nextSum = 0;
-                for (int i : Arrays.copyOfRange(cast(result[4]).getIntData(), start, end)) {
-                    nextSum += i;
-                }
                 switch (request.getParameter("direction")) {
                     case "forward":
-                        System.out.println("FETCHING...");
                         sendLoadMore(response.getWriter(), result, offset, offset + nextSum);
-                        System.out.println("FETCHING DONE...");
                         break;
-
                     case "backward":
-                        System.out.println("FETCHING...");
                         sendLoadMore(response.getWriter(), result, offset - nextSum, offset);
-                        System.out.println("FETCHING DONE...");
                         break;
                 }
-                println("========================");
                 break;
         }
 
     }
 
     private void sendLoadData(Writer writer, Object[] result) throws IOException {
-        int temp = 0;
-        System.out.println("INTENSITY VALUES LENGTH: " + cast(result[2]).getDoubleData().length);
-        // For debugging
-        for (int i : cast(result[4]).getIntData()) {
-            temp += i;
-        }
-        System.out.println("TOTAL POINT COUNT FOR THIS BATCH: " + temp);
-
         int[] pointCount = cast(result[4]).getIntData();
         int sum = 0;
         for (int i = 0; i < 20; i++) {
             sum += pointCount[i];
         }
-        System.out.println("SUM: " + sum);
-        println("SENDING...");
-        long start = System.currentTimeMillis();
         for (int i = 0; i < result.length; i++) {
             switch (i) {
                 case 0:
                 case 1:
+                    // We write total intensity and scan time first
                     writer.write(Arrays.toString(cast(result[i]).getFloatData()));
                     writer.write("|");
                     writer.flush();
                     break;
                 case 2:
                 case 3:
+                    // Then intensity and mass values for the next 20 points
                     writer.write(Arrays.toString(Arrays.copyOfRange(cast(result[i]).getFloatData(), 0, sum)));
                     writer.write("|");
                     writer.flush();
                     break;
                 case 4:
+                    // Point count array is small. So we can write it entirely to cliently w/o getting OutOfMemory exception
                     writer.write(Arrays.toString(pointCount));
                     writer.flush();
                     writer.close();
                     break;
             }
         }
-        println("SENDING TOOK: " + (System.currentTimeMillis() - start) + " milliseconds");
     }
 
     private void sendLoadMore(Writer writer, Object[] result, int start, int end) throws IOException {
-        println("SENDING...");
-        long startTime = System.currentTimeMillis();
         writer.write(Arrays.toString(Arrays.copyOfRange(cast(result[2]).getFloatData(), start, end)));
         writer.write("|");
         writer.flush();
 
         writer.write(Arrays.toString(Arrays.copyOfRange(cast(result[3]).getFloatData(), start, end)));
         writer.close();
-        println("SENDING TOOK: " + (System.currentTimeMillis() - startTime) + " milliseconds");
     }
 
     private MWNumericArray cast(Object o) {

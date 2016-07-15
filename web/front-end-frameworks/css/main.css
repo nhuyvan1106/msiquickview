@@ -9,14 +9,14 @@ form {
   width: 500px;
   margin: 3px; }
 
-#file-name, #user-dir {
+#file-name, #user-dir, #dataset-name {
   width: 275px; }
 
-.line {
-  fill: none;
-  stroke: steelblue;
-  stroke-width: 1.75px; }
-
+/*.line {
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 1.75px;
+}*/
 .nth-point-indicator {
   fill: none; }
 

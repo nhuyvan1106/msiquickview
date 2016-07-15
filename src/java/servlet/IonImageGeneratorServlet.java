@@ -5,21 +5,14 @@
  */
 package servlet;
 
-import com.mathworks.toolbox.javabuilder.MWException;
-import com.mathworks.toolbox.javabuilder.MWNumericArray;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Writer;
+import com.mathworks.toolbox.javabuilder.*;
+import java.io.*;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.logging.*;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.*;
 import matlab.IonImageGenerator;
 
 /**
@@ -34,18 +27,19 @@ public class IonImageGeneratorServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, MWException {
         double lowerBound = Double.parseDouble(request.getParameter("lower-bound"));
         double upperBound = Double.parseDouble(request.getParameter("upper-bound"));
-        String userDir = request.getParameter("user-dir");
         String[] fileNames = request.getParameter("file-names").split(",");
-        String dir = request.getServletContext().getRealPath("/WEB-INF/temp/" + userDir);
+        String dir = request.getServletContext().getRealPath("/WEB-INF/temp/" + request.getParameter("user-dir")
+                + "/" + request.getParameter("dataset-name") + "/" + request.getParameter("file-type"));
         Writer writer = response.getWriter();
+        
         for (int i = 0; i < fileNames.length; i++)
             fileNames[i] = dir + File.separator + fileNames[i];
-        System.out.println("********* GENERATING *********");
+
         Object[] result = generator.generate(lowerBound, upperBound, fileNames);
         MWNumericArray array = (MWNumericArray)result[0];
         writer.write(Arrays.toString(array.getDimensions()) + "|");
         writer.write(Arrays.toString(array.getIntData()));
-        System.out.println("DONE");
+
     }
 
     @Override

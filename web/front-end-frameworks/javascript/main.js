@@ -7,9 +7,11 @@
     var moveTo = 0;
     var totalElementsRead = 0;
 
+    // Immediately populates these form fiels using their respective data saved locally before.
     $("#user-dir").val(window.localStorage.getItem("user-dir") ? window.localStorage.getItem("user-dir") : "");
+    $("#dataset-name").val(window.sessionStorage.getItem("dataset-name") ? window.sessionStorage.getItem("dataset-name") : "");
     d3.select(".upload").on("click", function () {
-        var url = "http://localhost:8080/Java-Matlab-Integration/ControllerServlet/upload";
+        var url = "http://localhost:8080/Java-Matlab-Integration/UploaderServlet/upload";
         //window.history.pushState({}, "", url);
         d3.event.stopImmediatePropagation();
         if (!pnnl.validation.validate("upload"))
@@ -32,8 +34,10 @@
             var files = Array.prototype.map.call(document.getElementById("file-name").files, function (file) {
                 return file;
             });
-            // Store user-entered directory in browser-specific database to improve UI
+            // Store user-entered directory and dataset name in browser-specific database to improve UI
             var userDir = document.getElementById("user-dir").value;
+            var datasetName = document.getElementById("dataset-name").value;
+
             window.sessionStorage.setItem("file-names", files.map(function (file) {
                 var fileName = pnnl.data.getFileName(file);
                 ul.append("<li id='" + fileName + "'>" + fileName + "<i class='fa fa-spinner fa-pulse file-upload-spinner' style='position: absolute; right: 20px; top: 15px;'></i></li>");
@@ -42,6 +46,8 @@
                 return prev + "," + next;
             }));
             window.localStorage.setItem("user-dir", userDir);
+            window.sessionStorage.setItem("dataset-name", datasetName);
+
             pnnl.dialog.newDialogBuilder()
                     .createAlertDialog("file-selection-dialog", "file-selection-dialog")
                     .setHeaderTitle("Uploading...", "file-selection-dialog-header")
@@ -62,13 +68,10 @@
             $(document.documentElement).on("mouseup", function () {
                 $(".file-selection-dialog").off("mousemove");
             });
-            pnnl.data.upload(url, userDir, files,
+            pnnl.data.upload(url, userDir, datasetName, files,
                     function () {
                         $(document.documentElement).off("contextmenu click").contextmenu(function (event) {
-                            var body = "<ul><li id='show-dialog'>Show file selection widget</li></ul>";
-                            if ($(".file-selection-dialog").css("display") === "block")
-                                body = "<ul><li id='hide-dialog'>Hide file selection widget</li></ul>";
-                            showContextDialog(event, body, function () {
+                            showContextDialog(event, "", function () {
                                 switch (this.id) {
                                     case "hide-dialog":
                                         $(".file-selection-dialog").fadeOut();
@@ -87,7 +90,7 @@
                             d3.select(this).on("click", function () {
                                 if (window.sessionStorage.getItem("file-name") !== this.id || d3.select(".intensity-scan-chart").empty()) {
                                     pnnl.draw.drawSpinner().drawOverlay();
-                                    loadData(window.localStorage.getItem("user-dir"), this.id);
+                                    loadData(window.localStorage.getItem("user-dir"), window.sessionStorage.getItem("dataset-name"), this.id);
                                     window.sessionStorage.setItem("file-name", this.id);
                                     dispatch.call("selectionchange", this);
                                 }
@@ -107,7 +110,17 @@
                 var url = "http://localhost:8080/Java-Matlab-Integration/DataFetcherServlet/load-more";
                 //window.history.pushState({}, "", url);
                 pnnl.draw.drawOverlay().drawSpinner();
-                pnnl.data.fetch(url, offset, "forward", currentIndex, currentIndex + 20, function (intensityMass) {
+                var fileName = window.sessionStorage.getItem("file-name");
+                var requestParams = {
+                    "file-name": fileName,
+                    "dataset-name": window.sessionStorage.getItem("dataset-name"),
+                    "user-dir": window.localStorage.getItem("user-dir"),
+                    "file-type": fileName.indexOf("hdf") !== -1 ? "hdf" : "cdf",
+                    "offset": offset,
+                    "direction": "forward",
+                    "next-sum": resultData.pointCount.slice(currentIndex, currentIndex + 20).reduce(function(prev, next){ return prev + next; })
+                };
+                pnnl.data.fetch(url, requestParams, function (intensityMass) {
                     totalElementsRead = 0;
                     resultData.intensityMass = intensityMass;
                     drawIntensityMassChart(resultData.intensityMass.slice(totalElementsRead,
@@ -141,7 +154,17 @@
                 var url = "http://localhost:8080/Java-Matlab-Integration/DataFetcherServlet/load-more";
                 //window.history.pushState({}, "", url);
                 pnnl.draw.drawSpinner().drawOverlay();
-                pnnl.data.fetch(url, offset, "backward", currentIndex - 20, currentIndex, function (intensityMass) {
+                var fileName = window.sessionStorage.getItem("file-name");
+                var requestParams = {
+                    "file-name": fileName,
+                    "dataset-name": window.sessionStorage.getItem("dataset-name"),
+                    "user-dir": window.localStorage.getItem("user-dir"),
+                    "file-type": fileName.indexOf("hdf") !== -1 ? "hdf" : "cdf",
+                    "offset": offset,
+                    "direction": "backward",
+                    "next-sum": resultData.pointCount.slice(currentIndex - 20, currentIndex).reduce(function(prev, next){ return prev + next; })
+                };
+                pnnl.data.fetch(url, requestParams, function (intensityMass) {
                     resultData.intensityMass = intensityMass;
                     totalElementsRead = intensityMass.length;
                     currentIndex--;
@@ -191,14 +214,10 @@
                                             return d.x;
                                         }))
                                         .range([0, config.width - config.margin.left - config.margin.right]);
-                                var bounds = d3.event.selection.map(x.invert);
-                                log(bounds);
+                                var range = d3.event.selection.map(x.invert);
+                                log(range);
                                 $("." + config.className).off("contextmenu click").contextmenu(function (event) {
-                                    var body = "<ul><li id='show-dialog'>Show file selection widget</li>";
-                                    if ($(".file-selection-dialog").css("display") === "block")
-                                        body = "<ul><li id='hide-dialog'>Hide file selection widget</li>";
-                                    body += "<li id='generate-image'>Generate ion image</li></ul>";
-                                    showContextDialog(event, body, function () {
+                                    showContextDialog(event, "<li id='generate-image'>Generate ion image</li>", function () {
                                         switch (this.id) {
                                             case "hide-dialog":
                                                 $(".file-selection-dialog").slideUp();
@@ -208,14 +227,17 @@
                                                 break;
                                             case "generate-image":
                                                 pnnl.draw.drawOverlay().drawSpinner();
+                                                var fileNames = window.sessionStorage.getItem("file-names");
                                                 $.ajax("http://localhost:8080/Java-Matlab-Integration/IonImageGeneratorServlet/generate-image",
                                                         {
                                                             "method": "GET",
                                                             "data": {
                                                                 "user-dir": window.localStorage.getItem("user-dir"),
-                                                                "lower-bound": bounds[0],
-                                                                "upper-bound": bounds[1],
-                                                                "file-names": window.sessionStorage.getItem("file-names")
+                                                                "dataset-name": window.sessionStorage.getItem("dataset-name"),
+                                                                "file-type": fileNames.indexOf("hdf") !== -1 ? "hdf" : "cdf",
+                                                                "file-names": fileNames,
+                                                                "lower-bound": range[0],
+                                                                "upper-bound": range[1]
                                                             },
                                                             "success": function (data) {
                                                                 pnnl.draw.removeSpinnerOverlay();
@@ -243,7 +265,12 @@
                                                                     var margin = {top: 100, right: 90, bottom: 30, left: 50};
                                                                     var width = 400 - margin.left - margin.right;
                                                                     var height = 500 - margin.top - margin.bottom;
-                                                                    var svg = d3.select("#" + config.idName).append("svg")
+                                                                    var svg = d3.select("#" + config.idName)
+                                                                            .append("svg")
+                                                                            .attr("id", range.join("-"))
+                                                                            .on("contextmenu", function () {
+
+                                                                            })
                                                                             .attr("width", width + margin.left + margin.right)
                                                                             .attr("height", height + margin.top + margin.bottom)
                                                                             .append("g")
@@ -300,10 +327,12 @@
         }, 500);
     }
     // Just a convenient function to remove code duplication.
-    function loadData(userDir, file) {
+    function loadData(userDir, datasetName, fileName) {
         var url = "http://localhost:8080/Java-Matlab-Integration/DataFetcherServlet/load-data";
         //window.history.pushState({}, "", url);
-        pnnl.data.loadData(url, userDir, file, successCallback, errorCallback);
+        var fileType = fileName.indexOf("hdf") !== -1 ? "hdf" : "cdf";
+        var data = {"user-dir": userDir, "dataset-name": datasetName, "file-name": fileName, "file-type": fileType};
+        pnnl.data.loadData(url, data, successCallback, errorCallback);
         currentIndex = -1;
         offset = 0;
         totalElementsRead = 0;
@@ -340,9 +369,13 @@
                 .setCloseActionButton()
                 .show();
     }
-    function showContextDialog(event, body, clickFunction) {
+    function showContextDialog(event, dialogBody, clickFunction) {
         event.preventDefault();
         event.stopImmediatePropagation();
+        var body = "<ul><li id='show-dialog'>Show file selection widget</li>";
+        if ($(".file-selection-dialog").css("display") === "block")
+            body = "<ul><li id='hide-dialog'>Hide file selection widget</li>";
+        body += (dialogBody ? dialogBody : "") + "</ul>";
         var dialog = $(".context-menu-dialog");
         if (dialog.length === 0)
             pnnl.dialog.newDialogBuilder()
