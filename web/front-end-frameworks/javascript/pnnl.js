@@ -191,12 +191,11 @@ var pnnl = {
             }*/
         },
         drawOverlay: function () {
-            $("body").css("overflow", "hidden");
             $("<div></div>").css({
                 "position": "absolute",
                 "width": "100%",
                 "magin": "0",
-                "height": $(window).height() + $(window).scrollTop() + "px",
+                "height": $(window).height() + pnnl.utils.getScrollTop() + "px",
                 "z-index": "20",
                 "background": "rgba(256,256,256,0.25)"
             }).attr("class", "overlay").fadeIn("slow").prependTo("body");
@@ -204,8 +203,8 @@ var pnnl = {
         },
         drawSpinner: function () {
             $("<i></i>").css(
-                    {"position": "absolute", "top": ($(window).height() / 3 + $(window).scrollTop()) + "px",
-                        "left": "48%", "font-size": "8em", "line-height": "100%", "display": "hidden", "z-index": "21"
+                    {"position": "absolute", "top": ($(window).height() / 3 + pnnl.utils.getScrollTop()) + "px",
+                        "left": "48%", "font-size": "8em", "line-height": "100%", "display": "block", "z-index": "21"
                     })
                     .attr({"class": "spinner fa fa-spinner fa-pulse", "aria-hidden": "true"})
                     .fadeIn()
@@ -213,7 +212,6 @@ var pnnl = {
             return this;
         },
         removeSpinnerOverlay: function () {
-            $("body").css("overflow", "visible");
             $(".spinner, .overlay").fadeOut().delay(1000).remove();
         },
         /*
@@ -250,7 +248,7 @@ var pnnl = {
                     d3.select("body")
                             .append("div")
                             .attr("class", this.dialogClassName)
-                            .attr("id", id)
+                            .attr("id", this.dialogId)
                             .append("div")
                             .attr("class", "alert-dialog-header");
                     return this;
@@ -379,6 +377,11 @@ var pnnl = {
                             .text(negBtnlabel);
                     return this;
                 },
+                // Not all dialog need a header, this is a convenience function to easily remove it
+                removeHeader: function () {
+                    d3.select("#" + this.dialogId + " " + ".alert-dialog-header").remove();
+                    return this;
+                },
                 /*
                  * @param {function} showBehavior Optional. How to show the dialog
                  * @returns undefined
@@ -387,8 +390,7 @@ var pnnl = {
                     var id = "#" + this.dialogId + " ";
                     if (!showBehavior)
                         showBehavior = function (id) {
-                            //pnnl.draw.drawOverlay();
-                            $(id).slideDown();
+                            $(id).fadeIn().css({"top": 10 + pnnl.utils.getScrollTop() + "px"});
                             if (d3.event)
                                 d3.event.stopImmediatePropagation();
                         };
@@ -450,6 +452,12 @@ var pnnl = {
                 return false;
             } else
                 return true;
+        }
+    },
+    /*********** HANDLES BROWSERS INCONSISTENCIES ***********/
+    utils: {
+        getScrollTop: function () {
+        return document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop;
         }
     }
 };

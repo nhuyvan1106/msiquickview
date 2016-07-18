@@ -20,14 +20,10 @@
             // We are using D3 Dispatches module to handle updating icon when an item is clicked in file selection dialog.
             var dispatch = d3.dispatch("selectionchange");
             dispatch.on("selectionchange", function () {
-                d3.selectAll(".file-selection-dialog li i")
-                        .transition()
-                        .duration(200)
-                        .style("opacity", 0)
-                        .each(function () {
-                            $(this).removeClass("fa-check fa-hand-o-left");
-                        });
-                $(this).find("i").addClass("fa-hand-o-left").animate({"opacity": "1.0"});
+                $(".file-selection-dialog li i").each(function() {
+                    $(this).removeClass("fa-check fa-hand-o-left");
+                });
+                $(this).find("i").addClass("fa-hand-o-left");
             });
             $(".file-selection-dialog").fadeOut().remove();
             var ul = $("<ul></ul>");
@@ -57,8 +53,8 @@
             $(".file-selection-dialog").css("position", "absolute");
             $(".file-selection-dialog-header").mousedown(function (e) {
                 var fileDialog = document.getElementById("file-selection-dialog");
-                var top = e.pageY - fileDialog.getBoundingClientRect().top - document.body.scrollTop;
-                var left = e.pageX - fileDialog.getBoundingClientRect().left - document.body.scrollLeft;
+                var top = e.pageY - fileDialog.getBoundingClientRect().top - pnnl.utils.getScrollTop();
+                var left = e.pageX - fileDialog.getBoundingClientRect().left;
 
                 $(fileDialog).mousemove(function (event) {
                     event.stopImmediatePropagation();
@@ -77,7 +73,7 @@
                                         $(".file-selection-dialog").fadeOut();
                                         break;
                                     case "show-dialog":
-                                        $(".file-selection-dialog").fadeIn().css({"top": event.clientY, "left": event.clientX});
+                                        $(".file-selection-dialog").fadeIn().css({"top": event.pageY, "left": event.pageX});
                                         break;
                                 }
                             });
@@ -89,7 +85,8 @@
                             $(this).find(".file-upload-spinner").removeClass("fa-pulse fa-spinner").addClass("fa-check");
                             d3.select(this).on("click", function () {
                                 if (window.sessionStorage.getItem("file-name") !== this.id || d3.select(".intensity-scan-chart").empty()) {
-                                    pnnl.draw.drawSpinner().drawOverlay();
+                                    pnnl.draw.drawSpinner();
+                                    pnnl.draw.drawOverlay();
                                     loadData(window.localStorage.getItem("user-dir"), window.sessionStorage.getItem("dataset-name"), this.id);
                                     window.sessionStorage.setItem("file-name", this.id);
                                     dispatch.call("selectionchange", this);
@@ -118,7 +115,9 @@
                     "file-type": fileName.indexOf("hdf") !== -1 ? "hdf" : "cdf",
                     "offset": offset,
                     "direction": "forward",
-                    "next-sum": resultData.pointCount.slice(currentIndex, currentIndex + 20).reduce(function(prev, next){ return prev + next; })
+                    "next-sum": resultData.pointCount.slice(currentIndex, currentIndex + 20).reduce(function (prev, next) {
+                        return prev + next;
+                    })
                 };
                 pnnl.data.fetch(url, requestParams, function (intensityMass) {
                     totalElementsRead = 0;
@@ -162,7 +161,9 @@
                     "file-type": fileName.indexOf("hdf") !== -1 ? "hdf" : "cdf",
                     "offset": offset,
                     "direction": "backward",
-                    "next-sum": resultData.pointCount.slice(currentIndex - 20, currentIndex).reduce(function(prev, next){ return prev + next; })
+                    "next-sum": resultData.pointCount.slice(currentIndex - 20, currentIndex).reduce(function (prev, next) {
+                        return prev + next;
+                    })
                 };
                 pnnl.data.fetch(url, requestParams, function (intensityMass) {
                     resultData.intensityMass = intensityMass;
@@ -220,10 +221,10 @@
                                     showContextDialog(event, "<li id='generate-image'>Generate ion image</li>", function () {
                                         switch (this.id) {
                                             case "hide-dialog":
-                                                $(".file-selection-dialog").slideUp();
+                                                $(".file-selection-dialog").fadeOut();
                                                 break;
                                             case "show-dialog":
-                                                $(".file-selection-dialog").slideDown();
+                                                $(".file-selection-dialog").fadeIn().css({"top": event.pageY, "left": event.pageX});
                                                 break;
                                             case "generate-image":
                                                 pnnl.draw.drawOverlay().drawSpinner();
@@ -242,9 +243,8 @@
                                                             "success": function (data) {
                                                                 pnnl.draw.removeSpinnerOverlay();
                                                                 data = pnnl.data.parseData(data);
-                                                                log(data);
                                                                 var config = {
-                                                                    "idName": "ion-image-id",
+                                                                    "idName": "ion-image-container",
                                                                     "className": "ion-image"
                                                                 };
                                                                 //$(".ion-image").remove();
@@ -256,64 +256,9 @@
                                                                     for (var j = i; j < data.length; j += dimensions[0])
                                                                         result[i].push(data[j]);
                                                                 }
-
-                                                                drawImage(config, d3.extent(data, function (d) {
+                                                                drawImage(config, range, d3.extent(data, function (d) {
                                                                     return d;
                                                                 }), result, dimensions[0]);
-
-                                                                function drawImage(config, bounds, dataArray, dimension) {
-                                                                    var margin = {top: 100, right: 90, bottom: 30, left: 50};
-                                                                    var width = 400 - margin.left - margin.right;
-                                                                    var height = 500 - margin.top - margin.bottom;
-                                                                    var svg = d3.select("#" + config.idName)
-                                                                            .append("svg")
-                                                                            .attr("id", range.join("-"))
-                                                                            .on("contextmenu", function () {
-
-                                                                            })
-                                                                            .attr("width", width + margin.left + margin.right)
-                                                                            .attr("height", height + margin.top + margin.bottom)
-                                                                            .append("g")
-                                                                            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-                                                                    for (var i = 0; i < dimension; ++i) {
-                                                                        var xScale = d3.scaleBand()
-                                                                                .domain(dataArray[i])
-                                                                                .range([0, width]);
-                                                                        var yScale = d3.scaleOrdinal()
-                                                                                .domain([i])
-                                                                                .range([height / dimension]);
-                                                                        var interval = Math.floor(bounds[1] / 5);
-                                                                        var colorScale = d3.scaleLinear()
-                                                                                .domain([bounds[0], interval, interval * 2, interval * 3, interval * 4, bounds[1]])
-                                                                                .range(["#0a0", "#6c0", "#ee0", "#eb4", "#eb9", "#fff"]);
-
-
-                                                                        svg.selectAll(".tile-" + i)
-                                                                                .data(dataArray[i])
-                                                                                .enter()
-                                                                                .append("rect")
-                                                                                .attr("class", "tile-" + i)
-                                                                                .attr("x", function (d) {
-                                                                                    return xScale(d);
-                                                                                })
-                                                                                .attr("y", function (d) {
-                                                                                    return (yScale(i) / 2) * i;
-                                                                                })
-                                                                                .attr("width", function (d) {
-                                                                                    return xScale.bandwidth();
-                                                                                })
-                                                                                .attr("height", function () {
-                                                                                    return yScale(i) / 2;
-                                                                                })
-                                                                                .style("stroke-width", "0")
-                                                                                .style("fill", function (d) {
-                                                                                    return colorScale(d);
-                                                                                });
-
-                                                                        console.log("yScale(i) is " + yScale(i));
-                                                                    }
-                                                                }
                                                             },
                                                             "error": function (xhr) {
                                                                 errorCallback(xhr);
@@ -370,7 +315,7 @@
                 .show();
     }
     function showContextDialog(event, dialogBody, clickFunction) {
-        //event.preventDefault();
+        event.preventDefault();
         event.stopImmediatePropagation();
         var body = "<ul><li id='show-dialog'>Show file selection widget</li>";
         if ($(".file-selection-dialog").css("display") === "block")
@@ -381,7 +326,7 @@
             pnnl.dialog.newDialogBuilder()
                     .createAlertDialog("context-menu-dialog", "context-menu-dialog")
                     .setMessageBody(body)
-                    .setCloseActionButton()
+                    .removeHeader()
                     .show(function (id) {
                         $(id).show().css({"top": event.pageY, "left": event.pageX});
                     });
@@ -392,6 +337,111 @@
                     .css({"top": event.pageY, "left": event.pageX});
         }
         $(".context-menu-dialog li").click(clickFunction);
+    }
+    
+    function drawImage(config, range, bounds, dataArray, dimension) {
+        var margin = {top: 20, right: 15, bottom: 10, left: 15};
+        var width = 350 - margin.left - margin.right;
+        var height = 500 - margin.top - margin.bottom;
+        // We use selected range for this image id
+        var id = range.join("-");
+        var svg = d3.select("#" + config.idName)
+                .append("svg")
+                .attr("id", id)
+                // Show a dialog when user right clicks on an image
+                .on("contextmenu", function () {
+                    var body = "<li id='save-image'>Save</li>";
+                    var selectedImageId = d3.event.currentTarget.id;
+                    showContextDialog(d3.event, body, function (event) {
+                        switch (this.id) {
+                            case "hide-dialog":
+                                $(".file-selection-dialog").fadeOut();
+                                break;
+                            case "show-dialog":
+                                $(".file-selection-dialog").fadeIn().css({"top": event.pageY, "left": event.pageX});
+                                break;
+                            case "save-image":
+                                pnnl.draw.drawSpinner().drawOverlay();
+                                svgAsPngUri(document.getElementById(selectedImageId), {}, function (uri) {
+                                    var url = "http://localhost:8080/Java-Matlab-Integration/UploaderServlet/save-image";
+                                    var formData = new FormData();
+                                    formData.append("user-dir", window.localStorage.getItem("user-dir"));
+                                    formData.append("dataset-name", window.sessionStorage.getItem("dataset-name"));
+                                    formData.append("image-name", selectedImageId);
+                                    formData.append("image-data", uri.replace("data:image/png;base64,", ""));
+                                    var xhr = new XMLHttpRequest();
+                                    xhr.onreadystatechange = function () {
+                                        pnnl.draw.removeSpinnerOverlay();
+                                        d3.select("#notification-dialog").remove();
+                                        if (xhr.readyState === 4) {
+                                            if (xhr.status === 200)
+                                                pnnl.dialog.newDialogBuilder()
+                                                        .createAlertDialog("notification-dialog")
+                                                        .setMessageBody("Image saved successfully")
+                                                        .removeHeader()
+                                                        .show(function (id) {
+                                                            $(id).fadeIn()
+                                                                    .css("top", 10 + pnnl.utils.getScrollTop() + "px")
+                                                                    .delay(5000).fadeOut();
+                                                        });
+                                            else
+                                                errorCallback(xhr);
+                                        }
+                                    };
+
+                                    xhr.open("POST", url);
+                                    xhr.send(formData);
+                                });
+                                break;
+                        }
+                    });
+                })
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", 280)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        for (var i = 0; i < dimension; ++i) {
+            var xScale = d3.scaleBand()
+                    .domain(dataArray[i])
+                    .range([0, width]);
+            var yScale = d3.scaleOrdinal()
+                    .domain([i])
+                    .range([height / dimension]);
+            var interval = Math.floor(bounds[1] / 5);
+            var colorScale = d3.scaleLinear()
+                    .domain([bounds[0], interval, interval * 2, interval * 3, interval * 4, bounds[1]])
+                    .range(["#0a0", "#6c0", "#ee0", "#eb4", "#eb9", "#fff"]);
+
+
+            svg.selectAll(".tile-" + i)
+                    .data(dataArray[i])
+                    .enter()
+                    .append("rect")
+                    .attr("class", "tile-" + i)
+                    .attr("x", function (d) {
+                        return xScale(d);
+                    })
+                    .attr("y", function (d) {
+                        return (yScale(i) / 2) * i;
+                    })
+                    .attr("width", function (d) {
+                        return xScale.bandwidth();
+                    })
+                    .attr("height", function () {
+                        return yScale(i) / 2;
+                    })
+                    .style("stroke-width", "0")
+                    .style("fill", function (d) {
+                        return colorScale(d);
+                    });
+            svg.append("text")
+                    .attr("y", 250)
+                    // We want to center the text under the image. 7.6968571429: Character width in the current font
+                    .attr("x", (width - 7.6968571429 * id.length) / 2)
+                    .text(id)
+                    .style("font-family", "monospace");
+        }
     }
     function log(msg) {
         console.log(msg);

@@ -3,12 +3,13 @@ package servlet;
 import com.mathworks.toolbox.javabuilder.*;
 import java.io.*;
 import java.nio.file.Files;
+import java.util.Base64;
 import java.util.logging.*;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.*;
 import javax.servlet.http.*;
 
-@WebServlet(name = "UploaderServlet", urlPatterns = {"/UploaderServlet/upload"})
+@WebServlet(name = "UploaderServlet", urlPatterns = {"/UploaderServlet/upload", "/UploaderServlet/save-image"})
 @MultipartConfig
 public class UploaderServlet extends HttpServlet {
 
@@ -17,7 +18,7 @@ public class UploaderServlet extends HttpServlet {
 
         String userDir = null;
         String datasetName = null;
-        String tempDir = null;
+        String tempDir = request.getServletContext().getRealPath("/WEB-INF/temp");
 
         switch (request.getServletPath()) {
             case "/UploaderServlet/upload":
@@ -28,7 +29,7 @@ public class UploaderServlet extends HttpServlet {
                             break;
                         case "dataset-name":
                             datasetName = getFileName(part);
-                            tempDir = request.getServletContext().getRealPath("/WEB-INF/temp") + File.separator + userDir + File.separator + datasetName;
+                            tempDir += File.separator + userDir + File.separator + datasetName;
                             File userDirectory = new File(tempDir);
                             if (!userDirectory.exists()) {
                                 userDirectory.mkdirs();
@@ -46,14 +47,33 @@ public class UploaderServlet extends HttpServlet {
                                 file = new File(tempDir + File.separator + "cdf" + File.separator + fileName);
                             }
                             try (InputStream is = part.getInputStream()) {
-                                if (!file.exists()) {
+                                if (!file.exists())
                                     Files.copy(is, file.toPath());
-                                    System.out.println("COPYING FILES");
-                                }
                             }
                             break;
                     }
                 }
+                break;
+            case "/UploaderServlet/save-image":
+                String imageName = null;
+                for (Part part: request.getParts()) {
+                    switch (part.getName()) {
+                        case "user-dir":
+                            userDir = getFileName(part);
+                            break;
+                        case "dataset-name":
+                            datasetName = getFileName(part);
+                            break;
+                        case "image-name":
+                            imageName = getFileName(part);
+                            break;
+                        case "image-data":
+                            tempDir += File.separator + userDir + File.separator + datasetName + File.separator + "images" + File.separator + imageName + ".png";
+                            Files.copy(Base64.getDecoder().wrap(part.getInputStream()), new File(tempDir).toPath());
+                            break;
+                    }
+                }
+                break;
         }
     }
 

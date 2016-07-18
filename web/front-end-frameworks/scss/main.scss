@@ -1,5 +1,6 @@
 body {
     margin: 0;
+    overflow-x: hidden; /*Disabling horizontal overflow*/
 }
 /* global hover style for <a></a> elements */
 a:hover {
@@ -12,11 +13,7 @@ form {
 #file-name, #user-dir, #dataset-name {
     width: 275px;
 }
-/*.line {
-    fill: none;
-    stroke: steelblue;
-    stroke-width: 1.75px;
-}*/
+
 .nth-point-indicator {
     fill: none;
 }
@@ -38,9 +35,8 @@ form {
     z-index: 12;
     background-color: white;
     padding-bottom: 5px;
-    right: 10px;
-    bottom: 10px;
-    z-index: 9;
+    right: 30px;
+    top: 20px;
 }
 
 .alert-dialog {
@@ -81,6 +77,11 @@ form {
 }
 .error-dialog {
     @extend .alert-dialog;
+}
+.notification-dialog {
+    @extend .alert-dialog;
+    background-color: #87CEEB;
+    color: white;
 }
 .file-selection-dialog {
     @extend .alert-dialog;
@@ -171,13 +172,9 @@ form {
     left: initial;
     bottom: initial;
     right: initial;
-    z-index: 19;
     .message-body {
         overflow: hidden;
         max-height: none;
-    }
-    .alert-dialog-header {
-        display: none;
     }
     li {
         font-size: small;
@@ -203,4 +200,8 @@ form {
     width: 40%;
     float: left;
     padding: 10px;
+}
+
+#ion-image-container svg g:hover {
+    cursor: pointer;
 }

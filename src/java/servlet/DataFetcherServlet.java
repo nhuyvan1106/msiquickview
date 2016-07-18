@@ -6,6 +6,7 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 import javax.inject.Inject;
 import javax.servlet.*;
 import javax.servlet.annotation.WebServlet;
@@ -23,15 +24,16 @@ public class DataFetcherServlet extends HttpServlet {
 
     @Inject
     private CdfReader reader;
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, MWException {
         String userDir = request.getParameter("user-dir");
         String datasetName = request.getParameter("dataset-name");
         String fileType = request.getParameter("file-type");
-        String filePath = request.getServletContext().getRealPath("/WEB-INF/temp") + File.separator + userDir 
+        String filePath = request.getServletContext().getRealPath("/WEB-INF/temp") + File.separator + userDir
                 + File.separator + datasetName + File.separator + fileType + File.separator + request.getParameter("file-name");
         Object[] result = reader.read(filePath);
-        
+
         switch (request.getServletPath()) {
             case "/DataFetcherServlet/load-data":
                 sendLoadData(response.getWriter(), result);
@@ -55,10 +57,7 @@ public class DataFetcherServlet extends HttpServlet {
 
     private void sendLoadData(Writer writer, Object[] result) throws IOException {
         int[] pointCount = cast(result[4]).getIntData();
-        int sum = 0;
-        for (int i = 0; i < 20; i++) {
-            sum += pointCount[i];
-        }
+        int sum = IntStream.of(pointCount).limit(20).sum();
         for (int i = 0; i < result.length; i++) {
             switch (i) {
                 case 0:
@@ -96,10 +95,6 @@ public class DataFetcherServlet extends HttpServlet {
 
     private MWNumericArray cast(Object o) {
         return (MWNumericArray) o;
-    }
-
-    private void println(Object msg) {
-        System.out.println(msg.toString());
     }
 
     @Override

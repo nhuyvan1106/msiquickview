@@ -1,5 +1,7 @@
 body {
-  margin: 0; }
+  margin: 0;
+  overflow-x: hidden;
+  /*Disabling horizontal overflow*/ }
 
 /* global hover style for <a></a> elements */
 a:hover {
@@ -12,11 +14,6 @@ form {
 #file-name, #user-dir, #dataset-name {
   width: 275px; }
 
-/*.line {
-    fill: none;
-    stroke: steelblue;
-    stroke-width: 1.75px;
-}*/
 .nth-point-indicator {
   fill: none; }
 
@@ -26,7 +23,7 @@ form {
   width: 100px;
   margin: auto auto; }
 
-.alert-dialog, .error-dialog, .file-selection-dialog, .context-menu-dialog {
+.alert-dialog, .error-dialog, .notification-dialog, .file-selection-dialog, .context-menu-dialog {
   display: none;
   position: absolute;
   width: 350px;
@@ -38,11 +35,10 @@ form {
   z-index: 12;
   background-color: white;
   padding-bottom: 5px;
-  right: 10px;
-  bottom: 10px;
-  z-index: 9; }
+  right: 30px;
+  top: 20px; }
 
-.alert-dialog .alert-dialog-header, .error-dialog .alert-dialog-header, .file-selection-dialog .alert-dialog-header, .context-menu-dialog .alert-dialog-header {
+.alert-dialog .alert-dialog-header, .error-dialog .alert-dialog-header, .notification-dialog .alert-dialog-header, .file-selection-dialog .alert-dialog-header, .context-menu-dialog .alert-dialog-header {
   border-bottom: 1px solid #d3d3d3;
   padding: 10px;
   margin-left: 0;
@@ -50,26 +46,30 @@ form {
   background: #ff9907;
   color: green;
   min-height: 50px; }
-.alert-dialog .message-body, .error-dialog .message-body, .file-selection-dialog .message-body, .context-menu-dialog .message-body {
+.alert-dialog .message-body, .error-dialog .message-body, .notification-dialog .message-body, .file-selection-dialog .message-body, .context-menu-dialog .message-body {
   font-size: large;
   line-height: 30px;
   padding: 5px;
   padding-top: 10px; }
-.alert-dialog .alert-dialog-header-close-action-icon, .error-dialog .alert-dialog-header-close-action-icon, .file-selection-dialog .alert-dialog-header-close-action-icon, .context-menu-dialog .alert-dialog-header-close-action-icon {
+.alert-dialog .alert-dialog-header-close-action-icon, .error-dialog .alert-dialog-header-close-action-icon, .notification-dialog .alert-dialog-header-close-action-icon, .file-selection-dialog .alert-dialog-header-close-action-icon, .context-menu-dialog .alert-dialog-header-close-action-icon {
   right: 10px;
   top: 5px;
   position: absolute;
   transition: transform .2s linear; }
-.alert-dialog .alert-dialog-header-close-action-icon:hover, .error-dialog .alert-dialog-header-close-action-icon:hover, .file-selection-dialog .alert-dialog-header-close-action-icon:hover, .context-menu-dialog .alert-dialog-header-close-action-icon:hover {
+.alert-dialog .alert-dialog-header-close-action-icon:hover, .error-dialog .alert-dialog-header-close-action-icon:hover, .notification-dialog .alert-dialog-header-close-action-icon:hover, .file-selection-dialog .alert-dialog-header-close-action-icon:hover, .context-menu-dialog .alert-dialog-header-close-action-icon:hover {
   transform-origin: 50% 50%;
   transform: rotate(90deg);
   cursor: pointer; }
-.alert-dialog button, .error-dialog button, .file-selection-dialog button, .context-menu-dialog button {
+.alert-dialog button, .error-dialog button, .notification-dialog button, .file-selection-dialog button, .context-menu-dialog button {
   transition: background-color .2s ease-in;
   width: 75px;
   margin: 5px; }
-.alert-dialog button:hover, .error-dialog button:hover, .file-selection-dialog button:hover, .context-menu-dialog button:hover {
+.alert-dialog button:hover, .error-dialog button:hover, .notification-dialog button:hover, .file-selection-dialog button:hover, .context-menu-dialog button:hover {
   background-color: lightblue; }
+
+.notification-dialog {
+  background-color: #87CEEB;
+  color: white; }
 
 .file-selection-dialog, .context-menu-dialog {
   position: initial;
@@ -143,13 +143,10 @@ form {
   top: initial;
   left: initial;
   bottom: initial;
-  right: initial;
-  z-index: 19; }
+  right: initial; }
   .context-menu-dialog .message-body {
     overflow: hidden;
     max-height: none; }
-  .context-menu-dialog .alert-dialog-header {
-    display: none; }
   .context-menu-dialog li {
     font-size: small;
     margin-left: -3.1em;
@@ -169,5 +166,8 @@ form {
   width: 40%;
   float: left;
   padding: 10px; }
+
+#ion-image-container svg g:hover {
+  cursor: pointer; }
 
 /*# sourceMappingURL=main.css.map */
