@@ -1,18 +1,14 @@
 package servlet;
 
-import com.mathworks.toolbox.javabuilder.MWException;
-import com.mathworks.toolbox.javabuilder.MWNumericArray;
+import com.mathworks.toolbox.javabuilder.*;
 import java.io.*;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.logging.*;
 import java.util.stream.IntStream;
 import javax.inject.Inject;
 import javax.servlet.*;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.*;
 import matlab.CdfReader;
 
 /**
@@ -24,7 +20,7 @@ public class DataFetcherServlet extends HttpServlet {
 
     @Inject
     private CdfReader reader;
-
+    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, MWException {
         String userDir = request.getParameter("user-dir");

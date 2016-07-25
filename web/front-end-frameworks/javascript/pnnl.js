@@ -192,12 +192,13 @@ var pnnl = {
         },
         drawOverlay: function () {
             $("<div></div>").css({
-                "position": "absolute",
+                "position": "fixed",
+                "top": "0",
                 "width": "100%",
                 "magin": "0",
-                "height": $(window).height() + pnnl.utils.getScrollTop() + "px",
+                "height": "100%",
                 "z-index": "20",
-                "background": "rgba(256,256,256,0.25)"
+                "background": "rgba(0,256,256,0.25)"
             }).attr("class", "overlay").fadeIn("slow").prependTo("body");
             return this;
         },
@@ -423,10 +424,15 @@ var pnnl = {
          * @return true if validation passes, false otherwise
          */
         validate: function (formName) {
+            var excludes = arguments.length > 1 ? Array.prototype.slice.call(arguments, 1) : -1;
             if (document.forms[formName].length === 0)
                 throw new Error("Form with name \"" + formName + "\" does not exist.");
             var emptyInputElements = Array.prototype.filter.call(document.forms[formName].elements, function (elem) {
                 return (elem.tagName === "INPUT" || elem.tagName === "SELECT" || elem.tagName === "TEXTAREA") && !elem.value;
+            }).filter(function(elem) {
+                return excludes !== -1 ? !excludes.some(function(e) {
+                    return e === elem.id;
+                }) : true;
             });
             if (emptyInputElements.length !== 0) {
                 emptyInputElements.forEach(function (elem, i) {

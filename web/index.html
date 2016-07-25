@@ -9,7 +9,7 @@
         <link rel="stylesheet" href="front-end-frameworks/css/main.css"/>
         <link rel="stylesheet" href="front-end-frameworks/css/jquery-ui.min.css"/>
         <link rel="stylesheet" href="front-end-frameworks/external/lobipanel/lobipanel.css"/>
-        <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+        <script src="http://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
         <script src="front-end-frameworks/external/jquery-ui.min.js"></script>
         <script src="front-end-frameworks/external/bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
         <script src="front-end-frameworks/external/d3/d3.4.0.0.min.js"></script>
@@ -17,145 +17,344 @@
         <script src="front-end-frameworks/javascript/pnnl.js"></script>        
     </head>
     <body>
-        <nav class="navbar navbar-inverse">
-            <div class="container-fluid">
+        <div class="wrapper">
+            <div class="toggler">
+                <i class="fa fa-arrow-right fa-2x" aria-hidden="true"></i>
+            </div>
+            <nav class="closed" >
                 <!-- Brand and toggle get grouped for better mobile display -->
-                <div id="discoveryPage" class="navbar-header">
-                    <a id="nav_to_kibana_discovery_page" class="navbar-brand"> Discovery </a>
+                <div id="discoveryPage" class="">
+                    <a id="nav_to_kibana_discovery_page">Discovery</a>
                 </div>
-                <div id="dashboard" class="navbar-header">
-                    <a id="nav_to_kibana_dashboard" class="navbar-brand"> Dashboard </a>
+                <div id="dashboard" class="">
+                    <a id="nav_to_kibana_dashboard" class="">Dashboard</a>
                 </div>
+                <div id="upload-cdf-hdf-container" class="">
+                    <a id="upload-cdf-hdf" class="" data-activate="upload-cdf-hdf-form-container">
+                        Upload .cdf / .hdf Files
+                        <i class="fa fa-chevron-right fa-lg" aria-hidden="true" style="margin-left: 20px; margin-right: 0px;"></i>
+                    </a>
+                </div>
+                <div id="upload-excel-container" class="">
+                    <a id="upload-excel" class="" data-activate="upload-excel-form-container">
+                        Upload Excel Files
+                        <i class="fa fa-chevron-right fa-lg" aria-hidden="true" style="margin-left: 50px"></i>
+                    </a>
+                </div>
+                <div id="show-uploaded-files-container" class="">
+                    <a id="show-uploaded-files" class="" data-activate="show-uploaded-files-form-container">
+                        Show Uploaded Files
+                        <i class="fa fa-chevron-right fa-lg" aria-hidden="true" style="margin-left: 20px"></i>
+                    </a>
+                </div>
+            </nav>        
+            <div class="form-container" id="upload-cdf-hdf-form-container">
+                <div style="text-align: right">
+                    <i class="fa fa-close fa-2x close-btn"></i>
+                </div>
+                <form name="upload-cdf-hdf-form" id="upload-cdf-hdf-form">
+                    <div class="form-group">
+                        <label class="label label-primary">Select Files</label>
+                        <input type="file" multiple="multiple" required="required" class="form-control" name="file-name" id="file-name"/>
+                    </div>
+                    <div class="form-group">
+                        <label class="label label-primary">Folder Name to Store Files</label>
+                        <input type="text" required="required" class="form-control" name="user-dir" id="user-dir"/>
+                    </div>
+                    <div class="form-group">
+                        <label class="label label-primary">DataSet Name</label>
+                        <input type="text" required="required" class="form-control" name="dataset-name" id="dataset-name"/>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-default upload">
+                            Upload
+                        </button>
+                    </div>
+                </form>
             </div>
-        </nav>        
-        <form name="upload">
-            <div class="form-group">
-                <label class="label label-primary">Select Files</label>
-                <input type="file" multiple="multiple" required="required" class="form-control" name="file-name" id="file-name"/>
+            <div class="form-container" id="upload-excel-form-container">
+                <div style="text-align: right">
+                    <i class="fa fa-close fa-2x close-btn"></i>
+                </div>
+                <form name="upload-excel-form" id="upload-excel-form">
+                    <div class="form-group">
+                        <label class="label label-primary">Select Files</label>
+                        <input accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" type="file" required="required" class="form-control" id="file-name"/>
+                    </div>
+                    <div class="form-group">
+                        <label class="label label-primary">Folder Name to Store Files</label>
+                        <input type="text" required="required" class="form-control" name="user-dir" id="user-dir"/>
+                    </div>
+                    <div class="form-group">
+                        <label class="label label-primary">DataSet Name</label>
+                        <input type="text" required="required" class="form-control" name="dataset-name" id="dataset-name"/>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-default upload">
+                            Upload
+                        </button>
+                    </div>
+                </form>
             </div>
-            <div class="form-group">
-                <label class="label label-primary">Folder Name to Store Files</label>
-                <input type="text" required="required" class="form-control" name="user-dir" id="user-dir"/>
+            <div class="form-container" id="show-uploaded-files-form-container">
+                <div style="text-align: right">
+                    <i class="fa fa-close fa-2x close-btn"></i>
+                </div>
+                <form name="show-uploaded-files-form" id="show-uploaded-files-form">
+                    <div class="form-group">
+                        <label class="label label-primary">Folder Name Where Files Are Stored</label>
+                        <input type="text" required="required" class="form-control" name="user-dir" id="user-dir"/>
+                    </div>
+                    <div class="form-group">
+                        <label class="label label-primary">DataSet Name</label>
+                        <input type="text" placeholder="Leave empty to target all datasets" required="required" class="form-control" name="dataset-name" id="dataset-name"/>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-default show">
+                            Show
+                        </button>
+                    </div>
+                </form>
             </div>
-            <div class="form-group">
-                <label class="label label-primary">DataSet Name</label>
-                <input type="text" required="required" class="form-control" name="dataset-name" id="dataset-name"/>
-            </div>
-            <div class="form-group">
-                <button type="button" class="btn btn-default upload">
-                    Upload
-                </button>
-            </div>
-            <div class="form-group">
-                <button type="button" class="btn btn-default save-data-uri">
-                    Save data URI
-                </button>
-            </div>
-        </form>
-        <div class="panel panel-info lobipanel">
-            <div class="panel-heading">Spectral Details</div>
-            <div class="panel-body">
-                <div class="row">
-                    <div class="col-lg-6">
-                        <div class="panel panel-default lobipanel" data-sortable="true">
-                            <div class="panel-heading">
-                                <div class="panel-title">
-                                    <h4>Intensity-Time Spectra</h4>
-                                </div>
+
+            <div class="tabs-container" id="tabs-container">
+                <div class="header">
+                    <div class="dataset-selection">
+                        <div id="toggler-container">
+                            <a class="btn btn-default" id="dataset-selection-toggler">
+                                <span id="selected-dataset">Select a data to view</span>
+                                <i class="fa fa-chevron-right" aria-hidden="true" style="margin-left: 70px;"></i>
+                            </a>
+                            <ul></ul>
+                        </div>
+
+                    </div>
+
+                    <div id="load-more-container">
+                        <div>
+                            <a class="btn btn-default" id="load-more-toggler">
+                                <span>Load More</span>
+                                <i class="fa fa-chevron-down" aria-hidden="true" style="margin-left: 70px;"></i>
+                            </a>
+                            <ul>
+                                <li id="10">10</li>
+                                <li id="20">20</li>
+                                <li id="30">30</li>
+                            </ul>
+                        </div>
+
+                    </div>
+                    <i style="text-align: right" class="fa fa-close fa-1x close-tab-btn"></i>
+                </div>
+                <div class="tab-body" id="tab-body">
+                    <div class="tabs">
+                        <div class="tab" id="cdf-tab" data-activate="cdf-tab-content">cdf</div>
+                        <div class="tab" id="hdf-tab" data-activate="hdf-tab-content">hdf</div>
+                        <div class="tab" id="excel-tab" data-activate="excel-tab-content">excel</div>
+                        <div class="tab" id="images-tab" data-activate="images-tab-content">images</div>
+                    </div>
+                    <div class="tab-content" id="tab-content">
+                        <div id="cdf-tab-content">
+                            <ul></ul>
+                        </div>
+                        <div id="hdf-tab-content">
+                            <ul></ul>
+                        </div>
+                        <div id="excel-tab-content">
+                            <ul></ul>
+                        </div>
+                        <div id="images-tab-content">
+                            <div class="image-container">
+                                <img class="img-responsive" src="364.9149897079935-438.8515764877651.png" alt="364.9149897079935-438.8515764877651.png"/>
+                                <div style="text-align: center" class="caption">364.9149897079935-438.8515764877651.png</div>
                             </div>
-                            <div class="panel-body">
-                                <div id="intensity-scan-chart-id" style="padding-bottom: 50px;"></div>
-                                <div class="panel panel-default">
-                                    <div class="panel-body">
-                                        <button type="button" class="btn btn-default prev" title="Show data for previous point">
-                                            <i class="fa fa-arrow-left fa-1x"></i>
-                                        </button> 
-                                        <button type="button" class="btn btn-default next" title="Show data for next point">
-                                            <i class="fa fa-arrow-right fa-1x"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-default backward" title="Start continuous BACKWARD scroll through the different Scan Acquisition Times and corresponding Intensity vs m/z spectra">
-                                            <i class="fa fa-fast-backward fa-1x"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-default forward" title="Start continuous FORWARD scroll through the different Scan Acquisition Times and corresponding Intensity vs m/z spectra">
-                                            <i class="fa fa-play fa-1x"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-default stop" title="STOP continuous scroll through the different Scan Acquisition Times and corresponding Intensity vs m/z spectra">
-                                            <i class="fa fa-stop fa-1x"></i>
-                                        </button>                                        
+
+                            <div class="image-container">
+                                <img class="img-responsive" src="364.9149897079935-438.8515764877651.png" alt="364.9149897079935-438.8515764877651.png"/>
+                                <div style="text-align: center" class="caption">364.9149897079935-438.8515764877651.png</div>
+                            </div>
+
+                            <div class="image-container">
+                                <img class="img-responsive" src="364.9149897079935-438.8515764877651.png" alt="364.9149897079935-438.8515764877651.png"/>
+                                <div style="text-align: center" class="caption">364.9149897079935-438.8515764877651.png</div>
+                            </div>
+                            <!--<ul></ul>-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-info lobipanel">
+                <div class="panel-heading">Spectral Details</div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="panel panel-default lobipanel" data-sortable="true">
+                                <div class="panel-heading">
+                                    <div class="panel-title">
+                                        <h4>Intensity-Time Spectra</h4>
+                                    </div>
+                                </div>
+                                <div class="panel-body">
+                                    <div id="intensity-scan-chart-id" style="padding-bottom: 50px;"></div>
+                                    <div class="panel panel-default">
+                                        <div class="panel-body">
+                                            <button type="button" class="btn btn-default prev" title="Show data for previous point">
+                                                <i class="fa fa-arrow-left fa-1x"></i>
+                                            </button> 
+                                            <button type="button" class="btn btn-default next" title="Show data for next point">
+                                                <i class="fa fa-arrow-right fa-1x"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-default backward" title="Start continuous BACKWARD scroll through the different Scan Acquisition Times and corresponding Intensity vs m/z spectra">
+                                                <i class="fa fa-fast-backward fa-1x"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-default forward" title="Start continuous FORWARD scroll through the different Scan Acquisition Times and corresponding Intensity vs m/z spectra">
+                                                <i class="fa fa-play fa-1x"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-default stop" title="STOP continuous scroll through the different Scan Acquisition Times and corresponding Intensity vs m/z spectra">
+                                                <i class="fa fa-stop fa-1x"></i>
+                                            </button>                                        
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="panel panel-default lobipanel" data-sortable="true">
-                            <div class="panel-heading">
-                                <div class="panel-title">
-                                    <h4>Intensity-m/z Spectra</h4>
+                            <div class="panel panel-default lobipanel" data-sortable="true">
+                                <div class="panel-heading">
+                                    <div class="panel-title">
+                                        <h4>Panel title</h4>
+                                    </div>
+                                </div>
+                                <div class="panel-body">
+                                    Panel 5
                                 </div>
                             </div>
-                            <div class="panel-body">
-                                <div id="intensity-mass-chart-id" style="padding-bottom: 50px;"></div>
-                            </div>
                         </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="panel panel-default lobipanel" data-sortable="true">
-                            <div class="panel-heading">
-                                <div class="panel-title">
-                                    <h4>Ion Image</h4>
+                        <div class="col-lg-6">
+                            <div class="panel panel-default lobipanel" data-sortable="true">
+                                <div class="panel-heading">
+                                    <div class="panel-title">
+                                        <h4>Intensity-m/z Spectra</h4>
+                                    </div>
+                                </div>
+                                <div class="panel-body">
+                                    <div id="intensity-mass-chart-id" style="padding-bottom: 50px;"></div>
                                 </div>
                             </div>
-                            <div class="panel-body">
-                                <div id="ion-image-container" style="padding-bottom: 50px;"></div>
-                            </div>
-                        </div>
-                        <div class="panel panel-default lobipanel" data-sortable="true">
-                            <div class="panel-heading">
-                                <div class="panel-title">
-                                    <h4>Panel title</h4>
+                            <div class="panel panel-default lobipanel" data-sortable="true">
+                                <div class="panel-heading">
+                                    <div class="panel-title">
+                                        <h4>Ion Image</h4>
+                                    </div>
+                                </div>
+                                <div class="panel-body">
+                                    <div id="ion-image-container" style="padding-bottom: 50px;"></div>
                                 </div>
                             </div>
-                            <div class="panel-body">
-                                Panel 5
-                            </div>
+
                         </div>
                     </div>
                 </div>
-            </div> 
-        </div>     
+            </div>
+        </div>
         <script src="front-end-frameworks/javascript/main.js"></script>
         <script src="front-end-frameworks/external/lobipanel/lobipanel.min.js"></script>
         <script>
             (function ($) {
-                $(".save-data-uri").click(function() {
-                    svgAsPngUri($("#ion-image-id svg:first-child").get(0), {}, function(uri) {
-                        var image = document.createElement("img");
-                        image.src = uri;
-                        image.onload = function() {
-                            document.body.appendChild(image);
-                        };
+                /*
+                 * Static behaviors of UI components that are likely never changed should be defined here so 
+                 * they can be set up on page load, any code that talks to a server should be implemented in a separate file.
+                 */
+                var nav = $("nav");
+                nav.children().each(function (index) {
+                    $(this).css("top", index * 104 + index * 5 + "px");
+                });
+                $(".toggler").click(function (event) {
+                    event.stopImmediatePropagation();
+                    $("nav > div").removeClass("selected");
+                    if (nav.hasClass("closed")) {
+                        nav.removeClass("closed").children().each(function (index) {
+                            $(this).delay(index * 90)
+                                    .animate({"opacity": "1", "left": "0px"}, 1000, "easeInOutBack");
+                        });
+                        d3.select($(this).get(0)).transition().duration(500).style("transform", "rotate(180deg");
+                    } else {
+                        nav.addClass("closed").children().each(function (index) {
+                            $(this).delay((nav.children().size() - index) * 90).animate({"opacity": "0", "left": "-300px"});
+                        });
+                        $(".form-container").fadeOut();
+                        $(".validation-error-dialog").fadeOut(400, function () {
+                            $(this).remove();
+                        });
+                        d3.select($(this).get(0)).transition().duration(500).style("transform", "rotate(0deg");
+                    }
+                    var that = this;
+                    $(document.documentElement).click(function (event) {
+                        if (!$.contains($("nav").get(0), event.target) && $(".form-container").has(event.target).size() === 0
+                                && !$(event.target).hasClass("form-container") && !$("nav").hasClass("closed"))
+                            $(that).click();
+
+                        $(".context-menu-dialog").hide();
                     });
                 });
+
+                $("#dataset-selection-toggler, #load-more-toggler").click(function () {
+                    $(this).parent().find("ul").fadeToggle();
+                });
+
+                $("#tabs-container").draggable().find(".tab").click(function (event) {
+                    event.stopImmediatePropagation();
+                    $(".tab").each(function () {
+                        $(this).removeClass("active-tab");
+                        $("#" + $(this).data("activate")).hide();
+                    });
+                    $(this).addClass("active-tab");
+                    $("#" + $(this).data("activate")).fadeIn();
+                });
+
+                $(".close-btn, .close-tab-btn").click(function (event) {
+                    event.stopImmediatePropagation();
+                    d3.selectAll(".validation-error-dialog")
+                            .transition()
+                            .style("opacity", 0)
+                            .duration(500)
+                            .remove();
+                    $(this).parent().parent().fadeOut();
+                });
+                $("#upload-cdf-hdf, #upload-excel, #show-uploaded-files").click(function (event) {
+                    event.stopImmediatePropagation();
+                    $("nav > div").removeClass("selected");
+                    $(this).parent().addClass("selected");
+                    $(".form-container").fadeOut();
+                    $(".validation-error-dialog").fadeOut(400, function () {
+                        $(this).remove();
+                    });
+                    $("#" + $(this).data("activate")).fadeIn().css({"left": $(this).width() + 10 + "px", "top": $(this).offset().top - 100 + "px"});
+                });
                 var handle;
-                $(".forward").click(function () {
+                $(".forward").click(function (event) {
+                    event.stopImmediatePropagation();
                     handle = setInterval(function () {
                         $(".next").get(0).click();
                     }, 500);
                 });
 
-                $(".backward").click(function () {
+                $(".backward").click(function (event) {
+                    event.stopImmediatePropagation();
                     handle = setInterval(function () {
                         $(".prev").get(0).click();
                     }, 500);
                 });
 
-                $(".stop").click(function () {
+                $(".stop").click(function (event) {
+                    event.stopImmediatePropagation();
                     clearInterval(handle);
                 });
 
-                $("#nav_to_kibana_discovery_page").click(function () {
+                $("#nav_to_kibana_discovery_page").click(function (event) {
+                    event.stopImmediatePropagation();
                     window.open("http://172.18.10.36:5601/app/kibana#/discover/Scientist-Name,-Dataset-Name,-Notes,-Folder-Location,-m-slash-z-list,-m-slash-z-list-file-name-and-sheet-name,-%23-of-raw-files-per-dataset?_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:now-15m,mode:quick,to:now))&_a=(columns:!('Scientist%20Name','%23%20Raw%20Files','Dataset%20Name',Notes,'Folder%20Location','User%20Selected%20m%2Fz%20list%20to%20save','m%2Fz%20Excel%20File','m%2Fz%20Excel%20File%20Sheet%20Name'),filters:!(),index:multi-modal,interval:auto,query:(query_string:(analyze_wildcard:!t,query:'*')),sort:!(_score,desc))");
                 });
-                $("#nav_to_kibana_dashboard").click(function () {
+                $("#nav_to_kibana_dashboard").click(function (event) {
+                    event.stopImmediatePropagation();
                     window.open("http://172.18.10.36:5601/app/kibana#/dashboard/Default-Mass-Spec-1?_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:now-15m,mode:quick,to:now))&_a=(filters:!(),options:(darkTheme:!t),panels:!((col:1,id:%23-of-Datasets-per-Scientist-with-Dataset-Name-and-Date-of-acquisition,panelIndex:1,row:1,size_x:7,size_y:5,type:visualization),(col:1,id:%23-of-Raw-Files-Per-Dataset,panelIndex:2,row:6,size_x:4,size_y:9,type:visualization),(col:9,id:Aspect-Ratios-per-Dataset,panelIndex:3,row:6,size_x:4,size_y:9,type:visualization),(col:8,id:'Table-with-Scientist-Name-and-basic-stats-like-Unique-%23-of-user-selected-m-slash-z-list-to-save,-std-dev-of-%23-of-raw-files,-Average-%23-of-Raw-files',panelIndex:4,row:1,size_x:5,size_y:5,type:visualization),(col:1,columns:!('Scientist%20Name','%23%20Raw%20Files','Dataset%20Name',Notes,'Folder%20Location','User%20Selected%20m%2Fz%20list%20to%20save','m%2Fz%20Excel%20File','m%2Fz%20Excel%20File%20Sheet%20Name'),id:'Scientist-Name,-Dataset-Name,-Notes,-Folder-Location,-m-slash-z-list,-m-slash-z-list-file-name-and-sheet-name,-%23-of-raw-files-per-dataset',panelIndex:5,row:15,size_x:12,size_y:6,sort:!(_score,desc),type:search),(col:5,id:Dataset-Types-vs.-Scientists-for-Nano-Desi,panelIndex:6,row:6,size_x:4,size_y:5,type:visualization),(col:5,id:Avergae-%23-of-Raw-files-vs.-Dataset-Type,panelIndex:7,row:11,size_x:4,size_y:4,type:visualization)),query:(query_string:(analyze_wildcard:!t,query:'*')),title:'Default%20Mass%20Spec%201',uiState:(P-2:(spy:(mode:(fill:!f,name:table)))))");
                 });
             })(jQuery);

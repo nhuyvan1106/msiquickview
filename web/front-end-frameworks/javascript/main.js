@@ -1,48 +1,52 @@
 /* global d3, pnnl */
 
 (function ($) {
-    var currentIndex = -1;
-    var resultData = {};
-    var offset = 0;
-    var moveTo = 0;
-    var totalElementsRead = 0;
-
     // Immediately populates these form fiels using their respective data saved locally before.
-    $("#user-dir").val(window.localStorage.getItem("user-dir") ? window.localStorage.getItem("user-dir") : "");
-    $("#dataset-name").val(window.sessionStorage.getItem("dataset-name") ? window.sessionStorage.getItem("dataset-name") : "");
-    d3.select(".upload").on("click", function () {
+    $("form #user-dir").val(getItemLocal("user-dir"));
+    $("form #dataset-name").val(getItemSession("dataset-name") ? getItemSession("dataset-name") : "");
+    d3.select("#upload-cdf-hdf-form .upload").on("click", function () {
         var url = "http://localhost:8080/Java-Matlab-Integration/UploaderServlet/upload";
         //window.history.pushState({}, "", url);
         d3.event.stopImmediatePropagation();
-        if (!pnnl.validation.validate("upload"))
+        if (!pnnl.validation.validate("upload-cdf-hdf-form"))
             return;
         else {
+            var files = Array.prototype.map.call(document.getElementById("file-name").files, function (file) {
+                return file;
+            });
+
+            if (files.some(function (file) { return !file.name.endsWith("cdf") && !file.name.endsWith("hdf"); })) {
+                errorCallback({
+                    "status": "400", "statusText": "Some files in your selection are not .cdf or .hdf files", "recommendedAction": "Please re-select"
+                });
+                return;
+            }
+            $("#upload-cdf-hdf-form-container").delay(250).fadeOut();
+            $(".toggler").click();
+            $(".error-dialog").fadeOut();
+            // Store user-entered directory and dataset name in browser-specific database to improve UI
+            var userDir = document.getElementById("user-dir").value;
+            var datasetName = document.getElementById("dataset-name").value;
+            
             // We are using D3 Dispatches module to handle updating icon when an item is clicked in file selection dialog.
             var dispatch = d3.dispatch("selectionchange");
             dispatch.on("selectionchange", function () {
-                $(".file-selection-dialog li i").each(function() {
+                var fileList = [];
+                $(".file-selection-dialog li i").each(function () {
                     $(this).removeClass("fa-check fa-hand-o-left");
+                    fileList.push(this.parentElement.id);
                 });
+                window.sessionStorage.setItem("file-names", fileList.join(","));
+                window.localStorage.setItem("user-dir", userDir);
+                window.sessionStorage.setItem("dataset-name", datasetName);
                 $(this).find("i").addClass("fa-hand-o-left");
             });
             $(".file-selection-dialog").fadeOut().remove();
             var ul = $("<ul></ul>");
-            var files = Array.prototype.map.call(document.getElementById("file-name").files, function (file) {
-                return file;
-            });
-            // Store user-entered directory and dataset name in browser-specific database to improve UI
-            var userDir = document.getElementById("user-dir").value;
-            var datasetName = document.getElementById("dataset-name").value;
-
-            window.sessionStorage.setItem("file-names", files.map(function (file) {
+            files.forEach(function(file) {
                 var fileName = pnnl.data.getFileName(file);
                 ul.append("<li id='" + fileName + "'>" + fileName + "<i class='fa fa-spinner fa-pulse file-upload-spinner' style='position: absolute; right: 20px; top: 15px;'></i></li>");
-                return fileName;
-            }).reduce(function (prev, next) {
-                return prev + "," + next;
-            }));
-            window.localStorage.setItem("user-dir", userDir);
-            window.sessionStorage.setItem("dataset-name", datasetName);
+            });
 
             pnnl.dialog.newDialogBuilder()
                     .createAlertDialog("file-selection-dialog", "file-selection-dialog")
@@ -50,6 +54,9 @@
                     .setCloseActionButton()
                     .setMessageBody(ul)
                     .show();
+            $(window).scroll(function () {
+                $("#file-selection-dialog").css({"top": (pnnl.utils.getScrollTop() + 20) + "px"});
+            });
             $(".file-selection-dialog").css("position", "absolute");
             $(".file-selection-dialog-header").mousedown(function (e) {
                 var fileDialog = document.getElementById("file-selection-dialog");
@@ -66,7 +73,7 @@
             });
             pnnl.data.upload(url, userDir, datasetName, files,
                     function () {
-                        $(document.documentElement).off("contextmenu click").contextmenu(function (event) {
+                        $(document.documentElement).off("contextmenu").contextmenu(function (event) {
                             showContextDialog(event, "", function () {
                                 switch (this.id) {
                                     case "hide-dialog":
@@ -77,17 +84,15 @@
                                         break;
                                 }
                             });
-                        }).click(function () {
-                            $(".context-menu-dialog").hide();
                         });
                         $(".file-selection-dialog .alert-dialog-header-title").html("Click on file to load");
                         d3.select(".file-selection-dialog").selectAll("li").each(function (d, i) {
                             $(this).find(".file-upload-spinner").removeClass("fa-pulse fa-spinner").addClass("fa-check");
                             d3.select(this).on("click", function () {
-                                if (window.sessionStorage.getItem("file-name") !== this.id || d3.select(".intensity-scan-chart").empty()) {
+                                if (getItemSession("file-name") !== this.id || d3.select(".intensity-scan-chart").empty()) {
                                     pnnl.draw.drawSpinner();
                                     pnnl.draw.drawOverlay();
-                                    loadData(window.localStorage.getItem("user-dir"), window.sessionStorage.getItem("dataset-name"), this.id);
+                                    loadData(getItemLocal("user-dir"), getItemSession("dataset-name"), this.id);
                                     window.sessionStorage.setItem("file-name", this.id);
                                     dispatch.call("selectionchange", this);
                                 }
@@ -97,8 +102,167 @@
         }
     });
 
+    d3.select("#upload-excel-form .upload").on("click", function () {
+        var url = "http://localhost:8080/Java-Matlab-Integration/UploaderServlet/extract-excel";
+        //window.history.pushState({}, "", url);
+        d3.event.stopImmediatePropagation();
+        if (!pnnl.validation.validate("upload-excel-form"))
+            return;
+        else {
+            var file = $("#upload-excel-form #file-name").get(0).files[0];
+            if (!file.name.endsWith("xls") && !file.name.endsWith("xlsx")) {
+                errorCallback({
+                    "status": "400", "statusText": "File selected is not an excel file", "recommendedAction": "Please re-select"
+                });
+                return;
+            }
+            $("#upload-excel-form-container").delay(250).fadeOut();
+            $(".error-dialog").fadeOut();
+            $(".toggler").click();
+            var formData = new FormData();
+            formData.append("user-dir", "vann363");
+            formData.append("dataset-name", "nic");
+            formData.append("excel-file", file);
 
-    $(".next").click(function () {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readystate === 4) {
+                    if (xhr.status === 200)
+                        console.log("SUCCESS");
+                    else
+                        console.log("FAILURE");
+                }
+            };
+            xhr.open("POST", url);
+            xhr.send(formData);
+        }
+    });
+
+    d3.select("#show-uploaded-files-form .show").on("click", function () {
+        var url = "http://localhost:8080/Java-Matlab-Integration/DirectoryInspectorServlet/";
+        //window.history.pushState({}, "", url);
+        d3.event.stopImmediatePropagation();
+        if (!pnnl.validation.validate("show-uploaded-files-form", "dataset-name"))
+            return;
+        else {
+            $("#show-uploaded-files-form-container").delay(250).fadeOut();
+            $(".toggler").click();
+            var userDir = $("#show-uploaded-files-form #user-dir").val();
+            var datasetName = $("#show-uploaded-files-form #dataset-name").val();
+            
+            window.localStorage.setItem("user-dir", userDir);
+            window.sessionStorage.setItem("dataset-name", datasetName);
+
+            exploreDir(userDir, datasetName);
+            
+            function exploreDir(userDir, datasetName) {
+                $.ajax(url + "view-files", {
+                    "method": "GET",
+                    "data": {
+                        "user-dir": userDir,
+                        "dataset-name": datasetName
+                    },
+                    "success": function (data) {
+                        update(data);
+                        var payload = data.payload[0];
+                        populateList("#cdf-tab-content ul", payload.cdf, true);   
+                        populateList("#hdf-tab-content ul", payload.hdf, true);
+                        populateList("#excel-tab-content ul", payload.excel, false);
+                        populateImages(payload.images, payload["image-data"]);
+                        $("#tabs-container").fadeIn().css("left", (screen.width - $("#tabs-container").width())/2 + "px");
+                    },
+                    "error": function (xhr) {
+                        error(xhr);
+                        console.log(xhr);
+                    }
+                });
+                
+                function populateList(selector, data, clickable) {
+                    var ul = d3.select(selector);
+                    ul.select("div").remove();
+                    var joined = ul.selectAll("li").data(data);
+                    joined.exit().remove();
+                    if (data.length === 0) {
+                        ul.append("div").text("This folder is empty").style("text-align", "center");
+                        return;
+                    }
+                    joined.attr("id", function(d) { return d; }).select("span").text(function(d) { return d; });
+                    var enter = joined.enter().append("li").attr("id", function(d) { return d; });
+                    enter.append("span").text(function(d) { return d; });
+                    
+                    if (clickable)
+                        enter.append("i").attr("class", "fa fa-line-chart plot-graph")
+                            .attr("title", "Plot graph for this file")
+                            .on("click", function() {
+                                pnnl.draw.drawOverlay();
+                                pnnl.draw.drawSpinner();
+                                var fileNames = Array.prototype.map.call(document.querySelectorAll(selector + " li"), function(li) {
+                                    return li.id; 
+                                 });
+                                window.sessionStorage.setItem("file-names", fileNames);
+                                loadData(userDir, $("#dataset-selection-toggler #selected-dataset").text(), this.parentElement.id);
+                        });
+                }
+                
+                function populateImages(imageNames, imageData) {
+                    var obj = imageNames.map(function(name, i) {
+                       return { "name": name, "data": "data:image/png;base64," + imageData[i] }; 
+                    });
+                    var containers = d3.select("#images-tab-content")
+                            .selectAll(".image-container")
+                            .data(obj);
+                    containers.select("img")
+                            .attr("src", function(d) {return d.data; })
+                            .attr("alt", function(d) { return d.name; });
+                    containers.select(".caption")
+                            .text(function(d) { return d.name; });
+                    
+                    containers.exit().remove();
+                    var enter = containers.enter().append("div").attr("class", "image-container");
+                    enter.append("img")
+                            .attr("src", function(d) {return d.data; })
+                            .attr("alt", function(d) { return d.name; });
+                    enter.append("div")
+                            .attr("class", "caption")
+                            .text(function(d) { return d.name; });
+                    
+                    d3.select("#load-more-container")
+                            .style("visibility", "visible")
+                            .selectAll("ul li")
+                            .each(function() {
+                                d3.select(this).on("click", function() {
+                                    $(this).parent().fadeOut();
+                                    console.log(this.id);
+                                });
+                                
+                            });
+                }
+                
+                function update(data) {
+                    $("#dataset-selection-toggler #selected-dataset").text(data.payload[0].dataset);
+                    var joined = d3.select("#tabs-container .dataset-selection ul").selectAll("li").data(data.datasets);
+                    joined.exit().remove();
+                    joined.attr("id", function(d) { return d; }).text(function(d) { return d; });
+                    joined.enter().append("li").attr("id", function(d) { return d; }).text(function(d) { return d; })
+                            .on("click", function() {
+                                var id = this.id;
+                                window.sessionStorage.setItem("dataset-name", id);
+                                $("#dataset-selection-toggler span").text(id);
+                                exploreDir(getItemLocal("user-dir"), id);
+                                $(this).parent().fadeOut();
+                            });
+                }
+            }
+        }
+    });
+
+    var currentIndex = -1;
+    var resultData = {};
+    var offset = 0;
+    var moveTo = 0;
+    var totalElementsRead = 0;
+    $(".next").click(function (event) {
+        event.stopPropagation();
         if (currentIndex < resultData.pointCount.length - 1) {
             currentIndex++;
             moveTo += 690 / resultData.pointCount.length;
@@ -106,12 +270,13 @@
             if (currentIndex % 20 === 0 && currentIndex !== 0 /*&& currentIndex !== resultData.length - 1*/) {
                 var url = "http://localhost:8080/Java-Matlab-Integration/DataFetcherServlet/load-more";
                 //window.history.pushState({}, "", url);
-                pnnl.draw.drawOverlay().drawSpinner();
-                var fileName = window.sessionStorage.getItem("file-name");
+                pnnl.draw.drawOverlay();
+                pnnl.draw.drawSpinner();
+                var fileName = getItemSession("file-name");
                 var requestParams = {
                     "file-name": fileName,
-                    "dataset-name": window.sessionStorage.getItem("dataset-name"),
-                    "user-dir": window.localStorage.getItem("user-dir"),
+                    "dataset-name": getItemSession("dataset-name"),
+                    "user-dir": getItemLocal("user-dir"),
                     "file-type": fileName.indexOf("hdf") !== -1 ? "hdf" : "cdf",
                     "offset": offset,
                     "direction": "forward",
@@ -140,7 +305,8 @@
         }
 
     });
-    $(".prev").click(function () {
+    $(".prev").click(function (event) {
+        event.stopImmediatePropagation();
         if (currentIndex > 0) {
             moveTo -= 690 / resultData.pointCount.length;
             pnnl.draw.moveIndicatorBar(moveTo);
@@ -152,12 +318,13 @@
             } else {
                 var url = "http://localhost:8080/Java-Matlab-Integration/DataFetcherServlet/load-more";
                 //window.history.pushState({}, "", url);
-                pnnl.draw.drawSpinner().drawOverlay();
-                var fileName = window.sessionStorage.getItem("file-name");
+                pnnl.draw.drawSpinner();
+                pnnl.draw.drawOverlay();
+                var fileName = getItemSession("file-name");
                 var requestParams = {
                     "file-name": fileName,
-                    "dataset-name": window.sessionStorage.getItem("dataset-name"),
-                    "user-dir": window.localStorage.getItem("user-dir"),
+                    "dataset-name": getItemSession("dataset-name"),
+                    "user-dir": getItemLocal("user-dir"),
                     "file-type": fileName.indexOf("hdf") !== -1 ? "hdf" : "cdf",
                     "offset": offset,
                     "direction": "backward",
@@ -227,43 +394,43 @@
                                                 $(".file-selection-dialog").fadeIn().css({"top": event.pageY, "left": event.pageX});
                                                 break;
                                             case "generate-image":
-                                                pnnl.draw.drawOverlay().drawSpinner();
-                                                var fileNames = window.sessionStorage.getItem("file-names");
+                                                pnnl.draw.drawSpinner();
+                                                pnnl.draw.drawOverlay();
+                                                var fileNames = getItemSession("file-names");
                                                 $.ajax("http://localhost:8080/Java-Matlab-Integration/IonImageGeneratorServlet/generate-image",
-                                                        {
-                                                            "method": "GET",
-                                                            "data": {
-                                                                "user-dir": window.localStorage.getItem("user-dir"),
-                                                                "dataset-name": window.sessionStorage.getItem("dataset-name"),
-                                                                "file-type": fileNames.indexOf("hdf") !== -1 ? "hdf" : "cdf",
-                                                                "file-names": fileNames,
-                                                                "lower-bound": range[0],
-                                                                "upper-bound": range[1]
-                                                            },
-                                                            "success": function (data) {
-                                                                pnnl.draw.removeSpinnerOverlay();
-                                                                data = pnnl.data.parseData(data);
-                                                                var config = {
-                                                                    "idName": "ion-image-container",
-                                                                    "className": "ion-image"
-                                                                };
-                                                                //$(".ion-image").remove();
-                                                                var dimensions = data[0];
-                                                                data = data[1];
-                                                                var result = [];
-                                                                for (var i = 0; i < dimensions[0]; i++) {
-                                                                    result.push([]);
-                                                                    for (var j = i; j < data.length; j += dimensions[0])
-                                                                        result[i].push(data[j]);
-                                                                }
-                                                                drawImage(config, range, d3.extent(data, function (d) {
-                                                                    return d;
-                                                                }), result, dimensions[0]);
-                                                            },
-                                                            "error": function (xhr) {
-                                                                errorCallback(xhr);
+                                                    {
+                                                        "method": "GET",
+                                                        "data": {
+                                                            "user-dir": getItemLocal("user-dir"),
+                                                            "dataset-name": getItemSession("dataset-name"),
+                                                            "file-type": fileNames.indexOf("hdf") !== -1 ? "hdf" : "cdf",
+                                                            "file-names": fileNames,
+                                                            "lower-bound": range[0],
+                                                            "upper-bound": range[1]
+                                                        },
+                                                        "success": function (data) {
+                                                            pnnl.draw.removeSpinnerOverlay();
+                                                            data = pnnl.data.parseData(data);
+                                                            var config = {
+                                                                "idName": "ion-image-container",
+                                                                "className": "ion-image"
+                                                            };
+                                                            var dimensions = data[0];
+                                                            data = data[1];
+                                                            var result = [];
+                                                            for (var i = 0; i < dimensions[0]; i++) {
+                                                                result.push([]);
+                                                                for (var j = i; j < data.length; j += dimensions[0])
+                                                                    result[i].push(data[j]);
                                                             }
-                                                        });
+                                                            drawImage(config, range, d3.extent(data, function (d) {
+                                                                return d;
+                                                            }), result, dimensions[0]);
+                                                        },
+                                                        "error": function (xhr) {
+                                                            errorCallback(xhr);
+                                                        }
+                                                    });
                                                 break;
                                         }
                                     });
@@ -295,17 +462,14 @@
                 return {"x": e, "y": totalIntensity[i] / Math.pow(10, 8)};
             }));
             pnnl.draw.removeSpinnerOverlay();
-            $(".nav-buttons").hide();
-            $(".nav-buttons").show()
-                    .insertAfter("svg")
-                    .css({"position": "relative", "top": config.height + config.top + config.bottom, "left": config.width / 2 - 25});
         }
     }
     // Global HTTP request response error handling
     function errorCallback(xhr) {
+        var action = xhr.recommendedAction ? xhr.recommendedAction : "Please contact technical support";
         pnnl.draw.removeSpinnerOverlay();
         var messageBody = "<div>Error Code: " + xhr.status + "</div>" +
-                "<div>Error Message: " + xhr.statusText + "</div>Please contact technical support";
+                "<div>Error Message: " + xhr.statusText + "</div><div style='text-align:center'>" + action + "</div>";
         $(".error-dialog").remove();
         pnnl.dialog.newDialogBuilder()
                 .createAlertDialog("error-dialog", "error-dialog")
@@ -338,7 +502,7 @@
         }
         $(".context-menu-dialog li").click(clickFunction);
     }
-    
+
     function drawImage(config, range, bounds, dataArray, dimension) {
         var margin = {top: 20, right: 15, bottom: 10, left: 15};
         var width = 350 - margin.left - margin.right;
@@ -348,6 +512,7 @@
         var svg = d3.select("#" + config.idName)
                 .append("svg")
                 .attr("id", id)
+                .attr("class", getItemSession("dataset-name"))
                 // Show a dialog when user right clicks on an image
                 .on("contextmenu", function () {
                     var body = "<li id='save-image'>Save</li>";
@@ -361,37 +526,41 @@
                                 $(".file-selection-dialog").fadeIn().css({"top": event.pageY, "left": event.pageX});
                                 break;
                             case "save-image":
-                                pnnl.draw.drawSpinner().drawOverlay();
-                                svgAsPngUri(document.getElementById(selectedImageId), {}, function (uri) {
-                                    var url = "http://localhost:8080/Java-Matlab-Integration/UploaderServlet/save-image";
-                                    var formData = new FormData();
-                                    formData.append("user-dir", window.localStorage.getItem("user-dir"));
-                                    formData.append("dataset-name", window.sessionStorage.getItem("dataset-name"));
-                                    formData.append("image-name", selectedImageId);
-                                    formData.append("image-data", uri.replace("data:image/png;base64,", ""));
-                                    var xhr = new XMLHttpRequest();
-                                    xhr.onreadystatechange = function () {
-                                        pnnl.draw.removeSpinnerOverlay();
-                                        d3.select("#notification-dialog").remove();
-                                        if (xhr.readyState === 4) {
-                                            if (xhr.status === 200)
-                                                pnnl.dialog.newDialogBuilder()
-                                                        .createAlertDialog("notification-dialog")
-                                                        .setMessageBody("Image saved successfully")
-                                                        .removeHeader()
-                                                        .show(function (id) {
-                                                            $(id).fadeIn()
-                                                                    .css("top", 10 + pnnl.utils.getScrollTop() + "px")
-                                                                    .delay(5000).fadeOut();
-                                                        });
-                                            else
-                                                errorCallback(xhr);
-                                        }
-                                    };
+                                pnnl.draw.drawSpinner();
+                                pnnl.draw.drawOverlay();
 
-                                    xhr.open("POST", url);
-                                    xhr.send(formData);
-                                });
+                                setTimeout(function () {
+                                    svgAsPngUri(document.getElementById(selectedImageId), {}, function (uri) {
+                                        var url = "http://localhost:8080/Java-Matlab-Integration/UploaderServlet/save-image";
+                                        var formData = new FormData();
+                                        formData.append("user-dir", getItemLocal("user-dir"));
+                                        formData.append("dataset-name", document.getElementById(selectedImageId).className.baseVal);
+                                        formData.append("image-name", selectedImageId);
+                                        formData.append("image-data", uri.replace("data:image/png;base64,", ""));
+                                        var xhr = new XMLHttpRequest();
+                                        xhr.onreadystatechange = function () {
+                                            pnnl.draw.removeSpinnerOverlay();
+                                            d3.select("#notification-dialog").remove();
+                                            if (xhr.readyState === 4) {
+                                                if (xhr.status === 200)
+                                                    pnnl.dialog.newDialogBuilder()
+                                                            .createAlertDialog("notification-dialog")
+                                                            .setMessageBody("Image saved successfully")
+                                                            .removeHeader()
+                                                            .show(function (id) {
+                                                                $(id).fadeIn()
+                                                                        //.css({"bottom": "10px", "position": "fixed"})
+                                                                        .delay(5000).fadeOut();
+                                                            });
+                                                else
+                                                    errorCallback(xhr);
+                                            }
+                                        };
+
+                                        xhr.open("POST", url);
+                                        xhr.send(formData);
+                                    });
+                                }, 500);
                                 break;
                         }
                     });
@@ -442,6 +611,15 @@
                     .text(id)
                     .style("font-family", "monospace");
         }
+    }
+
+    function getItemLocal(name) {
+        var value = window.localStorage.getItem(name);
+        return value ? value : "";
+    }
+    function getItemSession(name) {
+        var value = window.sessionStorage.getItem(name);
+        return value ? value : "";
     }
     function log(msg) {
         console.log(msg);
