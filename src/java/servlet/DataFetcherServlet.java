@@ -100,6 +100,7 @@ public class DataFetcherServlet extends HttpServlet {
             processRequest(request, response);
         } catch (MWException ex) {
             Logger.getLogger(DataFetcherServlet.class.getName()).log(Level.SEVERE, null, ex);
+            response.sendError(500, ex.getMessage());
         }
     }
 

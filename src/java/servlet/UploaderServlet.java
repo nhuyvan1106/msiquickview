@@ -3,13 +3,8 @@ package servlet;
 import com.mathworks.toolbox.javabuilder.*;
 import java.io.*;
 import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.logging.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -28,7 +23,6 @@ public class UploaderServlet extends HttpServlet {
 
     @Inject
     private ExcelIonImageGenerator generator;
-
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, MWException, InvalidFormatException {
         
@@ -60,7 +54,7 @@ public class UploaderServlet extends HttpServlet {
                                 file = new File(dir + "cdf" + File.separator + fileName);
                             try (InputStream is = part.getInputStream()) {
                                 if (!file.exists())
-                                    Files.copy(is, file.toPath());
+                                    copy(is, file.toPath(), response);
                             }
                             break;
                     }
@@ -74,7 +68,7 @@ public class UploaderServlet extends HttpServlet {
                             imageName = getFileName(part);
                             break;
                         case "image-data":
-                            Files.copy(Base64.getDecoder().wrap(part.getInputStream()), new File(dir + "images" + File.separator + imageName + ".png").toPath());
+                            copy(Base64.getDecoder().wrap(part.getInputStream()), new File(dir + "images" + File.separator + imageName + ".png").toPath(), response);
                             break;
                     }
                 }
@@ -89,7 +83,7 @@ public class UploaderServlet extends HttpServlet {
                         case "excel-file":
                             Path excel = Paths.get(dir + "excel", part.getSubmittedFileName());
                             if (!Files.exists(excel))
-                                Files.copy(part.getInputStream(), excel);
+                                copy(part.getInputStream(), excel, response);
                             Double[][] ranges = ExcelExtractor.extractSheet(WorkbookFactory.create(excel.toFile()));
                             generator.generate(dir + "images" + File.separator, ranges);
                             System.out.println("AFTER generate");
@@ -100,6 +94,14 @@ public class UploaderServlet extends HttpServlet {
         }
     }
 
+    private void copy(InputStream is, Path path, HttpServletResponse response) throws IOException {
+        try {
+            Files.copy(is, path);
+        } catch (IOException ex) {
+            Logger.getLogger(UploaderServlet.class.getName()).log(Level.SEVERE, null, ex);
+            response.sendError(500, "File you're trying to save already exists");
+        }
+    }
     private String getFileName(Part part) {
         try (BufferedReader r = new BufferedReader(new InputStreamReader(part.getInputStream()))) {
             return r.readLine();
@@ -116,12 +118,12 @@ public class UploaderServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         try {
             processRequest(request, response);
         } catch (MWException | InvalidFormatException ex) {
             Logger.getLogger(UploaderServlet.class.getName()).log(Level.SEVERE, null, ex);
+            response.sendError(500, ex.getMessage());
         }
     }
 

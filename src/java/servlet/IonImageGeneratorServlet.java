@@ -50,7 +50,7 @@ public class IonImageGeneratorServlet extends HttpServlet {
             processRequest(request, response);
         } catch (MWException ex) {
             Logger.getLogger(IonImageGeneratorServlet.class.getName()).log(Level.SEVERE, null, ex);
-            response.sendError(500);
+            response.sendError(500, ex.getMessage());
         }
     }
 

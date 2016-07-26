@@ -26,7 +26,6 @@ public class ExcelIonImageGenerator {
     public ExcelIonImageGenerator() throws MWException {
         clazz1 = new Class1();
         clazz2 = new Class1();
-        pool = Executors.newFixedThreadPool(1);
     }
 
     public void generate(String path, Double[][] ranges) throws MWException {
@@ -34,13 +33,8 @@ public class ExcelIonImageGenerator {
         /*Double[][] d1 = new Double[(int) Math.floor(ranges.length / 2)][2];
         System.arraycopy(ranges, 0, d1, 0, d1.length);
         Double[][] d2 = new Double[ranges.length - d1.length][2];
-        System.arraycopy(ranges, d1.length, d2, 0, d2.length);
-        
-        pool.submit(() -> generateHelper(path + "i1" + File.separator, d1, clazz1));
-        pool.submit(() -> generateHelper(path + "i2" + File.separator, d2, clazz2));*/
+        System.arraycopy(ranges, d1.length, d2, 0, d2.length);*/
         pool.submit(() -> generateHelper(path, ranges, clazz1));
-        /*CompletableFuture<?> cf = CompletableFuture.runAsync(() -> generateHelper(path, ranges, clazz1));
-        cf.handleAsync((a,b) -> "DONE").thenAccept(System.out::println);*/
     }
 
     private void generateHelper(String path, Double[][] ranges, Class1 clazz) {

@@ -15,7 +15,7 @@ var pnnl = {
                     if (xhr.status === 200)
                         successCallback();
                     else
-                        errorCallback(xhr);
+                        errorCallback(xhr.statusText);
                 }
 
             };
@@ -37,8 +37,8 @@ var pnnl = {
                     var pointCount = result[4];
                     successCallback(totalIntensity, scanAcquisitionTime, intensityValues, massValues, pointCount);
                 },
-                "error": function (xhr, error, message) {
-                    errorCallback(xhr, error, message);
+                "error": function (xhr) {
+                    errorCallback(xhr.statusText);
                 }
             });
         },
@@ -66,8 +66,8 @@ var pnnl = {
                         return {"x": massValues[i], "y": d / Math.pow(10, 7)};
                     }));
                 },
-                "error": function (xhr, error, message) {
-                    errorCallback(xhr, error, message);
+                "error": function (xhr) {
+                    errorCallback(xhr.statusText);
                 }
             });
         },
@@ -191,29 +191,13 @@ var pnnl = {
             }*/
         },
         drawOverlay: function () {
-            $("<div></div>").css({
-                "position": "fixed",
-                "top": "0",
-                "width": "100%",
-                "magin": "0",
-                "height": "100%",
-                "z-index": "20",
-                "background": "rgba(0,256,256,0.25)"
-            }).attr("class", "overlay").fadeIn("slow").prependTo("body");
-            return this;
+            $(".overlay").fadeIn("slow").prependTo("body");
         },
         drawSpinner: function () {
-            $("<i></i>").css(
-                    {"position": "absolute", "top": ($(window).height() / 3 + pnnl.utils.getScrollTop()) + "px",
-                        "left": "48%", "font-size": "8em", "line-height": "100%", "display": "block", "z-index": "21"
-                    })
-                    .attr({"class": "spinner fa fa-spinner fa-pulse", "aria-hidden": "true"})
-                    .fadeIn()
-                    .appendTo("body");
-            return this;
+            $(".spinner").fadeIn().css("top", ($(window).height() / 3 + pnnl.utils.getScrollTop()) + "px");
         },
         removeSpinnerOverlay: function () {
-            $(".spinner, .overlay").fadeOut().delay(1000).remove();
+            $(".spinner, .overlay").fadeOut();
         },
         /*
          * @param {number} x The new x coordinate of the indicator line to move to relative to the y axis.

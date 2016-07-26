@@ -20,30 +20,27 @@ public class JsonWriter {
 
     private JsonWriter() {
     }
-
-    public static void main(String[] args) throws IOException {
-        writeUserDir(new JsonFactory().createJsonGenerator(System.out).useDefaultPrettyPrinter(), "C:\\Users\\NhuY\\Desktop\\Java-Matlab-Integration\\build\\web\\WEB-INF\\temp\\vann363", null);
-    }
-
+    
     public static void writeUserDir(JsonGenerator generator, String userDir, String datasetName) throws FileNotFoundException {
         Predicate<File> p = null;
         if (!Files.exists(Paths.get(userDir))) {
+            userDir = userDir.substring(userDir.indexOf("temp") + 5);
             throw new FileNotFoundException("Folder with given name: " + userDir + " does not exist");
         }
         if (datasetName != null && !"".equals(datasetName)) {
-            if (!Files.exists(Paths.get(userDir))) {
-                throw new FileNotFoundException("Folder with given name: " + datasetName + " does not exist");
+            if (!Files.exists(Paths.get(userDir, datasetName))) {
+                throw new FileNotFoundException("Dataset with given name: " + datasetName + " does not exist");
             }
             p = file -> file.getName().equals(datasetName);
         } else {
             p = file -> true;
         }
         try {
-            File d = new File(userDir);
+            File[] files = new File(userDir).listFiles();
             generator.writeStartObject();
-            writeArray(generator, "datasets", d);
+            listFileNames(generator, "datasets", files, 0, Integer.MAX_VALUE);
             generator.writeArrayFieldStart("payload");
-            Arrays.stream(d.listFiles())
+            Arrays.stream(files)
                     .filter(file -> !file.isHidden())
                     .filter(p)
                     .limit(1)
@@ -56,11 +53,12 @@ public class JsonWriter {
         }
     }
 
-    public static void writeImageData(JsonGenerator generator, String path, int limit) throws IOException {
+    public static void writeImageData(JsonGenerator generator, String path, int skip, int limit) throws IOException {
         Base64.Encoder encoder = Base64.getEncoder();
         generator.writeArrayFieldStart("image-data");
         Arrays.stream(new File(path).listFiles())
                 .filter(file -> !file.isHidden())
+                .skip(skip)
                 .limit(limit)
                 .map(file -> encodeImageDataHelper(file, encoder))
                 .forEach(e -> {
@@ -78,35 +76,29 @@ public class JsonWriter {
             generator.writeStartObject();
             generator.writeStringField("dataset", dir.getName());
             for (File file : dir.listFiles())
-                writeArray(generator, file.getName(), file);
-            writeImageData(generator, dir.toString() + File.separator + "images", 10);
+                listFileNames(generator, file.getName(), file.listFiles(), 0, Integer.MAX_VALUE);
+            writeImageData(generator, dir.toString() + File.separator + "images", 0, 10);
             generator.writeEndObject();
         } catch (IOException ex) {
             Logger.getLogger(JsonWriter.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
-    private static void writeArray(JsonGenerator generator, String field, File dir) {
-        try {
-            generator.writeArrayFieldStart(field);
-            listFileNames(dir, generator);
-            generator.writeEndArray();
-        } catch (IOException ex) {
-            Logger.getLogger(JsonWriter.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    private static void listFileNames(File dir, JsonGenerator generator) {
-        Arrays.stream(dir.listFiles())
+    
+    public static void listFileNames(JsonGenerator generator, String field, File[] files, int skip, int limit) throws IOException {
+        generator.writeArrayFieldStart(field);
+        Arrays.stream(files)
                 .filter(file -> !file.isHidden())
+                .skip(skip)
+                .limit(limit)
                 .map(File::getName)
-                .forEach((text) -> {
+                .forEach(text -> {
                     try {
                         generator.writeString(text);
                     } catch (IOException ex) {
                         Logger.getLogger(JsonWriter.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 });
+        generator.writeEndArray();
     }
 
     private static String encodeImageDataHelper(File file, Base64.Encoder encoder) {
