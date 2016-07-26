@@ -18,11 +18,11 @@
     </head>
     <body>
         <div class="overlay" style="display:none;position:fixed;top:0;width:100%;margin:0;height:100%;z-index:20;background:rgba(0,256,256,0.25)"></div>
+
         <div class="wrapper">
             <div class="toggler">
                 <i class="fa fa-arrow-right fa-2x" aria-hidden="true"></i>
             </div>
-            
             <header>
                 MSI QUICKVIEW
             </header>
@@ -148,11 +148,14 @@
                         </div>
 
                         <div id="quantity">
-                            <span id="current"></span> / <span id="total"></span>
+                            <span id="current">10</span> / <span id="total">12</span>
                         </div>
                     </div>
-
-                    <i style="text-align: right" class="fa fa-close fa-1x close-tab-btn"></i>
+                    <div id="action-container">
+                        <i class="fa fa-refresh" id="refresh" aria-hidden="true"></i>
+                        <i style="text-align: right" class="fa fa-close fa-1x close-tab-btn"></i>
+                    </div>
+                    
                 </div>
                 <div class="tab-body" id="tab-body">
                     <div class="tabs">
@@ -325,7 +328,7 @@
 
                 $(".close-tab-btn").click(function (event) {
                     event.stopImmediatePropagation();
-                    var parent = this.parentElement.parentElement;
+                    var parent = this.parentElement.parentElement.parentElement;
                     var offset = $(parent).offset();
                     d3.select(parent)
                             .style("transform-origin", "0 100%")
@@ -333,7 +336,7 @@
                             .duration(800)
                             .style("opacity", 0)
                             .style("transform", "translate(-" + offset.left + "px,"
-                                    + (document.documentElement.clientHeight - offset.top - $(parent).height() + pnnl.utils.getScrollTop())
+                                    + (document.documentElement.clientHeight - 5 - offset.top - $(parent).height() + pnnl.utils.getScrollTop())
                                     + "px) scale(0,0)");
                     setTimeout(function () {
                         $("#tab-opener").show();

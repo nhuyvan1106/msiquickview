@@ -187,6 +187,7 @@ form {
 
     #load-more-toggler {
         @extend #dataset-selection-toggler;
+        margin-bottom: -5px;
     }
 
     #quantity {
@@ -195,15 +196,32 @@ form {
         margin-top: 15px;
         vertical-align: top
     }
-    .close-tab-btn {
-        padding: 5px;
-        height: 5px;
+
+    #action-container {
         font-size: 20px;
-        &:hover {
-            transform: none;
-            color: brown;
+        vertical-align: middle;
+
+        & * {
+            transition: background-color 0.2s linear;
+            border: 2px solid gray;
+            padding: 10px 14px;
+            border-radius: 50%;
+            line-height: 25px;
+            margin: 3px;
+        }
+        
+        & *:hover {
+            background-color: #FF80AB;
             cursor: pointer;
         }
+    }
+
+    #refresh {
+        transition: background-color 0.2s linear, transform 0.2s linear;
+    }
+    #refresh:hover {
+        transform: rotate(180deg);
+        background-color: #FF80AB;
     }
     .tabs {
         .tab:last-child {
@@ -237,7 +255,7 @@ form {
 
     .tab-content {
         width: 100%;
-        max-height: 549px;
+        max-height: 547px;
         border: 2px solid gray;
         border-top: none;
         background-color: white;

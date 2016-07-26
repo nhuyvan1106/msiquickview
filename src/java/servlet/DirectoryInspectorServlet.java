@@ -6,17 +6,12 @@
 package servlet;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import java.io.File;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.logging.*;
 import javax.inject.Inject;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.*;
 import json.JsonWriter;
 import resource.ApplicationResourcePool;
 
@@ -24,7 +19,8 @@ import resource.ApplicationResourcePool;
  *
  * @author NhuY
  */
-@WebServlet(name = "DirectoryInspectorServlet", urlPatterns = {"/DirectoryInspectorServlet/view-files", "/DirectoryInspectorServlet/load-more-images"})
+@WebServlet(name = "DirectoryInspectorServlet", urlPatterns = {"/DirectoryInspectorServlet/view-files", "/DirectoryInspectorServlet/load-more-images",
+"/DirectoryInspectorServlet/refresh"})
 public class DirectoryInspectorServlet extends HttpServlet {
 
     @Inject
@@ -51,9 +47,20 @@ public class DirectoryInspectorServlet extends HttpServlet {
                 JsonWriter.writeImageData(generator, path, skip, limit);
                 JsonWriter.listFileNames(generator, "images", files, skip, limit);
                 generator.writeEndObject();
-                generator.close();
+                break;
+                
+            case "/DirectoryInspectorServlet/refresh":
+                String restrict = request.getParameter("restrict");
+                File[] files2 = new File(userDir + File.separator + datasetName + File.separator + request.getParameter("folder")).listFiles();
+                generator.writeStartObject();
+                if (restrict != null && !"".equals(restrict))
+                    generator.writeStringField("payload", String.valueOf(Arrays.stream(files2).filter(f -> !f.isHidden()).count()));
+                else
+                    JsonWriter.listFileNames(generator, "payload", files2, 0, Integer.MAX_VALUE);
+                generator.writeEndObject();
                 break;
         }
+        generator.close();
         writer.close();
     }
 

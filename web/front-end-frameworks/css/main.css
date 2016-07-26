@@ -153,19 +153,31 @@ form {
     .tabs-container #load-more-container ul {
       left: initial;
       top: initial; }
+  .tabs-container #load-more-toggler {
+    margin-bottom: -5px; }
   .tabs-container #quantity {
     font-size: 15px;
     font-weight: bold;
     margin-top: 15px;
     vertical-align: top; }
-  .tabs-container .close-tab-btn {
-    padding: 5px;
-    height: 5px;
-    font-size: 20px; }
-    .tabs-container .close-tab-btn:hover {
-      transform: none;
-      color: brown;
+  .tabs-container #action-container {
+    font-size: 20px;
+    vertical-align: middle; }
+    .tabs-container #action-container * {
+      transition: background-color 0.2s linear;
+      border: 2px solid gray;
+      padding: 10px 14px;
+      border-radius: 50%;
+      line-height: 25px;
+      margin: 3px; }
+    .tabs-container #action-container *:hover {
+      background-color: #FF80AB;
       cursor: pointer; }
+  .tabs-container #refresh {
+    transition: background-color 0.2s linear, transform 0.2s linear; }
+  .tabs-container #refresh:hover {
+    transform: rotate(180deg);
+    background-color: #FF80AB; }
   .tabs-container .tabs .tab:last-child {
     margin-bottom: 0;
     border-bottom: 2px solid gray; }
@@ -191,7 +203,7 @@ form {
     border-bottom: none; }
   .tabs-container .tab-content {
     width: 100%;
-    max-height: 549px;
+    max-height: 547px;
     border: 2px solid gray;
     border-top: none;
     background-color: white;

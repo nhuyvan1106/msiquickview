@@ -47,7 +47,6 @@ public class JsonWriter {
                     .forEach(file -> writePayloadObject(generator, file));
             generator.writeEndArray();
             generator.writeEndObject();
-            generator.close();
         } catch (IOException ex) {
             Logger.getLogger(JsonWriter.class.getName()).log(Level.SEVERE, null, ex);
         }

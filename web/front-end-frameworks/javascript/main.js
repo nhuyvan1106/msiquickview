@@ -179,6 +179,35 @@
         }
     });
 
+    $("#action-container #refresh").click(function() {
+       var userDir = getItemLocal("user-dir");
+       var dataset = $("#selected-dataset").text();
+       var folder = $(".active-tab").text();
+       var target = $(".active-tab").data("activate");
+       var url = "http://localhost:8080/Java-Matlab-Integration/DirectoryInspectorServlet/refresh";
+       var callback;
+       var data = { "user-dir": userDir, "dataset-name": dataset, "folder": folder };
+       switch (folder) {
+           case "cdf":
+           case "hdf":
+               callback = function(data) { populateList(userDir, "#" + target + " ul", data.payload, true); };
+               break;
+            case "excel":
+                callback = function(data) { populateList(userDir, "#" + target + " ul", data.payload, false); };
+                break;
+            case "images":
+                callback = function(data) { $("#total").text(data.payload); };
+                data.restrict = "count";
+                break;
+       }
+       $.ajax(url, {
+           "method": "GET",
+           "data": data,
+           "success": callback,
+           "error": function(xhr) { errorCallback(xhr.statusMessage); }
+       });
+    });
+    
     d3.select("#show-uploaded-files-form .show").on("click", function () {
         var url = "http://localhost:8080/Java-Matlab-Integration/DirectoryInspectorServlet/view-files";
         //window.history.pushState({}, "", url);
@@ -563,19 +592,6 @@
                 populateList(userDir, "#excel-tab-content ul", payload.excel, false);
                 populateImages(payload.images, payload["image-data"]);
                 $("#tabs-container").fadeIn().css("left", (screen.width - $("#tabs-container").width()) / 2 + "px");
-
-                d3.select("#images-tab-content").selectAll("img").sort(function (a, b) {
-                    console.log(a);
-                    console.log(b);
-                    var w1 = $(a).width();
-                    var w2 = $(b).width();
-                    if (w1 > w2)
-                        return 1;
-                    else if (w1 < w2)
-                        return -1;
-                    else
-                        return 0;
-                }).order();
             },
             "error": function (xhr) {
                 errorCallback(xhr.statusText);
@@ -624,6 +640,10 @@
         var obj = imageData.map(function (data, i) {
             return {"name": imageNames[i], "data": "data:image/png;base64," + data};
         });
+        var containers = d3.select("#images-tab-content")
+                .selectAll(".image-container")
+                .data(obj);
+        containers.exit().remove();
         if (imageNames.length === 0) {
             d3.select("#images-tab-content")
                     .append("p")
@@ -634,9 +654,6 @@
             return;
         }
         d3.select("#images-tab-content p").remove();
-        var containers = d3.select("#images-tab-content")
-                .selectAll(".image-container")
-                .data(obj);
         containers.select("img")
                 .attr("src", function (d) {
                     return d.data;
@@ -649,7 +666,7 @@
                     return d.name;
                 });
 
-        containers.exit().remove();
+        
         var enter = containers.enter().append("div").attr("class", "image-container");
         enter.append("img")
                 .attr("src", function (d) {
