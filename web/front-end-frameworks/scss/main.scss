@@ -3,7 +3,14 @@ body {
     overflow-x: hidden; /*Disabling horizontal overflow*/
     font-family: 'Open Sans',Arial,sans-serif;
 }
-
+header {
+    font-size: 50px;
+    text-shadow: 2px 2px 1.5px gray;
+    color: #D81B60;
+    display: inline-block;
+    width: 90%;
+    vertical-align: middle;
+}
 ::-webkit-scrollbar {
     -webkit-appearance: none;
     width: 7px;
