@@ -152,7 +152,8 @@ form {
       display: inline-block; }
     .tabs-container #load-more-container ul {
       left: initial;
-      top: initial; }
+      top: initial;
+      background-color: white; }
   .tabs-container #load-more-toggler {
     margin-bottom: -5px; }
   .tabs-container #quantity {

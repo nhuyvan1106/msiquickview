@@ -653,6 +653,7 @@
             $("#load-more-toggler").attr("disabled", "disabled");
             return;
         }
+        $("#load-more-toggler").attr("disabled", null);
         d3.select("#images-tab-content p").remove();
         containers.select("img")
                 .attr("src", function (d) {
