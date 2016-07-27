@@ -54,22 +54,11 @@
                     .setCloseActionButton()
                     .setMessageBody(ul)
                     .show();
+            $("#file-selection-dialog").draggable({"handle": ".file-selection-dialog-header"})
+                    .disableSelection()
+                    .css("position", "absolute");
             $(window).scroll(function () {
                 $("#file-selection-dialog").css({"top": (pnnl.utils.getScrollTop() + 20) + "px"});
-            });
-            $(".file-selection-dialog").css("position", "absolute");
-            $(".file-selection-dialog-header").mousedown(function (e) {
-                var fileDialog = document.getElementById("file-selection-dialog");
-                var top = e.pageY - fileDialog.getBoundingClientRect().top - pnnl.utils.getScrollTop();
-                var left = e.pageX - fileDialog.getBoundingClientRect().left;
-
-                $(fileDialog).mousemove(function (event) {
-                    event.stopImmediatePropagation();
-                    $(this).css({"top": event.pageY - top, "left": event.pageX - left, "bottom": "initial", "right": "initial"});
-                });
-            });
-            $(document.documentElement).on("mouseup", function () {
-                $(".file-selection-dialog").off("mousemove");
             });
             pnnl.data.upload(url, userDir, datasetName, files,
                     function () {

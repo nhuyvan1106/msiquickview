@@ -264,23 +264,32 @@
                  * Static behaviors of UI components that are likely never changed should be defined here so 
                  * they can be set up on page load, any code that talks to a server should be implemented in a separate file.
                  */
-                var nav = $("nav");
-                nav.children().each(function (index) {
+                var nav = d3.select("nav");
+                nav.selectAll("div").each(function (p,index) {
                     $(this).css("top", index * 104 + index * 5 + "px");
                 });
                 $(".toggler").click(function (event) {
                     event.stopImmediatePropagation();
-                    $("nav > div").removeClass("selected");
-                    if (nav.hasClass("closed")) {
-                        nav.removeClass("closed").children().each(function (index) {
-                            $(this).delay(index * 90)
-                                    .animate({"opacity": "1", "left": "0px"}, 1000, "easeInOutBack");
-                        });
+                    nav.selectAll("div").classed("selected", false);
+                    if (nav.classed("closed")) {
+                        nav.classed("closed",false)
+                                .selectAll("div")
+                                .transition()
+                                .ease(function(t) { return d3.easeBackOut(t); })
+                                .duration(700)
+                                .delay(function(d,index) { return index * 90; })
+                                .style("opacity", 1)
+                                .style("left", "0px");
                         d3.select($(this).get(0)).transition().duration(500).style("transform", "rotate(180deg");
                     } else {
-                        nav.addClass("closed").children().each(function (index) {
-                            $(this).delay((nav.children().size() - index) * 90).animate({"opacity": "0", "left": "-300px"});
-                        });
+                        nav.classed("closed",true)
+                                .selectAll("div")
+                                .transition()
+                                .duration(500)
+                                .ease(function(t) { return d3.easeBackIn(t); })
+                                .delay(function(p,index,group) { return (group.length-index) * 90; })
+                                .style("opacity", "0")
+                                .style("left", "-300px");
                         $(".form-container").fadeOut();
                         $(".validation-error-dialog").fadeOut(400, function () {
                             $(this).remove();
@@ -306,7 +315,7 @@
                         $(this).parent().find("ul").fadeToggle();
                 });
 
-                $("#tabs-container").draggable().find(".tab").click(function (event) {
+                $("#tabs-container").draggable({"handle": ".header"}).find(".tab").click(function (event) {
                     event.stopImmediatePropagation();
                     $(".tab").each(function () {
                         $(this).removeClass("active-tab");
