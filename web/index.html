@@ -275,7 +275,7 @@
                         nav.classed("closed",false)
                                 .selectAll("div")
                                 .transition()
-                                .ease(function(t) { return d3.easeBackOut(t); })
+                                .ease(d3.easeBackOut)
                                 .duration(700)
                                 .delay(function(d,index) { return index * 90; })
                                 .style("opacity", 1)
@@ -286,7 +286,7 @@
                                 .selectAll("div")
                                 .transition()
                                 .duration(500)
-                                .ease(function(t) { return d3.easeBackIn(t); })
+                                .ease(d3.easeBackIn)
                                 .delay(function(p,index,group) { return (group.length-index) * 90; })
                                 .style("opacity", "0")
                                 .style("left", "-300px");
@@ -319,11 +319,11 @@
                     event.stopImmediatePropagation();
                     $(".tab").each(function () {
                         $(this).removeClass("active-tab");
-                        $("#" + $(this).data("activate")).hide();
-
+                        $("#" + $(this).data("activate")).hide(); 
                     });
                     $(this).addClass("active-tab");
-                    $("#" + $(this).data("activate")).fadeIn();
+                    $("#" + $(this).data("activate")).fadeIn().find("li")
+                                .each(function(i,e) { $(e).css("background-color", "white"); });
                     if (this.id === "images-tab")
                         $("#load-more-container").css("visibility", "visible");
                     else

@@ -653,8 +653,10 @@
                         pnnl.draw.drawOverlay();
                         pnnl.draw.drawSpinner();
                         var fileNames = Array.prototype.map.call(document.querySelectorAll(selector + " li"), function (li) {
+                            $(li).css("background-color", "white");
                             return li.id;
                         });
+                        $(this).parent().css("background-color", "lightblue");
                         window.sessionStorage.setItem("file-names", fileNames);
                         loadData(userDir, $("#dataset-selection-toggler #selected-dataset").text(), this.parentElement.id);
                     });

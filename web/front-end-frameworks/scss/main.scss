@@ -129,6 +129,9 @@ form {
         border-bottom: 2px solid pink;
         border-right: 2px solid gray;
     }
+    .header:hover {
+        cursor: move;
+    }
 
     .dataset-selection {
         flex-grow: 3;

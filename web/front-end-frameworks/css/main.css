@@ -113,6 +113,8 @@ form {
     flex-direction: row;
     border-bottom: 2px solid pink;
     border-right: 2px solid gray; }
+  .tabs-container .header:hover {
+    cursor: move; }
   .tabs-container .dataset-selection, .tabs-container #load-more-container {
     flex-grow: 3; }
     .tabs-container .dataset-selection ul, .tabs-container #load-more-container ul {
