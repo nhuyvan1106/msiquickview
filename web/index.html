@@ -297,8 +297,13 @@
                     });
                 });
 
-                $("#dataset-selection-toggler, #load-more-toggler").click(function () {
+                $("#dataset-selection-toggler").click(function () {
                     $(this).parent().find("ul").fadeToggle();
+                });
+                
+                $("#load-more-toggler").click(function () {
+                    if ($(this).attr("disabled") !== "disabled")
+                        $(this).parent().find("ul").fadeToggle();
                 });
 
                 $("#tabs-container").draggable().find(".tab").click(function (event) {
@@ -310,7 +315,7 @@
                     });
                     $(this).addClass("active-tab");
                     $("#" + $(this).data("activate")).fadeIn();
-                    if (this.id === "images-tab" && $("#load-more-toggler").attr("disabled") !== "disabled")
+                    if (this.id === "images-tab")
                         $("#load-more-container").css("visibility", "visible");
                     else
                         $("#load-more-container").css("visibility", "hidden");

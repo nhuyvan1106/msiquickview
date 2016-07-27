@@ -125,7 +125,8 @@ form {
       left: 252px;
       border-radius: 2px;
       top: 5px;
-      padding-left: 0px; }
+      padding-left: 0px;
+      z-index: 10; }
     .tabs-container .dataset-selection li, .tabs-container #load-more-container li {
       list-style-type: none;
       line-height: 40px;
@@ -153,7 +154,9 @@ form {
     .tabs-container #load-more-container ul {
       left: initial;
       top: initial;
-      background-color: white; }
+      background-color: white;
+      margin-top: 5px;
+      z-index: 10; }
   .tabs-container #load-more-toggler {
     margin-bottom: -5px; }
   .tabs-container #quantity {

@@ -24,7 +24,7 @@
             $("#upload-cdf-hdf-form-container").delay(250).fadeOut();
             $(".toggler").click();
             $(".error-dialog").fadeOut();
-            // Store user-entered directory and dataset name in browser-specific database to improve UI
+            // Store user-entered directory and dataset name in browser-specific database to improve UX
             var userDir = document.getElementById("user-dir").value;
             var datasetName = document.getElementById("dataset-name").value;
 
@@ -152,22 +152,11 @@
                 "data": {"limit": limit, "skip": skip, "dataset-name": $("#selected-dataset").text(), "user-dir": getItemLocal("user-dir")},
                 "method": "GET",
                 "success": function (data) {
-                    $("#current").text(current + limit);
+                    current += limit;
+                    $("#current").text(current);
                     $("#total").text(data.total);
-                    var container = document.getElementById("images-tab-content");
-                    data["image-data"].forEach(function (d, i) {
-                        var div = document.createElement("div");
-                        div.className = "image-container";
-                        var img = document.createElement("img");
-                        img.src = "data:image/png;base64," + d;
-                        img.alt = data.images[i];
-                        div.appendChild(img);
-                        var caption = document.createElement("div");
-                        caption.className = "caption";
-                        caption.innerHTML = data.images[i];
-                        div.appendChild(caption);
-                        container.appendChild(div);
-                    });
+                    $("#load-more-toggler").attr("disabled", data.total === current ? "disabled" : null);
+                    appendImages(data);
                     pnnl.draw.removeSpinnerOverlay();
                 },
                 "error": function (xhr) {
@@ -179,35 +168,80 @@
         }
     });
 
-    $("#action-container #refresh").click(function() {
-       var userDir = getItemLocal("user-dir");
-       var dataset = $("#selected-dataset").text();
-       var folder = $(".active-tab").text();
-       var target = $(".active-tab").data("activate");
-       var url = "http://localhost:8080/Java-Matlab-Integration/DirectoryInspectorServlet/refresh";
-       var callback;
-       var data = { "user-dir": userDir, "dataset-name": dataset, "folder": folder };
-       switch (folder) {
-           case "cdf":
-           case "hdf":
-               callback = function(data) { populateList(userDir, "#" + target + " ul", data.payload, true); };
-               break;
+    $("#action-container #refresh").click(function () {
+        var userDir = getItemLocal("user-dir");
+        var dataset = $("#selected-dataset").text();
+        var folder = $(".active-tab").text();
+        var target = $(".active-tab").data("activate");
+        var url = "http://localhost:8080/Java-Matlab-Integration/DirectoryInspectorServlet/refresh";
+        var callback;
+        var data = {"user-dir": userDir, "dataset-name": dataset, "folder": folder};
+        switch (folder) {
+            case "cdf":
+            case "hdf":
+                callback = function (count) {
+                    populateList(userDir, "#" + target + " ul", count, true);
+                };
+                break;
             case "excel":
-                callback = function(data) { populateList(userDir, "#" + target + " ul", data.payload, false); };
+                callback = function (count) {
+                    populateList(userDir, "#" + target + " ul", count, false);
+                };
                 break;
             case "images":
-                callback = function(data) { $("#total").text(data.payload); };
+                callback = function (count) {
+                    var currentTotal = parseInt($("#total").text());
+                    $("#total").text(count);
+                    var images = document.querySelectorAll("#images-tab-content .image-container");
+                    if (count > 0) {
+                        if (count < currentTotal) {
+                            for (; count < currentTotal; count++)
+                                images.removeChild(images[count]);
+                            $("#current").text(currentTotal).attr("disabled", "disabled");
+                        } else {
+                            var map = {"limit": 10, "skip": images.length, "dataset-name": $("#selected-dataset").text(), "user-dir": getItemLocal("user-dir")};
+                            var url = "http://localhost:8080/Java-Matlab-Integration/DirectoryInspectorServlet/load-more-images";
+                            $.ajax(url, {
+                                "data": map,
+                                "method": "GET",
+                                "success": function (d) {
+                                    var current = parseInt($("#current").text()) + d["image-data"].length;
+                                    $("#load-more-toggler").attr("disabled", current === count ? "disabled" : null);
+                                    $("#current").text(current);
+                                    appendImages(d);
+                                },
+                                "error": function (xhr) {
+                                    errorCallback(xhr.statusText);
+                                }
+                            });
+                        }
+                    } else
+                        populateImages([], []);
+                };
                 data.restrict = "count";
                 break;
-       }
-       $.ajax(url, {
-           "method": "GET",
-           "data": data,
-           "success": callback,
-           "error": function(xhr) { errorCallback(xhr.statusMessage); }
-       });
+        }
+        $.ajax(url, {
+            "method": "GET",
+            "data": data,
+            "success": function(data) {
+                $("<span class='refresh-status' style='position:absolute;margin-left:-50px;margin-top:15px;color:gray;font-size:large'>Done</span>").insertBefore("#action-container");
+                setTimeout(function() {
+                    $(".refresh-status").remove();
+                }, 2000);
+                update("http://localhost:8080/Java-Matlab-Integration/DirectoryInspectorServlet/view-files", data.datasets);
+                callback(data.payload);
+            },
+            "error": function (xhr) {
+                errorCallback(xhr.statusMessage);
+                $("<span class='refresh-status' style='position:absolute;margin-left:-50px;margin-top:15px;color:gray;font-size:large'>Done</span>").insertBefore("#action-container");
+                setTimeout(function() {
+                    $(".refresh-status").remove();
+                }, 2000);
+            }
+        });
     });
-    
+
     d3.select("#show-uploaded-files-form .show").on("click", function () {
         var url = "http://localhost:8080/Java-Matlab-Integration/DirectoryInspectorServlet/view-files";
         //window.history.pushState({}, "", url);
@@ -585,13 +619,16 @@
             "success": function (data) {
                 window.localStorage.setItem("user-dir", userDir);
                 window.sessionStorage.setItem("dataset-name", datasetName);
-                update(url, data);
                 var payload = data.payload[0];
+                update(url, data.datasets, payload.dataset);
                 populateList(userDir, "#cdf-tab-content ul", payload.cdf, true);
                 populateList(userDir, "#hdf-tab-content ul", payload.hdf, true);
                 populateList(userDir, "#excel-tab-content ul", payload.excel, false);
                 populateImages(payload.images, payload["image-data"]);
-                $("#tabs-container").fadeIn().css("left", (screen.width - $("#tabs-container").width()) / 2 + "px");
+                $("#tabs-container").fadeIn()
+                        .css("left", (screen.width - $("#tabs-container").width()) / 2 + "px")
+                        .find("#cdf-tab")
+                        .click();
             },
             "error": function (xhr) {
                 errorCallback(xhr.statusText);
@@ -601,11 +638,11 @@
     }
     function populateList(userDir, selector, data, clickable) {
         var ul = d3.select(selector);
-        ul.select("div").remove();
+        ul.select(".empty-content").remove();
         var joined = ul.selectAll("li").data(data);
         joined.exit().remove();
         if (data.length === 0) {
-            ul.append("div").text("This folder is empty").style("text-align", "center");
+            ul.append("div").attr("class", "empty-content").text("This folder is empty").style("text-align", "center");
             return;
         }
         joined.attr("id", function (d) {
@@ -635,9 +672,10 @@
     }
 
     function populateImages(imageNames, imageData) {
+        d3.select("#images-tab-content .empty-content").remove();
         $("#current").text(imageData.length);
         $("#total").text(imageNames.length);
-        var obj = imageData.map(function (data, i) {
+        var obj = imageData.map(function (data, i) { 
             return {"name": imageNames[i], "data": "data:image/png;base64," + data};
         });
         var containers = d3.select("#images-tab-content")
@@ -647,14 +685,17 @@
         if (imageNames.length === 0) {
             d3.select("#images-tab-content")
                     .append("p")
+                    .attr("class", "empty-content")
                     .style("text-align", "center")
                     .style("width", "100%")
                     .text("This folder is empty");
             $("#load-more-toggler").attr("disabled", "disabled");
             return;
         }
-        $("#load-more-toggler").attr("disabled", null);
-        d3.select("#images-tab-content p").remove();
+        if (imageNames.length === imageData.length)
+            $("#load-more-toggler").attr("disabled", "disabled");
+        else
+            $("#load-more-toggler").attr("disabled", null);
         containers.select("img")
                 .attr("src", function (d) {
                     return d.data;
@@ -667,7 +708,7 @@
                     return d.name;
                 });
 
-        
+
         var enter = containers.enter().append("div").attr("class", "image-container");
         enter.append("img")
                 .attr("src", function (d) {
@@ -684,20 +725,16 @@
 
     }
 
-    function update(url, data) {
-        $("#dataset-selection-toggler #selected-dataset").text(data.payload[0].dataset);
-        var joined = d3.select("#tabs-container .dataset-selection ul").selectAll("li").data(data.datasets);
+    function update(url, datasets, selected) {
+        $("#dataset-selection-toggler #selected-dataset").text(selected);
+        var joined = d3.select("#tabs-container .dataset-selection ul").selectAll("li").data(datasets);
         joined.exit().remove();
-        joined.attr("id", function (d) {
-            return d;
-        }).text(function (d) {
-            return d;
-        });
-        joined.enter().append("li").attr("id", function (d) {
-            return d;
-        }).text(function (d) {
-            return d;
-        })
+        joined.attr("id", function (d) { return d; })
+                .text(function (d) { return d; });
+        joined.enter()
+                .append("li")
+                .attr("id", function (d) { return d; })
+                .text(function (d) { return d; })
                 .on("click", function () {
                     var id = this.id;
                     window.sessionStorage.setItem("dataset-name", id);
@@ -705,6 +742,23 @@
                     exploreDir(url, getItemLocal("user-dir"), id);
                     $(this).parent().fadeOut();
                 });
+    }
+
+    function appendImages(data) {
+        var container = document.getElementById("images-tab-content");
+        data["image-data"].forEach(function (d, i) {
+            var div = document.createElement("div");
+            div.className = "image-container";
+            var img = document.createElement("img");
+            img.src = "data:image/png;base64," + d;
+            img.alt = data.images[i];
+            div.appendChild(img);
+            var caption = document.createElement("div");
+            caption.className = "caption";
+            caption.innerHTML = data.images[i];
+            div.appendChild(caption);
+            container.appendChild(div);
+        });
     }
     function getItemLocal(name) {
         var value = window.localStorage.getItem(name);

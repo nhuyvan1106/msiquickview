@@ -143,6 +143,7 @@ form {
             border-radius: 2px;
             top: 5px;
             padding-left: 0px;
+            z-index: 10;
         }
 
         li {
@@ -172,6 +173,7 @@ form {
         i {
             margin-top: 8px;
         }
+        
     }
     #load-more-container {
         visibility: hidden;
@@ -183,6 +185,8 @@ form {
             left: initial;
             top: initial;
             background-color: white;
+            margin-top: 5px;
+            z-index: 10;
         }
     }
 

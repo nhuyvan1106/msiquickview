@@ -43,7 +43,7 @@ public class DirectoryInspectorServlet extends HttpServlet {
                 String path = userDir + File.separator + datasetName + File.separator + "images";
                 File[] files = new File(path).listFiles();
                 generator.writeStartObject();
-                generator.writeStringField("total", String.valueOf(Arrays.stream(files).filter(f -> !f.isHidden()).count()));
+                generator.writeNumberField("total", Arrays.stream(files).filter(f -> !f.isHidden()).count());
                 JsonWriter.writeImageData(generator, path, skip, limit);
                 JsonWriter.listFileNames(generator, "images", files, skip, limit);
                 generator.writeEndObject();
@@ -53,8 +53,9 @@ public class DirectoryInspectorServlet extends HttpServlet {
                 String restrict = request.getParameter("restrict");
                 File[] files2 = new File(userDir + File.separator + datasetName + File.separator + request.getParameter("folder")).listFiles();
                 generator.writeStartObject();
+                JsonWriter.listFileNames(generator, "datasets", new File(userDir).listFiles(), 0, Integer.MAX_VALUE);
                 if (restrict != null && !"".equals(restrict))
-                    generator.writeStringField("payload", String.valueOf(Arrays.stream(files2).filter(f -> !f.isHidden()).count()));
+                    generator.writeNumberField("payload", Arrays.stream(files2).filter(f -> !f.isHidden()).count());
                 else
                     JsonWriter.listFileNames(generator, "payload", files2, 0, Integer.MAX_VALUE);
                 generator.writeEndObject();
