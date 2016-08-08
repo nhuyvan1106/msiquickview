@@ -83,8 +83,12 @@
                 </div>
                 <form name="upload-excel-form" id="upload-excel-form">
                     <div class="form-group">
-                        <label class="label label-primary">Select Files</label>
-                        <input accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" type="file" required="required" class="form-control" id="file-name"/>
+                        <label class="label label-primary">Select File</label>
+                        <input type="file" required="required" class="form-control" id="file-name"/>
+                    </div>
+                    <div class="form-group">
+                        <label class="label label-primary">Select Files to Generate Images for</label>
+                        <input type="file" multiple="multiple" required="required" class="form-control" id="file-names"/>
                     </div>
                     <div class="form-group">
                         <label class="label label-primary">Folder Name to Store Files</label>
@@ -280,7 +284,7 @@
                                 .delay(function(d,index) { return index * 90; })
                                 .style("opacity", 1)
                                 .style("left", "0px");
-                        d3.select($(this).get(0)).transition().duration(500).style("transform", "rotate(180deg");
+                        d3.select(this).transition().duration(500).style("transform", "rotate(180deg)");
                     } else {
                         nav.classed("closed",true)
                                 .selectAll("div")
@@ -294,7 +298,7 @@
                         $(".validation-error-dialog").fadeOut(400, function () {
                             $(this).remove();
                         });
-                        d3.select($(this).get(0)).transition().duration(500).style("transform", "rotate(0deg");
+                        d3.select(this).transition().duration(500).style("transform", "rotate(0deg)");
                     }
                     var that = this;
                     $(document.documentElement).click(function (event) {

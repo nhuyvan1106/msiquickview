@@ -32,14 +32,12 @@ public class CdfReader {
     private void dispose() {
         MWArray.disposeArray(class1);
         class1 = null;
-        for(Map.Entry<String, Object[]> entry: resultContainer.entrySet())
-            for (Object obj: entry.getValue())
+        resultContainer.entrySet().stream().forEach(entry -> {
+            for (Object obj : entry.getValue()) {
                 MWArray.disposeArray(obj);
+            }
+        });
         resultContainer = null;
         System.out.println("DESTROYING...");
-    }
-
-    public String[] getLoadedFileNames() {
-        return resultContainer.keySet().toArray(new String[resultContainer.size()]);
     }
 }

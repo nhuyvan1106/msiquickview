@@ -5,6 +5,7 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.logging.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -25,11 +26,11 @@ public class UploaderServlet extends HttpServlet {
     private ExcelIonImageGenerator generator;
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, MWException, InvalidFormatException {
-        
+
         List<String> d = getUserDirDatasetName(request.getParts());
         final String userDir = d.get(0);
         final String datasetName = d.get(1);
-        final String dir = request.getServletContext().getRealPath("/WEB-INF/temp") + File.separator 
+        final String dir = request.getServletContext().getRealPath("/WEB-INF/temp") + File.separator
                 + userDir + File.separator + datasetName + File.separator;
         switch (request.getServletPath()) {
             case "/UploaderServlet/upload":
@@ -48,13 +49,15 @@ public class UploaderServlet extends HttpServlet {
                         default:
                             File file = null;
                             String fileName = part.getSubmittedFileName();
-                            if (fileName.contains("hdf"))
+                            if (fileName.contains("hdf")) {
                                 file = new File(dir + "hdf" + File.separator + fileName);
-                            else
+                            } else {
                                 file = new File(dir + "cdf" + File.separator + fileName);
+                            }
                             try (InputStream is = part.getInputStream()) {
-                                if (!file.exists())
+                                if (!file.exists()) {
                                     copy(is, file.toPath(), response);
+                                }
                             }
                             break;
                     }
@@ -65,7 +68,7 @@ public class UploaderServlet extends HttpServlet {
                 for (Part part : request.getParts()) {
                     switch (part.getName()) {
                         case "image-name":
-                            imageName = getFileName(part);
+                            imageName = getName(part);
                             break;
                         case "image-data":
                             copy(Base64.getDecoder().wrap(part.getInputStream()), new File(dir + "images" + File.separator + imageName + ".png").toPath(), response);
@@ -75,19 +78,27 @@ public class UploaderServlet extends HttpServlet {
                 break;
 
             case "/UploaderServlet/extract-excel":
+                List<String> fileNames = null;
                 for (Part part : request.getParts()) {
                     switch (part.getName()) {
                         case "user-dir":
                         case "dataset-name":
                             break;
+                        case "file-type":
+                            fileNames = Stream.of(new File(dir + getName(part)).listFiles())
+                                    .filter(f -> !f.isHidden())
+                                    .map(File::toString)
+                                    .collect(Collectors.toList());
+                            break;
                         case "excel-file":
                             Path excel = Paths.get(dir + "excel", part.getSubmittedFileName());
-                            if (!Files.exists(excel))
+                            if (!Files.exists(excel)) {
                                 copy(part.getInputStream(), excel, response);
-                            Double[][] ranges = ExcelExtractor.extractSheet(WorkbookFactory.create(excel.toFile()));
-                            generator.generate(dir + "images" + File.separator, ranges);
-                            System.out.println("AFTER generate");
-                            ranges = null;
+                                Double[][] ranges = ExcelExtractor.extractSheet(WorkbookFactory.create(excel.toFile()));
+                                generator.generate(dir + "images" + File.separator, fileNames, ranges);
+                                System.out.println("AFTER generate");
+                                ranges = null;
+                            }
                             break;
                     }
                 }
@@ -102,7 +113,8 @@ public class UploaderServlet extends HttpServlet {
             response.sendError(500, "File you're trying to save already exists");
         }
     }
-    private String getFileName(Part part) {
+
+    private String getName(Part part) {
         try (BufferedReader r = new BufferedReader(new InputStreamReader(part.getInputStream()))) {
             return r.readLine();
         } catch (IOException ex) {
@@ -113,7 +125,7 @@ public class UploaderServlet extends HttpServlet {
 
     private List<String> getUserDirDatasetName(Collection<Part> parts) {
         return parts.stream().filter(e -> e.getName().equals("user-dir") || e.getName().equals("dataset-name"))
-                .map(this::getFileName)
+                .map(this::getName)
                 .collect(() -> new ArrayList<String>(2), ArrayList::add, ArrayList::addAll);
     }
 
