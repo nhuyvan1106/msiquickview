@@ -8,6 +8,8 @@ package servlet;
 
 import com.mathworks.toolbox.javabuilder.*;
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.logging.*;
 import javax.inject.Inject;
@@ -29,12 +31,16 @@ public class IonImageGeneratorServlet extends HttpServlet {
         double lowerBound = Double.parseDouble(request.getParameter("lower-bound"));
         double upperBound = Double.parseDouble(request.getParameter("upper-bound"));
         String[] fileNames = request.getParameter("file-names").split(",");
-        String dir = request.getServletContext().getRealPath("/WEB-INF/temp") + File.separator + request.getParameter("user-dir")
-                + File.separator + request.getParameter("dataset-name") + File.separator + request.getParameter("file-type");
-        Writer writer = response.getWriter();
+        //String dir = request.getServletContext().getRealPath("/WEB-INF/temp") + File.separator + request.getParameter("user-dir")
+                //+ File.separator + request.getParameter("dataset-name") + File.separator + request.getParameter("file-type");
+        Path dir = Paths.get(request.getServletContext().getRealPath("/WEB-INF/temp"), 
+                request.getParameter("user-dir"), 
+                request.getParameter("dataset-name"),
+                request.getParameter("file-type"));
+                Writer writer = response.getWriter();
         
         for (int i = 0; i < fileNames.length; i++)
-            fileNames[i] = dir + File.separator + fileNames[i];
+            fileNames[i] = dir.toString() + File.separator + fileNames[i];
 
         Object[] result = generator.generate(lowerBound, upperBound, fileNames);
         MWNumericArray array = (MWNumericArray)result[0];

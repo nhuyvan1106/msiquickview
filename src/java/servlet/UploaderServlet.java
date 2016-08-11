@@ -26,12 +26,11 @@ public class UploaderServlet extends HttpServlet {
     private ExcelIonImageGenerator generator;
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, MWException, InvalidFormatException {
-
+        
+        // [0]: user directory
+        // [1]: datasetname
         List<String> d = getUserDirDatasetName(request.getParts());
-        final String userDir = d.get(0);
-        final String datasetName = d.get(1);
-        final String dir = request.getServletContext().getRealPath("/WEB-INF/temp") + File.separator
-                + userDir + File.separator + datasetName + File.separator;
+        final Path userDirectory = Paths.get(request.getServletContext().getRealPath("/WEB-INF/temp"), d.get(0), d.get(1));
         switch (request.getServletPath()) {
             case "/UploaderServlet/upload":
                 for (Part part : request.getParts()) {
@@ -39,25 +38,22 @@ public class UploaderServlet extends HttpServlet {
                         case "user-dir":
                             break;
                         case "dataset-name":
-                            File userDirectory = new File(dir);
-                            if (!userDirectory.exists()) {
-                                userDirectory.mkdirs();
+                            if (!Files.exists(userDirectory)) {
+                                Files.createDirectories(userDirectory);
                                 Stream.of("cdf", "hdf", "images", "excel")
-                                        .forEach(e -> new File(dir + e).mkdir());
+                                        .forEach(e -> new File(Paths.get(userDirectory.toString(), e).toString()).mkdir());
                             }
                             break;
                         default:
-                            File file = null;
+                            Path file = null;
                             String fileName = part.getSubmittedFileName();
-                            if (fileName.contains("hdf")) {
-                                file = new File(dir + "hdf" + File.separator + fileName);
-                            } else {
-                                file = new File(dir + "cdf" + File.separator + fileName);
-                            }
+                            if (fileName.contains("hdf"))
+                                file = Paths.get(userDirectory.toString(), "hdf", fileName);
+                            else
+                                file = Paths.get(userDirectory.toString(), "cdf", fileName);
                             try (InputStream is = part.getInputStream()) {
-                                if (!file.exists()) {
-                                    copy(is, file.toPath(), response);
-                                }
+                                if (!Files.exists(file))
+                                    copy(is, file, response);
                             }
                             break;
                     }
@@ -71,7 +67,7 @@ public class UploaderServlet extends HttpServlet {
                             imageName = getName(part);
                             break;
                         case "image-data":
-                            copy(Base64.getDecoder().wrap(part.getInputStream()), new File(dir + "images" + File.separator + imageName + ".png").toPath(), response);
+                            copy(Base64.getDecoder().wrap(part.getInputStream()), Paths.get(userDirectory.toString(), "images", imageName + ".png"), response);
                             break;
                     }
                 }
@@ -85,17 +81,17 @@ public class UploaderServlet extends HttpServlet {
                         case "dataset-name":
                             break;
                         case "file-type":
-                            fileNames = Stream.of(new File(dir + getName(part)).listFiles())
+                            fileNames = Stream.of(userDirectory.resolve(getName(part)).toFile().listFiles())
                                     .filter(f -> !f.isHidden())
                                     .map(File::toString)
                                     .collect(Collectors.toList());
                             break;
                         case "excel-file":
-                            Path excel = Paths.get(dir + "excel", part.getSubmittedFileName());
+                            Path excel = userDirectory.resolve("excel").resolve(part.getSubmittedFileName());
                             if (!Files.exists(excel)) {
                                 copy(part.getInputStream(), excel, response);
                                 Double[][] ranges = ExcelExtractor.extractSheet(WorkbookFactory.create(excel.toFile()));
-                                generator.generate(dir + "images" + File.separator, fileNames, ranges);
+                                generator.generate(userDirectory.resolve("images").toString() + File.separator, fileNames, ranges);
                                 System.out.println("AFTER generate");
                                 ranges = null;
                             }

@@ -2,6 +2,8 @@ package servlet;
 
 import com.mathworks.toolbox.javabuilder.*;
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.logging.*;
 import java.util.stream.IntStream;
@@ -26,9 +28,10 @@ public class DataFetcherServlet extends HttpServlet {
         String userDir = request.getParameter("user-dir");
         String datasetName = request.getParameter("dataset-name");
         String fileType = request.getParameter("file-type");
-        String filePath = request.getServletContext().getRealPath("/WEB-INF/temp") + File.separator + userDir
-                + File.separator + datasetName + File.separator + fileType + File.separator + request.getParameter("file-name");
-        Object[] result = reader.read(filePath);
+        //String filePath = request.getServletContext().getRealPath("/WEB-INF/temp") + File.separator + userDir
+                //+ File.separator + datasetName + File.separator + fileType + File.separator + request.getParameter("file-name");
+        Path filePath = Paths.get(request.getServletContext().getRealPath("/WEB-INF/temp"), userDir, datasetName, fileType, request.getParameter("file-name"));
+        Object[] result = reader.read(filePath.toString());
 
         switch (request.getServletPath()) {
             case "/DataFetcherServlet/load-data":
