@@ -12,6 +12,7 @@ import javax.servlet.*;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import matlab.CdfReader;
+import resource.ApplicationResource;
 
 /**
  *
@@ -22,15 +23,13 @@ public class DataFetcherServlet extends HttpServlet {
 
     @Inject
     private CdfReader reader;
-    
+    @Inject
+    private ApplicationResource res;
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, MWException {
-        String userDir = request.getParameter("user-dir");
-        String datasetName = request.getParameter("dataset-name");
-        String fileType = request.getParameter("file-type");
-        //String filePath = request.getServletContext().getRealPath("/WEB-INF/temp") + File.separator + userDir
-                //+ File.separator + datasetName + File.separator + fileType + File.separator + request.getParameter("file-name");
-        Path filePath = Paths.get(request.getServletContext().getRealPath("/WEB-INF/temp"), userDir, datasetName, fileType, request.getParameter("file-name"));
+
+        Path filePath = Paths.get(System.getProperty("user.home"), res.getStorage(), request.getParameter("user-dir"),
+                request.getParameter("dataset-name"), request.getParameter("file-type"), request.getParameter("file-name"));
         Object[] result = reader.read(filePath.toString());
 
         switch (request.getServletPath()) {

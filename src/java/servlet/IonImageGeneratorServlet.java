@@ -17,30 +17,25 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import matlab.IonImageGenerator;
+import resource.ApplicationResource;
 
-/**
- *
- * @author NhuY
- */
 @WebServlet(name = "IonImageGeneratorServlet", urlPatterns = {"/IonImageGeneratorServlet/generate-image"})
 public class IonImageGeneratorServlet extends HttpServlet {
 
     @Inject
     private IonImageGenerator generator;
+    @Inject
+    private ApplicationResource res;
+    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, MWException {
         double lowerBound = Double.parseDouble(request.getParameter("lower-bound"));
         double upperBound = Double.parseDouble(request.getParameter("upper-bound"));
         String[] fileNames = request.getParameter("file-names").split(",");
-        //String dir = request.getServletContext().getRealPath("/WEB-INF/temp") + File.separator + request.getParameter("user-dir")
-                //+ File.separator + request.getParameter("dataset-name") + File.separator + request.getParameter("file-type");
-        Path dir = Paths.get(request.getServletContext().getRealPath("/WEB-INF/temp"), 
-                request.getParameter("user-dir"), 
-                request.getParameter("dataset-name"),
-                request.getParameter("file-type"));
-                Writer writer = response.getWriter();
-        
+        Path dir = Paths.get(System.getProperty("user.home"), res.getStorage(), request.getParameter("user-dir"), 
+                request.getParameter("dataset-name"), request.getParameter("file-type"));
+        Writer writer = response.getWriter();
         for (int i = 0; i < fileNames.length; i++)
-            fileNames[i] = dir.toString() + File.separator + fileNames[i];
+            fileNames[i] = dir.resolve(fileNames[i]).toString();
 
         Object[] result = generator.generate(lowerBound, upperBound, fileNames);
         MWNumericArray array = (MWNumericArray)result[0];

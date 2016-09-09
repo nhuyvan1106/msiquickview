@@ -5,7 +5,7 @@
     $("form #user-dir").val(getItemLocal("user-dir"));
     $("form #dataset-name").val(getItemSession("dataset-name") ? getItemSession("dataset-name") : "");
     d3.select("#upload-cdf-hdf-form .upload").on("click", function () {
-        var url = "http://localhost:8080/Java-Matlab-Integration/UploaderServlet/upload";
+        var url = "/Java-Matlab-Integration/UploaderServlet/upload";
         //window.history.pushState({}, "", url);
         d3.event.stopImmediatePropagation();
         if (!pnnl.validation.validate("upload-cdf-hdf-form"))
@@ -83,7 +83,6 @@
                                     pnnl.draw.drawOverlay();
                                     dispatch.call("selectionchange", this);
                                     loadData(getItemLocal("user-dir"), getItemSession("dataset-name"), this.id);
-                                    window.sessionStorage.setItem("file-name", this.id);
                                 }
                             });
                         });
@@ -92,7 +91,7 @@
     });
 
     d3.select("#upload-excel-form .upload").on("click", function () {
-        var url = "http://localhost:8080/Java-Matlab-Integration/UploaderServlet/extract-excel";
+        var url = "/Java-Matlab-Integration/UploaderServlet/extract-excel";
         //window.history.pushState({}, "", url);
         d3.event.stopImmediatePropagation();
         if (!pnnl.validation.validate("upload-excel-form"))
@@ -134,7 +133,7 @@
     });
 
     $("#load-more-container li").click(function () {
-        var url = "http://localhost:8080/Java-Matlab-Integration/DirectoryInspectorServlet/load-more-images";
+        var url = "/Java-Matlab-Integration/DirectoryInspectorServlet/load-more-images";
         $(this).parent().fadeOut();
         var current = parseInt($("#current").text());
         var total = parseInt($("#total").text());
@@ -170,7 +169,7 @@
         var dataset = $("#selected-dataset").text();
         var folder = $(".active-tab").text();
         var target = $(".active-tab").data("activate");
-        var url = "http://localhost:8080/Java-Matlab-Integration/DirectoryInspectorServlet/refresh";
+        var url = "/Java-Matlab-Integration/DirectoryInspectorServlet/refresh";
         var callback;
         var data = {"user-dir": userDir, "dataset-name": dataset, "folder": folder};
         switch (folder) {
@@ -197,7 +196,7 @@
                             $("#current").text(currentTotal).attr("disabled", "disabled");
                         } else {
                             var map = {"limit": 10, "skip": images.length, "dataset-name": $("#selected-dataset").text(), "user-dir": getItemLocal("user-dir")};
-                            var url = "http://localhost:8080/Java-Matlab-Integration/DirectoryInspectorServlet/load-more-images";
+                            var url = "/Java-Matlab-Integration/DirectoryInspectorServlet/load-more-images";
                             $.ajax(url, {
                                 "data": map,
                                 "method": "GET",
@@ -222,16 +221,16 @@
             "method": "GET",
             "data": data,
             "success": function(data) {
-                $("<span class='refresh-status' style='position:absolute;margin-left:-50px;margin-top:15px;color:gray;font-size:large'>Done</span>").insertBefore("#action-container");
+                $("<span class='refresh-status' style='margin-left:-50px;margin-top:15px;color:gray;font-size:large'>Done</span>").insertBefore("#action-container");
                 setTimeout(function() {
                     $(".refresh-status").remove();
                 }, 2000);
-                update("http://localhost:8080/Java-Matlab-Integration/DirectoryInspectorServlet/view-files", data.datasets);
+                update("/Java-Matlab-Integration/DirectoryInspectorServlet/view-files", data.datasets);
                 callback(data.payload);
             },
             "error": function (xhr) {
                 errorCallback(xhr.statusMessage);
-                $("<span class='refresh-status' style='position:absolute;margin-left:-50px;margin-top:15px;color:gray;font-size:large'>Done</span>").insertBefore("#action-container");
+                $("<span class='refresh-status' style='margin-left:-50px;margin-top:15px;color:gray;font-size:large'>Done</span>").insertBefore("#action-container");
                 setTimeout(function() {
                     $(".refresh-status").remove();
                 }, 2000);
@@ -240,7 +239,7 @@
     });
 
     d3.select("#show-uploaded-files-form .show").on("click", function () {
-        var url = "http://localhost:8080/Java-Matlab-Integration/DirectoryInspectorServlet/view-files";
+        var url = "/Java-Matlab-Integration/DirectoryInspectorServlet/view-files";
         //window.history.pushState({}, "", url);
         d3.event.stopImmediatePropagation();
         if (!pnnl.validation.validate("show-uploaded-files-form", "dataset-name"))
@@ -264,14 +263,15 @@
             moveTo += 690 / resultData.pointCount.length;
             pnnl.draw.moveIndicatorBar(moveTo);
             if (currentIndex % 20 === 0 && currentIndex !== 0 /*&& currentIndex !== resultData.length - 1*/) {
-                var url = "http://localhost:8080/Java-Matlab-Integration/DataFetcherServlet/load-more";
+                var url = "Java-Matlab-Integration/DataFetcherServlet/load-more";
                 //window.history.pushState({}, "", url);
                 pnnl.draw.drawOverlay();
                 pnnl.draw.drawSpinner();
                 var fileName = getItemSession("file-name");
+                var dataset = getItemSession("dataset-name");
                 var requestParams = {
                     "file-name": fileName,
-                    "dataset-name": getItemSession("dataset-name"),
+                    "dataset-name": dataset ? dataset : $("#selected-dataset").text(),
                     "user-dir": getItemLocal("user-dir"),
                     "file-type": fileName.indexOf("hdf") !== -1 ? "hdf" : "cdf",
                     "offset": offset,
@@ -294,9 +294,6 @@
                         totalElementsRead + resultData.pointCount[currentIndex]));
                 totalElementsRead += resultData.pointCount[currentIndex];
                 offset += resultData.pointCount[currentIndex];
-                log("***************************");
-                log("TOTAL ELEMENTS READ: " + offset);
-                log("CURRENT INDEX: " + currentIndex);
             }
         }
 
@@ -312,14 +309,15 @@
                 currentIndex--;
                 drawIntensityMassChart(resultData.intensityMass.slice(totalElementsRead - resultData.pointCount[currentIndex], totalElementsRead));
             } else {
-                var url = "http://localhost:8080/Java-Matlab-Integration/DataFetcherServlet/load-more";
+                var url = "/Java-Matlab-Integration/DataFetcherServlet/load-more";
                 //window.history.pushState({}, "", url);
                 pnnl.draw.drawSpinner();
                 pnnl.draw.drawOverlay();
                 var fileName = getItemSession("file-name");
+                var dataset = getItemSession("dataset-name");
                 var requestParams = {
                     "file-name": fileName,
-                    "dataset-name": getItemSession("dataset-name"),
+                    "dataset-name": dataset ? dataset : $("#selected-dataset").text(),
                     "user-dir": getItemLocal("user-dir"),
                     "file-type": fileName.indexOf("hdf") !== -1 ? "hdf" : "cdf",
                     "offset": offset,
@@ -336,10 +334,7 @@
                     pnnl.draw.removeSpinnerOverlay();
                 }, errorCallback);
             }
-        }
-        log("***************************");
-        log("TOTAL ELEMENTS READ: " + offset);
-        log("CURRENT INDEX: " + currentIndex);
+        };
     });
     // Convinient function so we don't have to repeat codes for next and previous buttons' event handlers.
     function drawIntensityMassChart(data) {
@@ -379,7 +374,6 @@
                                         }))
                                         .range([0, config.width - config.margin.left - config.margin.right]);
                                 var range = d3.event.selection.map(x.invert);
-                                log(range);
                                 $("." + config.className).off("contextmenu click").contextmenu(function (event) {
                                     showContextDialog(event, "<li id='generate-image'>Generate ion image</li>", function () {
                                         switch (this.id) {
@@ -394,7 +388,7 @@
                                                 pnnl.draw.drawOverlay();
                                                 var fileNames = getItemSession("file-names");
                                                 var datasetName = getItemSession("dataset-name");
-                                                $.ajax("http://localhost:8080/Java-Matlab-Integration/IonImageGeneratorServlet/generate-image",
+                                                $.ajax("/Java-Matlab-Integration/IonImageGeneratorServlet/generate-image",
                                                         {
                                                             "method": "GET",
                                                             "data": {
@@ -436,8 +430,9 @@
     }
     // Just a convenient function to remove code duplication.
     function loadData(userDir, datasetName, fileName) {
-        var url = "http://localhost:8080/Java-Matlab-Integration/DataFetcherServlet/load-data";
+        var url = "/Java-Matlab-Integration/DataFetcherServlet/load-data";
         //window.history.pushState({}, "", url);
+        window.sessionStorage.setItem("file-name", fileName);
         var fileType = fileName.indexOf("hdf") !== -1 ? "hdf" : "cdf";
         var data = {"user-dir": userDir, "dataset-name": datasetName, "file-name": fileName, "file-type": fileType};
         pnnl.data.loadData(url, data, successCallback, errorCallback);
@@ -585,7 +580,7 @@
                     case "save-image":
                         pnnl.draw.drawSpinner();
                         pnnl.draw.drawOverlay();
-                        var url = "http://localhost:8080/Java-Matlab-Integration/UploaderServlet/save-image";
+                        var url = "/Java-Matlab-Integration/UploaderServlet/save-image";
                         var formData = new FormData();
                         formData.append("user-dir", getItemLocal("user-dir"));
                         var datasetName = image.className;
@@ -648,7 +643,6 @@
             },
             "error": function (xhr) {
                 errorCallback(xhr.statusText);
-                console.log(xhr);
             }
         });
     }
@@ -766,6 +760,7 @@
 
     function appendImages(data) {
         var container = document.getElementById("images-tab-content");
+        $(container).find(".empty-content").remove();
         data["image-data"].forEach(function (d, i) {
             var div = document.createElement("div");
             div.className = "image-container";
@@ -790,8 +785,4 @@
         var value = window.sessionStorage.getItem(name);
         return value ? value : "";
     }
-    function log(msg) {
-        console.log(msg);
-    }
-
 })(jQuery);

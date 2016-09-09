@@ -1,40 +1,56 @@
 package matlab;
 
 import com.mathworks.toolbox.javabuilder.*;
-import java.util.List;
-import java.util.concurrent.*;
-import java.util.logging.*;
-import javax.annotation.*;
+import java.io.IOException;
+import java.rmi.*;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.annotation.Resource;
 import javax.ejb.Stateless;
-import save_ion_image_for_all_ranges_in_spreadsheet.Class1;
+import javax.enterprise.concurrent.ManagedScheduledExecutorService;
+import javax.inject.Inject;
+import resource.ApplicationResource;
+import rmi.tasks.ImagesFromExcelTask;
+import rmi.ProcessInit;
+import rmi.tasks.Tasks;
 
 @Stateless
 public class ExcelIonImageGenerator {
 
-    private final Class1 clazz1;
-    @Resource(name = "java:comp/DefaultManagedExecutorService")
-    private ExecutorService pool;
+    @Inject
+    private ApplicationResource resource;
 
-    public ExcelIonImageGenerator() throws MWException {
-        clazz1 = new Class1();
-    }
+    @Resource(name = "java:comp/DefaultManagedScheduledExecutorService")
+    private ManagedScheduledExecutorService pool;
 
-    public void generate(String path, List<String> fileNames, Double[][] ranges) throws MWException {
-        pool.submit(() -> generateHelper(path, fileNames, ranges, clazz1));
-    }
-
-    private void generateHelper(String path, List<String> fileNames, Double[][] ranges, Class1 clazz) {
+    public void generate(String root, String path, List<String> fileNames, Double[][] ranges) {
+        /*Optional<Port> opt = resource.getPorts()
+                .stream()
+                .filter(p -> !p.isInUse())
+                .findFirst();
+        Port port = opt.orElseGet(() -> resource.getPorts().get((int) (Math.random() * resource.getPorts().size())));
+        Future<Process> process = pool.submit(() -> ProcessInit.startRMIServer(root, port.getPort()));
+        port.setInUse(true);
         try {
-            clazz.save_ion_image_for_all_ranges_in_spreadsheet(path, ranges, fileNames.toArray(new String[1]));
-        } catch (MWException ex) {
+            ImagesFromExcelTask task = new ImagesFromExcelTask(path, fileNames, ranges);
+            Tasks.runTask(task, port.getPort())
+                    .thenRun(() -> port.setInUse(false))
+                    .thenRun(() -> {
+                        System.out.println("ABOUT TO CLOSE PROCESS");
+                        try {
+                            process.get().destroy();
+                        } catch (InterruptedException | ExecutionException ex) {
+                            Logger.getLogger(ExcelIonImageGenerator.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        System.out.println("PROCESS CLOSED");
+                    });
+        } catch (MWException | RemoteException | NotBoundException ex) {
             Logger.getLogger(ExcelIonImageGenerator.class.getName()).log(Level.SEVERE, null, ex);
-        }
+            port.setInUse(false);
+        }*/
     }
-
-    @PreDestroy
-    private void dispose() {
-        MWArray.disposeArray(clazz1);
-        System.out.println("********** SHUTTING DOWN IN dispose() **********");
-    }
-
 }

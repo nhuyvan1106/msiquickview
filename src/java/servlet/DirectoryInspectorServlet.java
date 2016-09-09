@@ -1,34 +1,26 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package servlet;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import java.io.*;
+import java.nio.file.*;
 import java.util.Arrays;
 import java.util.logging.*;
 import javax.inject.Inject;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import json.JsonWriter;
-import resource.ApplicationResourcePool;
+import resource.ApplicationResource;
 
-/**
- *
- * @author NhuY
- */
 @WebServlet(name = "DirectoryInspectorServlet", urlPatterns = {"/DirectoryInspectorServlet/view-files", "/DirectoryInspectorServlet/load-more-images",
-"/DirectoryInspectorServlet/refresh"})
+    "/DirectoryInspectorServlet/refresh"})
 public class DirectoryInspectorServlet extends HttpServlet {
 
     @Inject
-    private ApplicationResourcePool resources;
+    private ApplicationResource resources;
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json");
-        String userDir = request.getServletContext().getRealPath("/WEB-INF/temp") + File.separator + request.getParameter("user-dir");
+        Path userDir = Paths.get(System.getProperty("user.home"), resources.getStorage(), request.getParameter("user-dir"));
         String datasetName = request.getParameter("dataset-name");
         Writer writer = response.getWriter();
         JsonGenerator generator = resources.getJsonFactory().createJsonGenerator(writer);
@@ -40,20 +32,20 @@ public class DirectoryInspectorServlet extends HttpServlet {
             case "/DirectoryInspectorServlet/load-more-images":
                 int skip = Integer.parseInt(request.getParameter("skip"));
                 int limit = Integer.parseInt(request.getParameter("limit"));
-                String path = userDir + File.separator + datasetName + File.separator + "images";
-                File[] files = new File(path).listFiles();
+                Path path = userDir.resolve(datasetName).resolve("images");
+                File[] files = path.toFile().listFiles();
                 generator.writeStartObject();
                 generator.writeNumberField("total", Arrays.stream(files).filter(f -> !f.isHidden()).count());
-                JsonWriter.writeImageData(generator, path, skip, limit);
+                JsonWriter.writeImageData(generator, path.toFile(), skip, limit);
                 JsonWriter.listFileNames(generator, "images", files, skip, limit);
                 generator.writeEndObject();
                 break;
-                
+
             case "/DirectoryInspectorServlet/refresh":
                 String restrict = request.getParameter("restrict");
-                File[] files2 = new File(userDir + File.separator + datasetName + File.separator + request.getParameter("folder")).listFiles();
+                File[] files2 = userDir.resolve(datasetName).resolve(request.getParameter("folder")).toFile().listFiles();
                 generator.writeStartObject();
-                JsonWriter.listFileNames(generator, "datasets", new File(userDir).listFiles(), 0, Integer.MAX_VALUE);
+                JsonWriter.listFileNames(generator, "datasets", userDir.toFile().listFiles(), 0, Integer.MAX_VALUE);
                 if (restrict != null && !"".equals(restrict))
                     generator.writeNumberField("payload", Arrays.stream(files2).filter(f -> !f.isHidden()).count());
                 else

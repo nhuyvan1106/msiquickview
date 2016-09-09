@@ -1,18 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package json;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.logging.*;
+import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 
@@ -21,22 +15,19 @@ public class JsonWriter {
     private JsonWriter() {
     }
     
-    public static void writeUserDir(JsonGenerator generator, String userDir, String datasetName) throws FileNotFoundException {
+    public static void writeUserDir(JsonGenerator generator, Path userDir, String datasetName) throws FileNotFoundException {
         Predicate<File> p = null;
-        if (!Files.exists(Paths.get(userDir))) {
-            userDir = userDir.substring(userDir.indexOf("temp") + 5);
-            throw new FileNotFoundException("Folder with given name: " + userDir + " does not exist");
-        }
+        if (!Files.exists(userDir))
+            throw new FileNotFoundException("Folder with given name: " + userDir.getFileName() + " does not exist");
         if (datasetName != null && !"".equals(datasetName)) {
-            if (!Files.exists(Paths.get(userDir, datasetName))) {
+            if (!Files.exists(userDir.resolve(datasetName)))
                 throw new FileNotFoundException("Dataset with given name: " + datasetName + " does not exist");
-            }
             p = file -> file.getName().equals(datasetName);
-        } else {
+        } 
+        else
             p = file -> true;
-        }
         try {
-            File[] files = new File(userDir).listFiles();
+            File[] files = userDir.toFile().listFiles();
             generator.writeStartObject();
             listFileNames(generator, "datasets", files, 0, Integer.MAX_VALUE);
             generator.writeArrayFieldStart("payload");
@@ -52,10 +43,10 @@ public class JsonWriter {
         }
     }
 
-    public static void writeImageData(JsonGenerator generator, String path, int skip, int limit) throws IOException {
+    public static void writeImageData(JsonGenerator generator, File path, int skip, int limit) throws IOException {
         Base64.Encoder encoder = Base64.getEncoder();
         generator.writeArrayFieldStart("image-data");
-        Arrays.stream(new File(path).listFiles())
+        Arrays.stream(path.listFiles())
                 .filter(file -> !file.isHidden())
                 .skip(skip)
                 .limit(limit)
@@ -76,7 +67,7 @@ public class JsonWriter {
             generator.writeStringField("dataset", dir.getName());
             for (File file : dir.listFiles())
                 listFileNames(generator, file.getName(), file.listFiles(), 0, Integer.MAX_VALUE);
-            writeImageData(generator, dir.toString() + File.separator + "images", 0, 10);
+            writeImageData(generator, new File(dir, "images"), 0, 10);
             generator.writeEndObject();
         } catch (IOException ex) {
             Logger.getLogger(JsonWriter.class.getName()).log(Level.SEVERE, null, ex);
@@ -85,7 +76,7 @@ public class JsonWriter {
     
     public static void listFileNames(JsonGenerator generator, String field, File[] files, int skip, int limit) throws IOException {
         generator.writeArrayFieldStart(field);
-        Arrays.stream(files)
+        Stream.of(files)
                 .filter(file -> !file.isHidden())
                 .skip(skip)
                 .limit(limit)
