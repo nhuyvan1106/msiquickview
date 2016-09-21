@@ -92,12 +92,13 @@ public class JsonWriter {
     }
 
     private static String encodeImageDataHelper(File file, Base64.Encoder encoder) {
-        ByteArrayOutputStream os = new ByteArrayOutputStream((int) FileUtils.sizeOf(file));
-        try {
-            os.write(new FileInputStream(file));
+        try(ByteArrayOutputStream os = new ByteArrayOutputStream((int) FileUtils.sizeOf(file));
+            InputStream is = new FileInputStream(file)) {
+            os.write(is);
+            return encoder.encodeToString(os.toByteArray());
         } catch (IOException ex) {
             Logger.getLogger(JsonWriter.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
         }
-        return encoder.encodeToString(os.toByteArray());
     }
 }

@@ -5,7 +5,7 @@ import java.rmi.registry.*;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.logging.*;
 import remote_proxy.*;
-
+//TODO: Removing log statements
 public class BootStrap {
 
     public static void main(String[] args) {

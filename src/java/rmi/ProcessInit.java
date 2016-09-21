@@ -5,7 +5,7 @@ import java.nio.file.*;
 import java.util.logging.*;
 import static java.util.stream.Collectors.joining;
 import java.util.stream.Stream;
-
+//TODO: Removing log statements
 public class ProcessInit {
 
     public static Process startRMIServer(String WEBINF, int port, String jar) {
@@ -17,15 +17,16 @@ public class ProcessInit {
                 .map(e -> lib.resolve(e).toString())
                 .collect(joining(File.pathSeparator));
         pb.command("java", "-cp", "." + File.pathSeparator + cp, "rmi.BootStrap", String.valueOf(port));
-        try {
-            System.setProperty("java.rmi.server.hostname", "localhost");
-            Process p = pb.start();
-            new Thread(() -> flushIStream(p.getInputStream())).start();
-            new Thread(() -> flushIStream(p.getErrorStream())).start();
-            return p;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return null;
+        while (true) {
+            try {
+                Process p = pb.start();
+                new Thread(() -> flushIStream(p.getInputStream())).start();
+                new Thread(() -> flushIStream(p.getErrorStream())).start();
+                return p;
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                System.out.println("Retrying....");
+            }
         }
     }
 

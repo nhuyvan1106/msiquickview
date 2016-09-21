@@ -14,10 +14,6 @@ import javax.servlet.http.*;
 import matlab.CdfReader;
 import resource.ApplicationResource;
 
-/**
- *
- * @author vann363
- */
 @WebServlet(name = "DataFetcherServlet", urlPatterns = {"/DataFetcherServlet/load-more", "/DataFetcherServlet/load-data"})
 public class DataFetcherServlet extends HttpServlet {
 

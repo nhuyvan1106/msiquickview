@@ -26,23 +26,9 @@ public final class Tasks {
         Future<Process> process = pool.submit(() -> ProcessInit.startRMIServer(WEBINF, port, jar));
         Registry reg = LocateRegistry.getRegistry(port);
         TaskRunner generator = (TaskRunner) reg.lookup("runner" + port);
-        CompletableFuture<T> cf = CompletableFuture.supplyAsync(() -> runTaskHelper(generator, task));
-        cf.thenRun(() -> destroyProcess(process));
-        try {
-            return cf.get();
-        } catch (InterruptedException | ExecutionException ex) {
-            Logger.getLogger(Tasks.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
-    }
-
-    private static <T> T runTaskHelper(TaskRunner generator, Task<T> task) {
-        try {
-            return generator.runTask(task);
-        } catch (RemoteException ex) {
-            Logger.getLogger(Tasks.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
+        T result = generator.runTask(task);
+        destroyProcess(process);
+        return result;
     }
 
     private static void destroyProcess(Future<Process> process) {

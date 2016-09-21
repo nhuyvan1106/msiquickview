@@ -88,7 +88,7 @@
                     </div>
                     <div class="form-group">
                         <label class="label label-primary">Select Files to Generate Images for</label>
-                        <input type="file" multiple="multiple" required="required" class="form-control" id="file-names"/>
+                        <input type="file" multiple="multiple" required="required" class="form-control" id="file-names" style="width:275px"/>
                     </div>
                     <div class="form-group">
                         <label class="label label-primary">Folder Name to Store Files</label>
@@ -159,7 +159,7 @@
                         <i class="fa fa-refresh" id="refresh" aria-hidden="true"></i>
                         <i style="text-align: right" class="fa fa-close fa-1x close-tab-btn"></i>
                     </div>
-                    
+
                 </div>
                 <div class="tab-body" id="tab-body">
                     <div class="tabs">
@@ -183,10 +183,25 @@
                     </div>
                 </div>
             </div>
+            <div class="buttons">
+                <div id="tab-opener">
+                    <i class="fa fa-long-arrow-up fa-lg" aria-hidden="true"></i>
+                </div>
 
-            <div id="tab-opener">
-                <i class="fa fa-long-arrow-up fa-lg" aria-hidden="true"></i>
+                <div id="status-container">
+                    <a id="status-toggle" href="" onclick="event.preventDefault()">
+                        <i class="fa fa-hourglass-o fa-medium" aria-hidden="true"></i>
+                    </a>
+                    <div id="status">
+                        <div class="status-header">
+                            <div>Job for</div>
+                            <div>Status</div>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+
             <div class="panel panel-info lobipanel">
                 <div class="panel-heading">Spectral Details</div>
                 <div class="panel-body">
@@ -263,175 +278,177 @@
         <script src="front-end-frameworks/javascript/main.js"></script>
         <script src="front-end-frameworks/external/lobipanel/lobipanel.min.js"></script>
         <script>
-            (function ($) {
-                /*
-                 * Static behaviors of UI components that are likely never changed should be defined here so 
-                 * they can be set up on page load, any code that talks to a server should be implemented in a separate file.
-                 */
-                var nav = d3.select("nav");
-                nav.selectAll("div").each(function (p,index) {
-                    $(this).css("top", index * 104 + index * 5 + "px");
-                });
-                $(".toggler").click(function (event) {
-                    event.stopImmediatePropagation();
-                    nav.selectAll("div").classed("selected", false);
-                    if (nav.classed("closed")) {
-                        nav.classed("closed",false)
-                                .selectAll("div")
-                                .transition()
-                                .ease(d3.easeBackOut)
-                                .duration(700)
-                                .delay(function(d,index) { return index * 90; })
-                                .style("opacity", 1)
-                                .style("left", "0px");
-                        d3.select(this).transition().duration(500).style("transform", "rotate(180deg)");
-                    } else {
-                        nav.classed("closed",true)
-                                .selectAll("div")
-                                .transition()
-                                .duration(500)
-                                .ease(d3.easeBackIn)
-                                .delay(function(p,index,group) { return (group.length-index) * 90; })
-                                .style("opacity", "0")
-                                .style("left", "-300px");
-                        $(".form-container").fadeOut();
-                        $(".validation-error-dialog").fadeOut(400, function () {
-                            $(this).remove();
+                        (function ($) {
+                            /*
+                             * Static behaviors of UI components that are likely never changed should be defined here so 
+                             * they can be set up on page load, any code that talks to a server should be implemented in a separate file.
+                             */
+                            var nav = d3.select("nav");
+                            nav.selectAll("div").each(function (p, index) {
+                                $(this).css("top", index * 104 + index * 5 + "px");
+                            });
+                            $(".toggler").click(function (event) {
+                                event.stopImmediatePropagation();
+                                nav.selectAll("div").classed("selected", false);
+                                if (nav.classed("closed")) {
+                                    nav.classed("closed", false)
+                                            .selectAll("div")
+                                            .transition()
+                                            .ease(d3.easeBackOut)
+                                            .duration(700)
+                                            .delay(function (d, index) {
+                                                return index * 90;
+                                            })
+                                            .style("opacity", 1)
+                                            .style("left", "0px");
+                                    d3.select(this).transition().duration(500).style("transform", "rotate(180deg)");
+                                } else {
+                                    nav.classed("closed", true)
+                                            .selectAll("div")
+                                            .transition()
+                                            .duration(500)
+                                            .ease(d3.easeBackIn)
+                                            .delay(function (p, index, group) {
+                                                return (group.length - index) * 90;
+                                            })
+                                            .style("opacity", "0")
+                                            .style("left", "-300px");
+                                    $(".form-container").fadeOut();
+                                    $(".validation-error-dialog").fadeOut(400, function () {
+                                        $(this).remove();
+                                    });
+                                    d3.select(this).transition().duration(500).style("transform", "rotate(0deg)");
+                                }
+                                var that = this;
+                                $(document.documentElement).click(function (event) {
+                                    if (!$.contains($("nav").get(0), event.target) && $(".form-container").has(event.target).size() === 0
+                                            && !$(event.target).hasClass("form-container") && !$("nav").hasClass("closed"))
+                                        $(that).click();
+
+                                    $(".context-menu-dialog").hide();
+                                });
+                            });
+
+                            $("#dataset-selection-toggler").click(function () {
+                                $(this).parent().find("ul").fadeToggle();
+                            });
+
+                            $("#load-more-toggler").click(function () {
+                                if ($(this).attr("disabled") !== "disabled")
+                                    $(this).parent().find("ul").fadeToggle();
+                            });
+
+                            $("#tabs-container").draggable({"handle": ".header"}).find(".tab").click(function (event) {
+                                event.stopImmediatePropagation();
+                                $(".tab").each(function () {
+                                    $(this).removeClass("active-tab");
+                                    $("#" + $(this).data("activate")).hide();
+                                });
+                                $(this).addClass("active-tab");
+                                $("#" + $(this).data("activate")).fadeIn().find("li")
+                                        .each(function (i, e) {
+                                            $(e).css("background-color", "white");
+                                        });
+                                if (this.id === "images-tab")
+                                    $("#load-more-container").css("visibility", "visible");
+                                else
+                                    $("#load-more-container").css("visibility", "hidden");
+                            });
+
+                            $(".close-btn").click(function (event) {
+                                event.stopImmediatePropagation();
+                                d3.selectAll(".validation-error-dialog")
+                                        .transition()
+                                        .style("opacity", 0)
+                                        .duration(500)
+                                        .remove();
+                                $(this).parent().parent().fadeOut();
+                            });
+
+                            $(".close-tab-btn").click(function (event) {
+                                event.stopImmediatePropagation();
+                                var parent = this.parentElement.parentElement.parentElement;
+                                var offset = $(parent).offset();
+                                d3.select(parent)
+                                        .style("transform-origin", "0 100%")
+                                        .transition()
+                                        .duration(800)
+                                        .style("opacity", 0)
+                                        .style("transform", "translate(-" + offset.left + "px,"
+                                                + (document.documentElement.clientHeight - 5 - offset.top - $(parent).height() + pnnl.utils.getScrollTop())
+                                                + "px) scale(0,0)");
+                            });
+                            $("#tab-opener").click(function (event) {
+                                event.stopImmediatePropagation();
+                                d3.select("#tabs-container")
+                                        .transition()
+                                        .duration(800)
+                                        .style("transform", "scale(1,1)")
+                                        .style("top", pnnl.utils.getScrollTop() + 80 + "px")
+                                        .style("opacity", 1);
+                            });
+
+                            $("#upload-cdf-hdf, #upload-excel, #show-uploaded-files").click(function (event) {
+                                event.stopImmediatePropagation();
+                                $("nav > div").removeClass("selected");
+                                $(this).parent().addClass("selected");
+                                $(".form-container").fadeOut();
+                                $(".validation-error-dialog").fadeOut(400, function () {
+                                    $(this).remove();
+                                });
+                                $("#" + $(this).data("activate")).fadeIn().css({"left": $(this).width() + 10 + "px", "top": $(this).offset().top - 100 + "px"});
+                            });
+                            var handle;
+                            $(".forward").click(function (event) {
+                                event.stopImmediatePropagation();
+                                handle = setInterval(function () {
+                                    $(".next").get(0).click();
+                                }, 500);
+                            });
+
+                            $(".backward").click(function (event) {
+                                event.stopImmediatePropagation();
+                                handle = setInterval(function () {
+                                    $(".prev").get(0).click();
+                                }, 500);
+                            });
+
+                            $(".stop").click(function (event) {
+                                event.stopImmediatePropagation();
+                                clearInterval(handle);
+                            });
+
+                            $("#nav_to_kibana_discovery_page").click(function (event) {
+                                event.stopImmediatePropagation();
+                                window.open("http://172.18.10.36:5601/app/kibana#/discover/Scientist-Name,-Dataset-Name,-Notes,-Folder-Location,-m-slash-z-list,-m-slash-z-list-file-name-and-sheet-name,-%23-of-raw-files-per-dataset?_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:now-15m,mode:quick,to:now))&_a=(columns:!('Scientist%20Name','%23%20Raw%20Files','Dataset%20Name',Notes,'Folder%20Location','User%20Selected%20m%2Fz%20list%20to%20save','m%2Fz%20Excel%20File','m%2Fz%20Excel%20File%20Sheet%20Name'),filters:!(),index:multi-modal,interval:auto,query:(query_string:(analyze_wildcard:!t,query:'*')),sort:!(_score,desc))");
+                            });
+                            $("#nav_to_kibana_dashboard").click(function (event) {
+                                event.stopImmediatePropagation();
+                                window.open("http://172.18.10.36:5601/app/kibana#/dashboard/Default-Mass-Spec-1?_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:now-15m,mode:quick,to:now))&_a=(filters:!(),options:(darkTheme:!t),panels:!((col:1,id:%23-of-Datasets-per-Scientist-with-Dataset-Name-and-Date-of-acquisition,panelIndex:1,row:1,size_x:7,size_y:5,type:visualization),(col:1,id:%23-of-Raw-Files-Per-Dataset,panelIndex:2,row:6,size_x:4,size_y:9,type:visualization),(col:9,id:Aspect-Ratios-per-Dataset,panelIndex:3,row:6,size_x:4,size_y:9,type:visualization),(col:8,id:'Table-with-Scientist-Name-and-basic-stats-like-Unique-%23-of-user-selected-m-slash-z-list-to-save,-std-dev-of-%23-of-raw-files,-Average-%23-of-Raw-files',panelIndex:4,row:1,size_x:5,size_y:5,type:visualization),(col:1,columns:!('Scientist%20Name','%23%20Raw%20Files','Dataset%20Name',Notes,'Folder%20Location','User%20Selected%20m%2Fz%20list%20to%20save','m%2Fz%20Excel%20File','m%2Fz%20Excel%20File%20Sheet%20Name'),id:'Scientist-Name,-Dataset-Name,-Notes,-Folder-Location,-m-slash-z-list,-m-slash-z-list-file-name-and-sheet-name,-%23-of-raw-files-per-dataset',panelIndex:5,row:15,size_x:12,size_y:6,sort:!(_score,desc),type:search),(col:5,id:Dataset-Types-vs.-Scientists-for-Nano-Desi,panelIndex:6,row:6,size_x:4,size_y:5,type:visualization),(col:5,id:Avergae-%23-of-Raw-files-vs.-Dataset-Type,panelIndex:7,row:11,size_x:4,size_y:4,type:visualization)),query:(query_string:(analyze_wildcard:!t,query:'*')),title:'Default%20Mass%20Spec%201',uiState:(P-2:(spy:(mode:(fill:!f,name:table)))))");
+                            });
+                        })(jQuery);
+
+                        $(function () {
+                            $('.row').each(function () {
+                                $('.lobipanel').lobiPanel({
+                                    reload: false,
+                                    close: false,
+                                    editTitle: false,
+                                    unpin: {
+                                        icon: 'fa fa-arrows'
+                                    },
+                                    minimize: {
+                                        icon: 'fa fa-chevron-up',
+                                        icon2: 'fa fa-chevron-down'
+                                    },
+                                    expand: {
+                                        icon: 'fa fa-expand',
+                                        icon2: 'fa fa-compress'
+                                    }
+
+                                });
+                            });
                         });
-                        d3.select(this).transition().duration(500).style("transform", "rotate(0deg)");
-                    }
-                    var that = this;
-                    $(document.documentElement).click(function (event) {
-                        if (!$.contains($("nav").get(0), event.target) && $(".form-container").has(event.target).size() === 0
-                                && !$(event.target).hasClass("form-container") && !$("nav").hasClass("closed"))
-                            $(that).click();
-
-                        $(".context-menu-dialog").hide();
-                    });
-                });
-
-                $("#dataset-selection-toggler").click(function () {
-                    $(this).parent().find("ul").fadeToggle();
-                });
-                
-                $("#load-more-toggler").click(function () {
-                    if ($(this).attr("disabled") !== "disabled")
-                        $(this).parent().find("ul").fadeToggle();
-                });
-
-                $("#tabs-container").draggable({"handle": ".header"}).find(".tab").click(function (event) {
-                    event.stopImmediatePropagation();
-                    $(".tab").each(function () {
-                        $(this).removeClass("active-tab");
-                        $("#" + $(this).data("activate")).hide(); 
-                    });
-                    $(this).addClass("active-tab");
-                    $("#" + $(this).data("activate")).fadeIn().find("li")
-                                .each(function(i,e) { $(e).css("background-color", "white"); });
-                    if (this.id === "images-tab")
-                        $("#load-more-container").css("visibility", "visible");
-                    else
-                        $("#load-more-container").css("visibility", "hidden");
-                });
-
-                $(".close-btn").click(function (event) {
-                    event.stopImmediatePropagation();
-                    d3.selectAll(".validation-error-dialog")
-                            .transition()
-                            .style("opacity", 0)
-                            .duration(500)
-                            .remove();
-                    $(this).parent().parent().fadeOut();
-                });
-
-                $(".close-tab-btn").click(function (event) {
-                    event.stopImmediatePropagation();
-                    var parent = this.parentElement.parentElement.parentElement;
-                    var offset = $(parent).offset();
-                    d3.select(parent)
-                            .style("transform-origin", "0 100%")
-                            .transition()
-                            .duration(800)
-                            .style("opacity", 0)
-                            .style("transform", "translate(-" + offset.left + "px,"
-                                    + (document.documentElement.clientHeight - 5 - offset.top - $(parent).height() + pnnl.utils.getScrollTop())
-                                    + "px) scale(0,0)");
-                    setTimeout(function () {
-                        $("#tab-opener").show();
-                    }, 400);
-                });
-                $("#tab-opener").click(function (event) {
-                    event.stopImmediatePropagation();
-                    d3.select("#tabs-container")
-                            .transition()
-                            .duration(800)
-                            .style("transform", "scale(1,1)")
-                            .style("top", pnnl.utils.getScrollTop() + 80 + "px")
-                            .style("opacity", 1);
-                    this.style.display = "none";
-                });
-
-                $("#upload-cdf-hdf, #upload-excel, #show-uploaded-files").click(function (event) {
-                    event.stopImmediatePropagation();
-                    $("nav > div").removeClass("selected");
-                    $(this).parent().addClass("selected");
-                    $(".form-container").fadeOut();
-                    $(".validation-error-dialog").fadeOut(400, function () {
-                        $(this).remove();
-                    });
-                    $("#" + $(this).data("activate")).fadeIn().css({"left": $(this).width() + 10 + "px", "top": $(this).offset().top - 100 + "px"});
-                });
-                var handle;
-                $(".forward").click(function (event) {
-                    event.stopImmediatePropagation();
-                    handle = setInterval(function () {
-                        $(".next").get(0).click();
-                    }, 500);
-                });
-
-                $(".backward").click(function (event) {
-                    event.stopImmediatePropagation();
-                    handle = setInterval(function () {
-                        $(".prev").get(0).click();
-                    }, 500);
-                });
-
-                $(".stop").click(function (event) {
-                    event.stopImmediatePropagation();
-                    clearInterval(handle);
-                });
-
-                $("#nav_to_kibana_discovery_page").click(function (event) {
-                    event.stopImmediatePropagation();
-                    window.open("http://172.18.10.36:5601/app/kibana#/discover/Scientist-Name,-Dataset-Name,-Notes,-Folder-Location,-m-slash-z-list,-m-slash-z-list-file-name-and-sheet-name,-%23-of-raw-files-per-dataset?_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:now-15m,mode:quick,to:now))&_a=(columns:!('Scientist%20Name','%23%20Raw%20Files','Dataset%20Name',Notes,'Folder%20Location','User%20Selected%20m%2Fz%20list%20to%20save','m%2Fz%20Excel%20File','m%2Fz%20Excel%20File%20Sheet%20Name'),filters:!(),index:multi-modal,interval:auto,query:(query_string:(analyze_wildcard:!t,query:'*')),sort:!(_score,desc))");
-                });
-                $("#nav_to_kibana_dashboard").click(function (event) {
-                    event.stopImmediatePropagation();
-                    window.open("http://172.18.10.36:5601/app/kibana#/dashboard/Default-Mass-Spec-1?_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:now-15m,mode:quick,to:now))&_a=(filters:!(),options:(darkTheme:!t),panels:!((col:1,id:%23-of-Datasets-per-Scientist-with-Dataset-Name-and-Date-of-acquisition,panelIndex:1,row:1,size_x:7,size_y:5,type:visualization),(col:1,id:%23-of-Raw-Files-Per-Dataset,panelIndex:2,row:6,size_x:4,size_y:9,type:visualization),(col:9,id:Aspect-Ratios-per-Dataset,panelIndex:3,row:6,size_x:4,size_y:9,type:visualization),(col:8,id:'Table-with-Scientist-Name-and-basic-stats-like-Unique-%23-of-user-selected-m-slash-z-list-to-save,-std-dev-of-%23-of-raw-files,-Average-%23-of-Raw-files',panelIndex:4,row:1,size_x:5,size_y:5,type:visualization),(col:1,columns:!('Scientist%20Name','%23%20Raw%20Files','Dataset%20Name',Notes,'Folder%20Location','User%20Selected%20m%2Fz%20list%20to%20save','m%2Fz%20Excel%20File','m%2Fz%20Excel%20File%20Sheet%20Name'),id:'Scientist-Name,-Dataset-Name,-Notes,-Folder-Location,-m-slash-z-list,-m-slash-z-list-file-name-and-sheet-name,-%23-of-raw-files-per-dataset',panelIndex:5,row:15,size_x:12,size_y:6,sort:!(_score,desc),type:search),(col:5,id:Dataset-Types-vs.-Scientists-for-Nano-Desi,panelIndex:6,row:6,size_x:4,size_y:5,type:visualization),(col:5,id:Avergae-%23-of-Raw-files-vs.-Dataset-Type,panelIndex:7,row:11,size_x:4,size_y:4,type:visualization)),query:(query_string:(analyze_wildcard:!t,query:'*')),title:'Default%20Mass%20Spec%201',uiState:(P-2:(spy:(mode:(fill:!f,name:table)))))");
-                });
-            })(jQuery);
-
-            $(function () {
-                $('.row').each(function () {
-                    $('.lobipanel').lobiPanel({
-                        reload: false,
-                        close: false,
-                        editTitle: false,
-                        unpin: {
-                            icon: 'fa fa-arrows'
-                        },
-                        minimize: {
-                            icon: 'fa fa-chevron-up',
-                            icon2: 'fa fa-chevron-down'
-                        },
-                        expand: {
-                            icon: 'fa fa-expand',
-                            icon2: 'fa fa-compress'
-                        }
-
-                    });
-                });
-            });
         </script>
     </body>
 </html>

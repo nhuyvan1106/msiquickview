@@ -2,14 +2,13 @@
 var pnnl = {
     /*********** DATA LOADING RELATED MODULE ***********/
     data: {
-        upload: function (url, userDir, datasetName, files, successCallback, errorCallback) {
+        upload: function (url, userDir, datasetName, files, folder, successCallback, errorCallback) {
             var formData = new FormData();
             formData.append("user-dir", userDir);
             formData.append("dataset-name", datasetName);
+            formData.append("folder", folder);
             var xhr = new XMLHttpRequest();
-            files.forEach(function (file, i) {
-                formData.append("file-" + i, file);
-            });
+            files.forEach(function (file, i) { formData.append("file-" + i, file); });
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200)
