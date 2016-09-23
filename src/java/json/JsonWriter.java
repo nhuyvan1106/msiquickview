@@ -2,13 +2,14 @@ package json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.*;
+import static java.nio.file.StandardOpenOption.READ;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.logging.*;
 import java.util.stream.Stream;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.output.ByteArrayOutputStream;
 
 public class JsonWriter {
 
@@ -92,10 +93,11 @@ public class JsonWriter {
     }
 
     private static String encodeImageDataHelper(File file, Base64.Encoder encoder) {
-        try(ByteArrayOutputStream os = new ByteArrayOutputStream((int) FileUtils.sizeOf(file));
-            InputStream is = new FileInputStream(file)) {
-            os.write(is);
-            return encoder.encodeToString(os.toByteArray());
+        try (ReadableByteChannel rbc = Files.newByteChannel(file.toPath(), READ)) {
+            ByteBuffer buffer = ByteBuffer.allocate((int)Files.size(file.toPath()));
+            rbc.read(buffer);
+            buffer.flip();
+            return encoder.encodeToString(buffer.array());
         } catch (IOException ex) {
             Logger.getLogger(JsonWriter.class.getName()).log(Level.SEVERE, null, ex);
             return null;

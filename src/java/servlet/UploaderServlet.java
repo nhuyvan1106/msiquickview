@@ -36,15 +36,14 @@ public class UploaderServlet extends HttpServlet {
         switch (request.getServletPath()) {
             case "/UploaderServlet/upload":
                 Path cdfHdfDir = userDirectory.resolve(request.getParameter("folder"));
-                if (!Files.exists(userDirectory)) {
+                if (!Files.exists(userDirectory))
                     Stream.of("cdf", "hdf", "images", "excel")
                             .forEach(e -> userDirectory.resolve(e).toFile().mkdirs());
-                } else if (Files.list(cdfHdfDir).count() == 0) {
+                else if (Files.list(cdfHdfDir).count() == 0)
                     request.getParts()
-                            .stream()
+                            .parallelStream()
                             .skip(3) //Not interested in these first 3 params 'user-dir', 'dataset-name', 'folder'
                             .forEach(part -> save(part, cdfHdfDir, response));
-                }
                 break;
 
             case "/UploaderServlet/save-image":
@@ -75,12 +74,6 @@ public class UploaderServlet extends HttpServlet {
                     response.setStatus(200);
                     response.flushBuffer();
                 }
-                break;
-                
-            case "/UploaderServlet/extract-excel-done":
-                System.out.println("extract-excel-done");
-                response.setStatus(200);
-                response.flushBuffer();
                 break;
         }
     }

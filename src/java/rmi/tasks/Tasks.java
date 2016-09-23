@@ -23,7 +23,7 @@ public final class Tasks {
      */
     public static final <T> T runTask(ManagedExecutorService pool, Task<T> task, String WEBINF, String jar) throws RemoteException, NotBoundException {
         int port = new Random().nextInt(1000) + 2000;
-        Future<Process> process = pool.submit(() -> ProcessInit.startRMIServer(WEBINF, port, jar));
+        Future<Process> process = pool.submit(() -> ProcessInit.startRMIServer(pool, WEBINF, port, jar));
         Registry reg = LocateRegistry.getRegistry(port);
         TaskRunner generator = (TaskRunner) reg.lookup("runner" + port);
         T result = generator.runTask(task);

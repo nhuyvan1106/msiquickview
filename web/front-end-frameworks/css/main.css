@@ -283,29 +283,19 @@ form {
   .buttons #status-toggle:focus + #status {
     transform: scale(1, 1); }
   .buttons #status {
+    background-color: white;
     position: absolute;
     bottom: 100%;
     left: 100%;
-    width: 300px;
+    width: 600px;
     border: 1px solid rgba(200, 200, 200, 0.8);
     border-radius: 3px;
-    display: flex;
-    flex-direction: column;
     transform-origin: 0 100%;
     transition: transform 0.25s linear;
     transform: scale(0, 0); }
-  .buttons #status .status-header {
-    font-weight: bold;
-    line-height: 2.5em;
-    border-bottom: 1px solid rgba(220, 220, 220, 0.8); }
-  .buttons .status-header, .buttons .status-detail {
-    padding-top: 5px;
-    padding-bottom: 5px;
-    text-align: center;
-    display: flex;
-    flex-direction: row; }
-    .buttons .status-header div, .buttons .status-detail div {
-      flex-grow: 2; }
+    .buttons #status tr * {
+      padding: 5px;
+      text-align: center; }
 
 .buttons.fade-in {
   animation: fadeIn 400ms linear forwards; }

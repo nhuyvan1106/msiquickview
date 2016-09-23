@@ -5,10 +5,11 @@ import java.nio.file.*;
 import java.util.logging.*;
 import static java.util.stream.Collectors.joining;
 import java.util.stream.Stream;
+import javax.enterprise.concurrent.ManagedExecutorService;
 //TODO: Removing log statements
 public class ProcessInit {
 
-    public static Process startRMIServer(String WEBINF, int port, String jar) {
+    public static Process startRMIServer(ManagedExecutorService pool, String WEBINF, int port, String jar) {
         ProcessBuilder pb = new ProcessBuilder();
         Path wd = Paths.get(WEBINF);
         pb.directory(wd.resolve("classes").toFile());
@@ -20,8 +21,8 @@ public class ProcessInit {
         while (true) {
             try {
                 Process p = pb.start();
-                new Thread(() -> flushIStream(p.getInputStream())).start();
-                new Thread(() -> flushIStream(p.getErrorStream())).start();
+                pool.execute(() -> flushIStream(p.getInputStream()));
+                pool.execute(() -> flushIStream(p.getErrorStream()));
                 return p;
             } catch (Exception ex) {
                 ex.printStackTrace();
