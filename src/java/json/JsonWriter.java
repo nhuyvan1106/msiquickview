@@ -44,10 +44,10 @@ public class JsonWriter {
         }
     }
 
-    public static void writeImageData(JsonGenerator generator, File path, int skip, int limit) throws IOException {
+    public static void writeImageData(JsonGenerator generator, File[] images, int skip, int limit) throws IOException {
         Base64.Encoder encoder = Base64.getEncoder();
         generator.writeArrayFieldStart("image-data");
-        Arrays.stream(path.listFiles())
+        Arrays.stream(images)
                 .filter(file -> !file.isHidden())
                 .skip(skip)
                 .limit(limit)
@@ -68,7 +68,7 @@ public class JsonWriter {
             generator.writeStringField("dataset", dir.getName());
             for (File file : dir.listFiles())
                 listFileNames(generator, file.getName(), file.listFiles(), 0, Integer.MAX_VALUE);
-            writeImageData(generator, new File(dir, "images"), 0, 10);
+            writeImageData(generator, new File(dir, "images").listFiles(), 0, 10);
             generator.writeEndObject();
         } catch (IOException ex) {
             Logger.getLogger(JsonWriter.class.getName()).log(Level.SEVERE, null, ex);

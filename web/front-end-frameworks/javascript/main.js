@@ -206,14 +206,10 @@
         switch (folder) {
             case "cdf":
             case "hdf":
-                callback = function (count) {
-                    populateList(userDir, "#" + target + " ul", count, true);
-                };
+                callback = function (count) { populateList(userDir, "#" + target + " ul", count, true); };
                 break;
             case "excel":
-                callback = function (count) {
-                    populateList(userDir, "#" + target + " ul", count, false);
-                };
+                callback = function (count) { populateList(userDir, "#" + target + " ul", count, false); };
                 break;
             case "images":
                 callback = function (count) {
@@ -225,8 +221,10 @@
                             for (; count < currentTotal; count++)
                                 images.removeChild(images[count]);
                             $("#current").text(currentTotal).attr("disabled", "disabled");
-                        } else {
-                            var map = {"limit": 10, "skip": images.length, "dataset-name": $("#selected-dataset").text(), "user-dir": getItemLocal("user-dir")};
+                        }
+                        else {
+                            var map = {"limit": 10, "image-names": d3.selectAll("#images-tab-content .image-container div").nodes().map(function(e) { return d3.select(e).text(); }).join("|"),
+                                "dataset-name": $("#selected-dataset").text(), "user-dir": getItemLocal("user-dir")};
                             var url = "/Java-Matlab-Integration/DirectoryInspectorServlet/load-more-images";
                             $.ajax(url, {
                                 "data": map,
@@ -253,9 +251,7 @@
             "data": data,
             "success": function(data) {
                 $("<span class='refresh-status' style='margin-left:-50px;margin-top:15px;color:gray;font-size:large'>Done</span>").insertBefore("#action-container");
-                setTimeout(function() {
-                    $(".refresh-status").remove();
-                }, 2000);
+                setTimeout(function() { $(".refresh-status").remove(); }, 2000);
                 update("/Java-Matlab-Integration/DirectoryInspectorServlet/view-files", data.datasets);
                 callback(data.payload);
             },

@@ -30,14 +30,24 @@ public class DirectoryInspectorServlet extends HttpServlet {
                 break;
 
             case "/DirectoryInspectorServlet/load-more-images":
-                int skip = Integer.parseInt(request.getParameter("skip"));
+                String existingImages = request.getParameter("image-names");
                 int limit = Integer.parseInt(request.getParameter("limit"));
                 Path path = userDir.resolve(datasetName).resolve("images");
-                File[] files = path.toFile().listFiles();
+                //File[] files = path.toFile().listFiles();
+                File[] files = Files.list(path)
+                        .filter(image -> existingImages.indexOf(image.getFileName().toString()) == -1)
+                        .map(Path::toFile)
+                        .filter(image -> !image.isHidden())
+                        .toArray(File[]::new);
                 generator.writeStartObject();
-                generator.writeNumberField("total", Arrays.stream(files).filter(f -> !f.isHidden()).count());
-                JsonWriter.writeImageData(generator, path.toFile(), skip, limit);
-                JsonWriter.listFileNames(generator, "images", files, skip, limit);
+                generator.writeNumberField("total", files.length);
+                if (files.length == 0) {
+                    generator.writeArrayFieldStart("image-data");
+                    generator.writeEndArray();
+                }
+                else
+                    JsonWriter.writeImageData(generator, files, 0, limit);
+                JsonWriter.listFileNames(generator, "images", files, 0, limit);
                 generator.writeEndObject();
                 break;
 
