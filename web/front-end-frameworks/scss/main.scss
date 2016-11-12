@@ -1,3 +1,6 @@
+html {
+    height: 100%;
+}
 body {
     margin: 0;
     overflow-x: hidden; /*Disabling horizontal overflow*/
@@ -26,6 +29,51 @@ header {
 a:hover {
     cursor: pointer;
     text-decoration: none;
+}
+
+.pnl-dropdown-menu-right {
+    flex-grow: 3;
+    ul {
+        box-shadow: 2px 4px 10px 3px gray;
+        width: 254px;
+        position: absolute;
+        display: none;
+        background-color: white;
+        margin-left: 5px;
+        left: 252px;
+        border-radius: 2px;
+        top: 5px;
+        padding-left: 0px;
+        z-index: 10;
+    }
+
+    li {
+        list-style-type: none;
+        line-height: 40px;
+        transition: background-color 0.2s linear;
+        padding-left: 10px;
+        color: #09f;
+        &:hover {
+            background-color: #efefef;
+            cursor: pointer;
+        }
+    }
+}
+.pnl-dropdown-menu-toggler-right, #pnl-dropdown-menu-toggler-right {
+    line-height: 30px;
+    margin: 5px;
+    width: 248px;
+    text-align: left;
+    display: flex;
+    flex-direction: row;
+
+    span {
+        flex-grow: 2;
+    }
+    i {
+        margin-top: 8px;
+    }
+
 }
 
 .toggler {
@@ -91,7 +139,7 @@ nav {
 }
 form {
     margin: 3px;
-    #file-name, #user-dir, #dataset-name {
+    #file-name, #user-dir, #dataset-name, #optical-image {
         width: 275px;
     }
 }
@@ -110,15 +158,13 @@ form {
 .tabs-container {
     display: none;
     position: absolute;
-    width: 1000px;
-    max-width: 1000px;
-    max-height: 392px;
-    border: 2px solid gray;
+    width: 90%;
+    max-width: 90%;
     border-right: none;
     border-bottom: none;
     z-index: 5;
     border-radius: 2px;
-    background-color: white;
+    background-color: transparent;
 
     .header {
         display: -webkit-box;
@@ -126,57 +172,18 @@ form {
         display: -ms-flexbox;
         display: flex;
         flex-direction: row;
-        border-bottom: 2px solid pink;
-        border-right: 2px solid gray;
+        border: 2px solid gray;
+        background-color: white;
     }
     .header:hover {
         cursor: move;
     }
 
     .dataset-selection {
-        flex-grow: 3;
-        ul {
-            box-shadow: 2px 4px 10px 3px gray;
-            width: 254px;
-            position: absolute;
-            display: none;
-            background-color: white;
-            margin-left: 5px;
-            left: 252px;
-            border-radius: 2px;
-            top: 5px;
-            padding-left: 0px;
-            z-index: 10;
-        }
-
-        li {
-            list-style-type: none;
-            line-height: 40px;
-            transition: background-color 0.2s linear;
-            padding-left: 10px;
-            color: #09f;
-            &:hover {
-                background-color: #efefef;
-                cursor: pointer;
-            }
-        }
+        @extend .pnl-dropdown-menu-right;
     }
-
     #dataset-selection-toggler {
-        line-height: 30px;
-        margin: 5px;
-        width: 248px;
-        text-align: left;
-        display: flex;
-        flex-direction: row;
-
-        span {
-            flex-grow: 2;
-        }
-        i {
-            margin-top: 8px;
-        }
-
+        @extend #pnl-dropdown-menu-toggler-right;
     }
     #load-more-container {
         visibility: hidden;
@@ -198,6 +205,31 @@ form {
         margin-bottom: -5px;
     }
 
+    #tools {
+        @extend #load-more-container;
+    }
+
+    #select-a-tool-toggler {
+        @extend #load-more-toggler;
+    }
+
+    #select-tool-done, #select-tool-cancel {
+        visibility: hidden;
+        width: 40px;
+        line-height: 30px;
+        font-size: 12px;
+        text-align: center;
+    }
+
+    #select-tool-done i, #select-tool-cancel i {
+        line-height: 30px;
+    }
+
+    #select-tool-cancel {
+        margin-right: 10px;
+    }
+
+
     #quantity {
         font-size: 15px;
         font-weight: bold;
@@ -208,6 +240,8 @@ form {
     #action-container {
         font-size: 20px;
         vertical-align: middle;
+        width: 250px;
+        text-align: right;
 
         & * {
             transition: background-color 0.2s linear;
@@ -223,7 +257,9 @@ form {
             cursor: pointer;
         }
     }
-
+    #add-roi, #upload-optical-image {
+        display: none;
+    }
     #refresh {
         transition: background-color 0.2s linear, transform 0.2s linear;
     }
@@ -232,6 +268,8 @@ form {
         background-color: #FF80AB;
     }
     .tabs {
+        background-color: white;
+        max-height: 500px;
         .tab:last-child {
             margin-bottom: 0;
             border-bottom: 2px solid gray;
@@ -253,10 +291,11 @@ form {
         transition: background-color 0.2s linear;
         color: white;
         margin-bottom: 1px;
+        border-left: 5px solid brown;
     }
     .tab:hover, .active-tab {
         cursor: pointer;
-        background-color: rgba(230,230,230,0.785454);
+        background-color: lightblue;
         color: #333;
         border-bottom: none;
     }
@@ -297,13 +336,13 @@ form {
         }
     }
 
-    #images-tab-content {
+    #images-tab-content, #optical-tab-content, #rois-roiImages-tab-content {
         overflow-x:hidden;
         & > div {
             display: inline-block;
-            padding: 30px;
-            padding-bottom: 0;
+            margin: 20px auto 0px auto;
             text-align: center;
+            margin-left: calc(calc(100% - 960px)/4);
         }
 
         .caption {
@@ -314,7 +353,7 @@ form {
 }
 
 .buttons {
-    z-index: 999;
+    z-index: 19;
     position: fixed;
     bottom: 5px;
     left: 10px;
@@ -371,7 +410,7 @@ form {
         transform-origin: 0 100%;
         transition: transform 0.25s linear;
         transform: scale(0,0);
-        
+
         tr * {
             padding: 5px;
             text-align: center;
@@ -416,7 +455,7 @@ form {
         padding: 10px;
         margin-left: 0;
         margin-right: 0;
-        background: #ff9907;
+        background-color: #ff9907;
         color: green;
         min-height: 50px;
     }
@@ -447,6 +486,10 @@ form {
     min-width: 350px;
     max-width: 800px;
     width: auto;
+    position: fixed;
+    bottom: 10px;
+    top: initial;
+
     .message-body {
         text-align: left;
         padding: 15px;
@@ -461,6 +504,17 @@ form {
     position: fixed;
     top: initial;
     bottom:10px;
+}
+
+.add-roi-dialog {
+    @extend .notification-dialog;
+    background-color: white;
+    color: black;
+
+    .add-roi-dialog-header {
+        background-color: #007fff;
+        color: white;
+    }
 }
 .file-selection-dialog {
     @extend .alert-dialog;
@@ -514,6 +568,7 @@ form {
     right: initial;
     z-index: 99;
     box-shadow: 2px 4px 10px 3px gray;
+    width: 250px;
     :before {
         content: "";
         border: 15px solid transparent;
@@ -571,6 +626,24 @@ form {
     }
 }
 
+.upload-optical-image-dialog {
+    @extend .alert-dialog;
+    top: 50%;
+    left: calc(calc(100% - 350px)/2);
+    top: calc(calc(100% - 178px)/2);
+    right: initial;
+    z-index: 30;
+    
+    .alert-dialog-header {
+        background-color: #7EB2DD;
+        color: white;
+    }
+    form {
+        margin: 0;
+        display: inline-block;
+        line-height: 0px;
+    }
+}
 .panel-int-mz {
     width: 40%;
     float: right;
@@ -585,4 +658,332 @@ form {
 
 #ion-image-container svg g:hover {
     cursor: pointer;
+}
+
+#ion-image-container {
+    position: relative;
+    & > div, img {
+        margin: 20px;
+        display: inline-block;
+    }
+}
+
+.publications {
+    width: 80%;
+    box-shadow: 0px 0px 2px 2px gray;
+    margin-left: 10%;
+    position: absolute;
+    top: 5px;
+    max-height: 98%;
+    background: white;
+    border-radius: 3px;
+    font-family: "Times New Roman";
+    overflow-y: scroll;
+    overflow-x: hidden;
+    display:none;
+    opacity: 0;
+    h4 {
+        font-weight: bold;
+    }
+    .my-dialog-header *{
+        display: inline-block;
+        text-align: center;
+    }
+    .my-dialog-title {
+        width: 95%;
+        font-size: x-large;
+        font-weight: bold;
+    }
+    .my-dialog-close-btn {
+        @extend .close-btn;
+        position: absolute;
+        right: 10px;
+    }
+    .my-dialog-body {
+        margin: 10px;
+        opacity: 0;
+    }
+    li a:hover {
+        text-decoration: underline;
+    }
+    li {
+        margin-bottom: 10px;
+        position: relative;
+        left: 500px;
+        opacity: 0;
+    }
+}
+
+.how-to {
+    @extend .publications;
+    opacity: 1;
+    display: none;
+    font-family: 'Open Sans',Arial,sans-serif;
+    .my-dialog-body {
+        opacity: 1;
+        margin-left: 0px;
+    }
+    .my-dialog-close-btn {
+        z-index:10;
+    }
+    li {
+        opacity: 1;
+        left: 0px;
+    }
+}
+.panels {
+    .panel-row {
+        display: flex;
+        flex-direction: row;
+    }
+    .panel {
+        box-shadow: 0px 0px 1.5px 1px #736B60;
+        margin: 5px;
+        flex-grow: 1;
+        border-radius: 3px;
+        width: 50%;
+        border: none;
+    }
+    .panel-heading {
+        background-color: #4BA3C3;
+        color: white;
+        border-color: #07c;
+        box-shadow: inset 0 1px 0 #66bfff, 0px 1px 3px #736B60;
+        padding: 5px 10px;
+    }
+    .panel-body {
+        padding-bottom: 5px;
+    }
+    .panel-heading {
+        display: flex;
+        flex-direction: row;
+    }
+    .panel-title {
+        flex-grow: 99;
+    }
+    .options {
+        flex-grow: 1;
+    }
+    button {
+        background-color: transparent;
+        border: 2px solid #ccc;
+        font-size: 1.1em;
+    }
+    #remove-images {
+        color:white;
+        font-size:1.2em;
+        background-color: transparent;
+        border: 2px solid #ccc;
+    }
+    #remove-images:hover {
+        color: orange;
+        background-color: #445E93;
+    }
+}
+
+.contact-us {
+    @extend .how-to;
+    width: 30%;
+    overflow: hidden;
+    margin-left: 35%;
+    top: 50%;
+    .my-dialog-header {
+        background-color: #7EB2DD;
+        line-height: 2.5em;
+    }
+    .my-dialog-title {
+        color: white;
+        font-size: medium;
+    }
+    .my-dialog-body {
+        margin: 0;
+    }
+    .envelop {
+        font-size: xx-large;
+        padding-left: 5px;
+        display: inline-block;
+        width: 10%;
+        vertical-align: middle;
+    }
+    .email {
+        display: inline-block;
+        width: 80%;
+        font-size: large;
+        text-align: center;
+    }
+}
+
+.warp-window {
+    @extend .publications;
+    width: 50%;
+    margin-left: 25%;
+    text-align: center;
+    opacity: 1;
+    top: 20%;
+    z-index: 6;
+    cursor: move;
+    overflow: hidden;
+
+
+    canvas:hover {
+        cursor: initial;
+    }
+    .my-dialog-body {
+        opacity: 1;
+        div {
+            width: 320px;
+            height: 235px;
+            display: inline-block;
+            margin: 20px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        canvas {
+            width: 320px;
+            height: 235px;
+            position: absolute;
+            top:0;
+            left: 0;
+        }
+        img {
+            width: 320px;
+            height: 235px;
+        }
+    }
+    button {
+        background-color: #2e648a;
+        color: white;
+        box-shadow: inset 0 1px 0 #66bfff, 0px 1px 3px #736B60;
+        display: block;
+        width: 100px;
+        line-height: 30px;
+        border-radius: 3px;
+        margin-top: 10px;
+    }
+
+    button:disabled {
+        background-color: lightgray;
+        cursor: not-allowed;
+    }
+    .clear {
+        background-color: cornsilk;
+        width: 80px;
+        line-height: 20px;
+        margin-top: 5px;
+        float: right;
+        clear: both;
+        color: black;
+    }
+}
+
+.overlay-window {
+    @extend .tabs-container;
+    margin: auto auto;
+    top: 10%;
+    left: 20%;
+    width: 60%;
+    #action-container {
+        width: 100%;
+        i {
+            float: right;
+        }
+    }
+
+    .tab-body {
+        background-color: white;
+        max-height: 27em;
+    }
+    .image-names {
+        width: 70%;
+        border: 2px solid gray;
+        border-right: none;
+        border-top: none;
+        max-height: 36em;
+        min-height: 27em;
+        overflow-y: scroll;
+        & > div {
+            line-height: 3em;
+            border-bottom: 2px solid gray;
+            padding: 5px;
+            transition: background-color 0.2s linear;
+        }
+        & > div:hover {
+            cursor: pointer;
+            background-color: lightblue;
+        }
+
+        & > div:last-child {
+            border-bottom: none;
+        }
+    }
+    .overlay-images {
+        width: 100%;
+        position: relative;
+        text-align: center;
+        .overlay-images-container {
+            width: 320px;
+            height: 100%;
+            margin: auto auto;
+            display: block;
+            position: relative;
+        }
+        svg, img {
+            top: calc(calc(100% - 235px)/2);
+            left: 0;
+            position: absolute;
+        }
+    }
+    canvas {
+        height: 55px;
+        width: 254px;
+    }
+    .color-map-selection {
+        @extend .pnl-dropdown-menu-right;
+        ul {
+            box-shadow: 0px 0px 2px 2px gray;
+        }
+        li {
+            padding-left: 0;
+            line-height: initial;
+            height: 55px;
+            margin-bottom: 1px;
+        }
+    }
+    #color-map-selection-toggler {
+        @extend #pnl-dropdown-menu-toggler-right;
+    }
+    .selected-image-name {
+        background-color: lightblue;
+    }
+}
+@media (max-width: 1200px) {
+    .panels {
+        .panel-row {
+            display: flex;
+            flex-direction: column;
+        }
+        .panel {
+            width: 100%;
+        }
+    }
+}
+
+.roi-metadata {
+    display: none;
+    z-index: 10;
+    position: absolute;
+    background-color: white;
+    width: 200px;
+    padding-left: 10px;
+    padding-right: 10px;
+    box-shadow: 0px 0px 5px 2px gray;
+    border-radius: 2px;
+
+    &:hover {
+        cursor: move;
+    }
+}
+
+.selected-image {
+    box-shadow: 0px 0px 10px 20px orange;
 }

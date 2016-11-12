@@ -2,11 +2,13 @@
 var pnnl = {
     /*********** DATA LOADING RELATED MODULE ***********/
     data: {
-        upload: function (url, userDir, datasetName, files, folder, successCallback, errorCallback) {
+        upload: function (url, userDir, datasetName, files, opticalImage, folder, successCallback, errorCallback) {
             var formData = new FormData();
             formData.append("user-dir", userDir);
             formData.append("dataset-name", datasetName);
             formData.append("folder", folder);
+            if (opticalImage)
+                formData.append("opticalImage", opticalImage);
             var xhr = new XMLHttpRequest();
             files.forEach(function (file, i) { formData.append("file-" + i, file); });
             xhr.onreadystatechange = function () {
@@ -28,13 +30,15 @@ var pnnl = {
                 "method": "GET",
                 "data": data,
                 "success": function (data) {
-                    var result = pnnl.data.parseData(data);
-                    var totalIntensity = result[0];
-                    var scanAcquisitionTime = result[1];
-                    var intensityValues = result[2];
-                    var massValues = result[3];
-                    var pointCount = result[4];
-                    successCallback(totalIntensity, scanAcquisitionTime, intensityValues, massValues, pointCount);
+                    console.log(data);
+                    successCallback(data);
+//                    var result = pnnl.data.parseData(data);
+//                    var totalIntensity = result[0];
+//                    var scanAcquisitionTime = result[1];
+//                    var intensityValues = result[2];
+//                    var massValues = result[3];
+//                    var pointCount = result[4];
+//                    successCallback(totalIntensity, scanAcquisitionTime, intensityValues, massValues, pointCount);
                 },
                 "error": function (xhr) {
                     errorCallback(xhr.statusText);
@@ -104,7 +108,6 @@ var pnnl = {
             d3.select("." + config.className).remove();
             var width = config.width - config.margin.left - config.margin.right;
             var height = config.height - config.margin.top - config.margin.bottom;
-            var padding = 4;
             var svg = d3.select("#" + config.idName)
                     .append("svg")
                     .attr("class", config.className)
@@ -113,26 +116,18 @@ var pnnl = {
                     .append("g")
                     .attr("transform", "translate(" + config.margin.left + "," + config.margin.top + ")");
             var xScale = d3.scaleLinear()
-                    .domain(d3.extent(data, function (d) {
-                        return d.x;
-                    }))
+                    .domain(d3.extent(data, function (d) { return d.x; }))
                     .range([0, width])
                     .nice();
             var yScale = d3.scaleLinear()
-                    .domain(d3.extent(data, function (d) {
-                        return d.y;
-                    }))
+                    .domain(d3.extent(data, function (d) { return d.y; }))
                     .range([height, 0])
                     .nice();
             var xAxis = d3.axisBottom(xScale);
             var yAxis = d3.axisLeft(yScale);
             var lineData = d3.line()
-                    .x(function (d) {
-                        return xScale(d.x);
-                    })
-                    .y(function (d) {
-                        return yScale(d.y);
-                    });
+                    .x(function (d) { return xScale(d.x); })
+                    .y(function (d) { return yScale(d.y); });
             svg.append("g")
                     .attr("class", "x axis")
                     .attr("transform", "translate(0," + height + ")")
@@ -176,18 +171,6 @@ var pnnl = {
                     .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
                     .attr("transform", "translate(" + (width / 2) + "," + (0) + ")")  // centre below axis
                     .text(config.y);
-            /*svg.append("rect")
-                    .attr("class", "zoom")
-                    .attr("width", width + config.margin.left + config.margin.right)
-                    .attr("height", height + config.margin.top + config.margin.bottom)
-                    .call(d3.zoom()
-                            .scaleExtent([1, 5])
-                            .translateExtent([[-100, -100], [width + 90, height + 100]])
-                            .on("zoom", zoomed));
-
-            function zoomed() {
-                svg.attr("transform", d3.event.transform);
-            }*/
         },
         drawOverlay: function () {
             $(".overlay").fadeIn("slow").prependTo("body");
@@ -333,8 +316,8 @@ var pnnl = {
                             .attr("class", posBtnClassName)
                             .text(posBtnLabel)
                             .on("click", function () {
-                                dialog.hide();
                                 posBtnBehavior(id);
+                                dialog.hide();
                             });
                     return this;
                 },
@@ -393,9 +376,9 @@ var pnnl = {
                     else
                         hideBehavior(id);
                     d3.event.stopImmediatePropagation();
-                    /*setTimeout(function () {
-                     d3.select(dialogClass).remove();
-                     }, 500);*/
+                    setTimeout(function () {
+                     d3.select(id).remove();
+                     }, 500);
                 }
             };
         }

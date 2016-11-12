@@ -23,7 +23,7 @@ public class DirectoryInspectorServlet extends HttpServlet {
         Path userDir = Paths.get(System.getProperty("user.home"), resources.getStorage(), request.getParameter("user-dir"));
         String datasetName = request.getParameter("dataset-name");
         Writer writer = response.getWriter();
-        JsonGenerator generator = resources.getJsonFactory().createJsonGenerator(writer);
+        JsonGenerator generator = resources.getJsonFactory().createGenerator(writer);
         switch (request.getServletPath()) {
             case "/DirectoryInspectorServlet/view-files":
                 JsonWriter.writeUserDir(generator, userDir, datasetName);
@@ -32,22 +32,28 @@ public class DirectoryInspectorServlet extends HttpServlet {
             case "/DirectoryInspectorServlet/load-more-images":
                 String existingImages = request.getParameter("image-names");
                 int limit = Integer.parseInt(request.getParameter("limit"));
-                Path path = userDir.resolve(datasetName).resolve("images");
-                //File[] files = path.toFile().listFiles();
-                File[] files = Files.list(path)
+                Path imageFolderPath = userDir.resolve(datasetName).resolve(request.getParameter("image-folder"));
+                File[] images = Files.list(imageFolderPath)
                         .filter(image -> existingImages.indexOf(image.getFileName().toString()) == -1)
                         .map(Path::toFile)
                         .filter(image -> !image.isHidden())
                         .toArray(File[]::new);
                 generator.writeStartObject();
-                generator.writeNumberField("total", files.length);
-                if (files.length == 0) {
-                    generator.writeArrayFieldStart("image-data");
+                generator.writeNumberField("total", Files.list(imageFolderPath).filter(image -> {
+                    try {
+                        return !Files.isHidden(image);
+                    } catch (IOException ex) {
+                        Logger.getLogger(DirectoryInspectorServlet.class.getName()).log(Level.SEVERE, null, ex);
+                        return false;
+                    }
+                }).count());
+                if (images.length == 0) {
+                    generator.writeArrayFieldStart("imageData");
                     generator.writeEndArray();
                 }
                 else
-                    JsonWriter.writeImageData(generator, files, 0, limit);
-                JsonWriter.listFileNames(generator, "images", files, 0, limit);
+                    JsonWriter.writeImageData(generator, "imageData", images, 0, limit);
+                JsonWriter.listFileNames(generator, "imageNames", images, 0, limit);
                 generator.writeEndObject();
                 break;
 

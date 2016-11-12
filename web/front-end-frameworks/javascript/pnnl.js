@@ -2,11 +2,13 @@
 var pnnl = {
     /*********** DATA LOADING RELATED MODULE ***********/
     data: {
-        upload: function (url, userDir, datasetName, files, folder, successCallback, errorCallback) {
+        upload: function (url, userDir, datasetName, files, opticalImage, folder, notes, successCallback, errorCallback) {
             var formData = new FormData();
             formData.append("user-dir", userDir);
             formData.append("dataset-name", datasetName);
             formData.append("folder", folder);
+            formData.append("notes", notes);
+            formData.append("opticalImage", opticalImage);
             var xhr = new XMLHttpRequest();
             files.forEach(function (file, i) { formData.append("file-" + i, file); });
             xhr.onreadystatechange = function () {
@@ -28,13 +30,7 @@ var pnnl = {
                 "method": "GET",
                 "data": data,
                 "success": function (data) {
-                    var result = pnnl.data.parseData(data);
-                    var totalIntensity = result[0];
-                    var scanAcquisitionTime = result[1];
-                    var intensityValues = result[2];
-                    var massValues = result[3];
-                    var pointCount = result[4];
-                    successCallback(totalIntensity, scanAcquisitionTime, intensityValues, massValues, pointCount);
+                    successCallback(data);
                 },
                 "error": function (xhr) {
                     errorCallback(xhr.statusText);
@@ -58,28 +54,13 @@ var pnnl = {
                 "method": "GET",
                 "data": requestParams,
                 "success": function (data) {
-                    var result = pnnl.data.parseData(data);
-                    var intensityValues = result[0];
-                    var massValues = result[1];
-                    successCallback(intensityValues.map(function (d, i) {
-                        return {"x": massValues[i], "y": d / Math.pow(10, 7)};
+                    successCallback(data.intensityValues.map(function (d, i) {
+                        return {"x": data.massValues[i], "y": d / Math.pow(10, 7)};
                     }));
                 },
                 "error": function (xhr) {
                     errorCallback(xhr.statusText);
                 }
-            });
-        },
-        /*
-         * @param {Array} rawData Data in Matlab array format returned from server. Data is a string separated by "|"
-         *                        e.g. "[array1]|[array2]|.....|[arrayN]"
-         * @returns {Array} An array of arrays of numbers.
-         */
-        parseData: function (rawData) {
-            return rawData.split("|").map(function (e) {
-                return e.replace(/[\[\]]/g, "").split(",").map(function (e) {
-                    return Number(e);
-                });
             });
         },
         // Since IE gives us the absolute URI of the file name C:\path\to\file\example.cdf instead of the file name itself e.g. example.cdf
@@ -104,7 +85,6 @@ var pnnl = {
             d3.select("." + config.className).remove();
             var width = config.width - config.margin.left - config.margin.right;
             var height = config.height - config.margin.top - config.margin.bottom;
-            var padding = 4;
             var svg = d3.select("#" + config.idName)
                     .append("svg")
                     .attr("class", config.className)
@@ -113,26 +93,18 @@ var pnnl = {
                     .append("g")
                     .attr("transform", "translate(" + config.margin.left + "," + config.margin.top + ")");
             var xScale = d3.scaleLinear()
-                    .domain(d3.extent(data, function (d) {
-                        return d.x;
-                    }))
+                    .domain(d3.extent(data, function (d) { return d.x; }))
                     .range([0, width])
                     .nice();
             var yScale = d3.scaleLinear()
-                    .domain(d3.extent(data, function (d) {
-                        return d.y;
-                    }))
+                    .domain(d3.extent(data, function (d) { return d.y; }))
                     .range([height, 0])
                     .nice();
             var xAxis = d3.axisBottom(xScale);
             var yAxis = d3.axisLeft(yScale);
             var lineData = d3.line()
-                    .x(function (d) {
-                        return xScale(d.x);
-                    })
-                    .y(function (d) {
-                        return yScale(d.y);
-                    });
+                    .x(function (d) { return xScale(d.x); })
+                    .y(function (d) { return yScale(d.y); });
             svg.append("g")
                     .attr("class", "x axis")
                     .attr("transform", "translate(0," + height + ")")
@@ -333,7 +305,6 @@ var pnnl = {
                             .attr("class", posBtnClassName)
                             .text(posBtnLabel)
                             .on("click", function () {
-                                dialog.hide();
                                 posBtnBehavior(id);
                             });
                     return this;
@@ -355,7 +326,6 @@ var pnnl = {
                             .attr("type", "button")
                             .attr("class", negBtnClassName)
                             .on("click", negBtnBehavior ? function () {
-                                dialog.hide();
                                 negBtnBehavior(id);
                             } : dialog.hide)
                             .text(negBtnlabel);
@@ -393,9 +363,9 @@ var pnnl = {
                     else
                         hideBehavior(id);
                     d3.event.stopImmediatePropagation();
-                    /*setTimeout(function () {
-                     d3.select(dialogClass).remove();
-                     }, 500);*/
+                    setTimeout(function () {
+                     d3.select(id).remove();
+                     }, 500);
                 }
             };
         }
@@ -426,7 +396,7 @@ var pnnl = {
                         dialog.setMessageBody("<span style='color:red;'>This field can\'t be empty</span > ")
                                 .show(function (dialogClass) {
                                     $(dialogClass).fadeIn()
-                                            .css({"left": (elem.getBoundingClientRect().right + 30) + "px", "top": elem.getBoundingClientRect().top + "px"});
+                                            .css({"left": (elem.getBoundingClientRect().right + 30) + "px", "top": elem.getBoundingClientRect().top + pnnl.utils.getScrollTop() + "px"});
                                 });
                         d3.select(elem)
                                 .on("change keyup", function () {
@@ -443,10 +413,32 @@ var pnnl = {
                 return true;
         }
     },
-    /*********** HANDLES BROWSERS INCONSISTENCIES ***********/
     utils: {
         getScrollTop: function () {
-        return document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop;
+            return document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop;
+        },
+        ajaxPost: function (url, params, successCallback, errorCallback) {
+            var formData = new FormData();
+            Object.keys(params).forEach(function(paramName) {
+               formData.append(paramName, params[paramName]); 
+            });
+            formData.append("user-dir", localStorage.getItem("user-dir"));
+            formData.append("dataset-name", $("#selected-dataset").text());
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4)
+                    switch (xhr.status) {
+                        case 200:
+                            successCallback(xhr.responseText);
+                            break;
+                        default:
+                            errorCallback(xhr.statusText);
+                            break;
+                    }
+            };
+            xhr.open("POST", url);
+            xhr.setRequestHeader("enctype", "multipart/form-data");
+            xhr.send(formData);
         }
     }
 };
