@@ -283,7 +283,7 @@
                                         }
                                         var imgDimensions = getNaturalImageSize(img);
                                         drawImage({hasContextMenu:false,setOpacity:true,shouldNotTranslate:true,idName:"overlay-images-container",className:"overlay-image"},
-                                            data.imageData,imgDimensions.height,imgDimensions.width, img.alt, colorMap.join("|")
+                                            data.imageData,imgDimensions.height,imgDimensions.width, img.alt, colorMap
                                         );
                                     },
                                     error: function(xhr) {
@@ -385,28 +385,29 @@
     });
     
     $("#upload-optical-image").click(function() {
-        var dialog = pnnl.dialog.newDialogBuilder()
-                .createAlertDialog("upload-optical-image-dialog");
-        dialog.setHeaderTitle("Select optical image")
-            .setCloseActionButton("", function() { 
-                pnnl.draw.removeSpinnerOverlay();
-                $(".validation-error-dialog").remove();
-            })
-            .setMessageBody("<form name='upload-optical-image-form' id='upload-optical-image-form'>"+
-                            "<input class='form-control' type='file' accept='image/*' id='optical-image'/><br/></form>")
-            .setPositiveButton("Done", function() {
-                if (!pnnl.validation.validate("upload-optical-image-form"))
-                    return;
-                pnnl.draw.removeSpinnerOverlay();
-                dialog.hide();
-                var file = document.forms["upload-optical-image-form"].firstElementChild.files[0];
-                pnnl.utils.ajaxPost("/Java-Matlab-Integration/UploaderServlet/optical", {opticalImageFile:file}, function() {
-                    pnnl.dialog.newDialogBuilder()
-                                    .createAlertDialog("notification-dialog")
-                                    .setMessageBody("Image uploaded successfully")
-                                    .removeHeader()
-                                    .show(function (id) { $(id).fadeIn().delay(5000).fadeOut(400, function() { $(id).remove(); }); });
-                }, errorCallback);
+        pnnl.dialog.newDialogBuilder()
+                .createAlertDialog("upload-optical-image-dialog")
+                .setHeaderTitle("Select optical image")
+                .setCloseActionButton("", function() { 
+                    pnnl.draw.removeSpinnerOverlay();
+                    $(".validation-error-dialog").remove();
+                })
+                .setMessageBody("<form name='upload-optical-image-form' id='upload-optical-image-form'>"+
+                                "<input class='form-control' type='file' accept='image/*' id='optical-image'/><br/></form>")
+                .setPositiveButton("Done", function() {
+                    console.log(this, Object.keys(this));
+                    if (!pnnl.validation.validate("upload-optical-image-form"))
+                        return;
+                    pnnl.draw.removeSpinnerOverlay();
+                    this.hide();
+                    var file = document.forms["upload-optical-image-form"].firstElementChild.files[0];
+                    pnnl.utils.ajaxPost("/Java-Matlab-Integration/UploaderServlet/optical", {opticalImageFile:file}, function() {
+                        pnnl.dialog.newDialogBuilder()
+                                        .createAlertDialog("notification-dialog")
+                                        .setMessageBody("Image uploaded successfully")
+                                        .removeHeader()
+                                        .show(function (id) { $(id).fadeIn().delay(5000).fadeOut(400, function() { $(id).remove(); }); });
+                    }, errorCallback);
             }, "btn btn-default").show(function(id) {
                 pnnl.draw.drawOverlay();
                 $(id).fadeIn();
@@ -755,8 +756,8 @@
         }
         $(".context-menu-dialog li").click(clickFunction);
     }
-
-    function drawImage(config, dataArray, numRows, numCols, imageName, colorMapString) {
+    
+    function drawImage(config, dataArray, numRows, numCols, imageName, colorMap) {
         var margin = {top: 20, right: 15, bottom: 10, left: 15};
         var width = 350 - margin.left - margin.right;
         var height = 500 - margin.top - margin.bottom;
@@ -774,10 +775,10 @@
                     .domain([i])
                     .range([height / numRows]);
             var colors = null;
-            if (!colorMapString)
-                colors = "rgb(3,0,0)|rgb(5,0,0)|rgb(8,0,0)|rgb(11,0,0)|rgb(13,0,0)|rgb(16,0,0)|rgb(19,0,0)|rgb(21,0,0)|rgb(24,0,0)|rgb(27,0,0)|rgb(30,0,0)|rgb(32,0,0)|rgb(35,0,0)|rgb(38,0,0)|rgb(40,0,0)|rgb(43,0,0)|rgb(46,0,0)|rgb(48,0,0)|rgb(51,0,0)|rgb(54,0,0)|rgb(56,0,0)|rgb(59,0,0)|rgb(62,0,0)|rgb(64,0,0)|rgb(67,0,0)|rgb(70,0,0)|rgb(72,0,0)|rgb(75,0,0)|rgb(78,0,0)|rgb(81,0,0)|rgb(83,0,0)|rgb(86,0,0)|rgb(89,0,0)|rgb(91,0,0)|rgb(94,0,0)|rgb(97,0,0)|rgb(99,0,0)|rgb(102,0,0)|rgb(105,0,0)|rgb(107,0,0)|rgb(110,0,0)|rgb(113,0,0)|rgb(115,0,0)|rgb(118,0,0)|rgb(121,0,0)|rgb(123,0,0)|rgb(126,0,0)|rgb(129,0,0)|rgb(132,0,0)|rgb(134,0,0)|rgb(137,0,0)|rgb(140,0,0)|rgb(142,0,0)|rgb(145,0,0)|rgb(148,0,0)|rgb(150,0,0)|rgb(153,0,0)|rgb(156,0,0)|rgb(158,0,0)|rgb(161,0,0)|rgb(164,0,0)|rgb(166,0,0)|rgb(169,0,0)|rgb(172,0,0)|rgb(174,0,0)|rgb(177,0,0)|rgb(180,0,0)|rgb(183,0,0)|rgb(185,0,0)|rgb(188,0,0)|rgb(191,0,0)|rgb(193,0,0)|rgb(196,0,0)|rgb(199,0,0)|rgb(201,0,0)|rgb(204,0,0)|rgb(207,0,0)|rgb(209,0,0)|rgb(212,0,0)|rgb(215,0,0)|rgb(217,0,0)|rgb(220,0,0)|rgb(223,0,0)|rgb(225,0,0)|rgb(228,0,0)|rgb(231,0,0)|rgb(234,0,0)|rgb(236,0,0)|rgb(239,0,0)|rgb(242,0,0)|rgb(244,0,0)|rgb(247,0,0)|rgb(250,0,0)|rgb(252,0,0)|rgb(255,0,0)|rgb(255,3,0)|rgb(255,5,0)|rgb(255,8,0)|rgb(255,11,0)|rgb(255,13,0)|rgb(255,16,0)|rgb(255,19,0)|rgb(255,21,0)|rgb(255,24,0)|rgb(255,27,0)|rgb(255,30,0)|rgb(255,32,0)|rgb(255,35,0)|rgb(255,38,0)|rgb(255,40,0)|rgb(255,43,0)|rgb(255,46,0)|rgb(255,48,0)|rgb(255,51,0)|rgb(255,54,0)|rgb(255,56,0)|rgb(255,59,0)|rgb(255,62,0)|rgb(255,64,0)|rgb(255,67,0)|rgb(255,70,0)|rgb(255,72,0)|rgb(255,75,0)|rgb(255,78,0)|rgb(255,81,0)|rgb(255,83,0)|rgb(255,86,0)|rgb(255,89,0)|rgb(255,91,0)|rgb(255,94,0)|rgb(255,97,0)|rgb(255,99,0)|rgb(255,102,0)|rgb(255,105,0)|rgb(255,107,0)|rgb(255,110,0)|rgb(255,113,0)|rgb(255,115,0)|rgb(255,118,0)|rgb(255,121,0)|rgb(255,123,0)|rgb(255,126,0)|rgb(255,129,0)|rgb(255,132,0)|rgb(255,134,0)|rgb(255,137,0)|rgb(255,140,0)|rgb(255,142,0)|rgb(255,145,0)|rgb(255,148,0)|rgb(255,150,0)|rgb(255,153,0)|rgb(255,156,0)|rgb(255,158,0)|rgb(255,161,0)|rgb(255,164,0)|rgb(255,166,0)|rgb(255,169,0)|rgb(255,172,0)|rgb(255,174,0)|rgb(255,177,0)|rgb(255,180,0)|rgb(255,183,0)|rgb(255,185,0)|rgb(255,188,0)|rgb(255,191,0)|rgb(255,193,0)|rgb(255,196,0)|rgb(255,199,0)|rgb(255,201,0)|rgb(255,204,0)|rgb(255,207,0)|rgb(255,209,0)|rgb(255,212,0)|rgb(255,215,0)|rgb(255,217,0)|rgb(255,220,0)|rgb(255,223,0)|rgb(255,225,0)|rgb(255,228,0)|rgb(255,231,0)|rgb(255,234,0)|rgb(255,236,0)|rgb(255,239,0)|rgb(255,242,0)|rgb(255,244,0)|rgb(255,247,0)|rgb(255,250,0)|rgb(255,252,0)|rgb(255,255,0)|rgb(255,255,4)|rgb(255,255,8)|rgb(255,255,12)|rgb(255,255,16)|rgb(255,255,20)|rgb(255,255,24)|rgb(255,255,27)|rgb(255,255,31)|rgb(255,255,35)|rgb(255,255,39)|rgb(255,255,43)|rgb(255,255,47)|rgb(255,255,51)|rgb(255,255,55)|rgb(255,255,59)|rgb(255,255,63)|rgb(255,255,67)|rgb(255,255,71)|rgb(255,255,75)|rgb(255,255,78)|rgb(255,255,82)|rgb(255,255,86)|rgb(255,255,90)|rgb(255,255,94)|rgb(255,255,98)|rgb(255,255,102)|rgb(255,255,106)|rgb(255,255,110)|rgb(255,255,114)|rgb(255,255,118)|rgb(255,255,122)|rgb(255,255,126)|rgb(255,255,129)|rgb(255,255,133)|rgb(255,255,137)|rgb(255,255,141)|rgb(255,255,145)|rgb(255,255,149)|rgb(255,255,153)|rgb(255,255,157)|rgb(255,255,161)|rgb(255,255,165)|rgb(255,255,169)|rgb(255,255,173)|rgb(255,255,177)|rgb(255,255,180)|rgb(255,255,184)|rgb(255,255,188)|rgb(255,255,192)|rgb(255,255,196)|rgb(255,255,200)|rgb(255,255,204)|rgb(255,255,208)|rgb(255,255,212)|rgb(255,255,216)|rgb(255,255,220)|rgb(255,255,224)|rgb(255,255,228)|rgb(255,255,231)|rgb(255,255,235)|rgb(255,255,239)|rgb(255,255,243)|rgb(255,255,247)|rgb(255,255,251)|rgb(255,255,255)".split("|");
+            if (!colorMap)
+                colors = ["rgb(3,0,0)","rgb(5,0,0)","rgb(8,0,0)","rgb(11,0,0)","rgb(13,0,0)","rgb(16,0,0)","rgb(19,0,0)","rgb(21,0,0)","rgb(24,0,0)","rgb(27,0,0)","rgb(30,0,0)","rgb(32,0,0)","rgb(35,0,0)","rgb(38,0,0)","rgb(40,0,0)","rgb(43,0,0)","rgb(46,0,0)","rgb(48,0,0)","rgb(51,0,0)","rgb(54,0,0)","rgb(56,0,0)","rgb(59,0,0)","rgb(62,0,0)","rgb(64,0,0)","rgb(67,0,0)","rgb(70,0,0)","rgb(72,0,0)","rgb(75,0,0)","rgb(78,0,0)","rgb(81,0,0)","rgb(83,0,0)","rgb(86,0,0)","rgb(89,0,0)","rgb(91,0,0)","rgb(94,0,0)","rgb(97,0,0)","rgb(99,0,0)","rgb(102,0,0)","rgb(105,0,0)","rgb(107,0,0)","rgb(110,0,0)","rgb(113,0,0)","rgb(115,0,0)","rgb(118,0,0)","rgb(121,0,0)","rgb(123,0,0)","rgb(126,0,0)","rgb(129,0,0)","rgb(132,0,0)","rgb(134,0,0)","rgb(137,0,0)","rgb(140,0,0)","rgb(142,0,0)","rgb(145,0,0)","rgb(148,0,0)","rgb(150,0,0)","rgb(153,0,0)","rgb(156,0,0)","rgb(158,0,0)","rgb(161,0,0)","rgb(164,0,0)","rgb(166,0,0)","rgb(169,0,0)","rgb(172,0,0)","rgb(174,0,0)","rgb(177,0,0)","rgb(180,0,0)","rgb(183,0,0)","rgb(185,0,0)","rgb(188,0,0)","rgb(191,0,0)","rgb(193,0,0)","rgb(196,0,0)","rgb(199,0,0)","rgb(201,0,0)","rgb(204,0,0)","rgb(207,0,0)","rgb(209,0,0)","rgb(212,0,0)","rgb(215,0,0)","rgb(217,0,0)","rgb(220,0,0)","rgb(223,0,0)","rgb(225,0,0)","rgb(228,0,0)","rgb(231,0,0)","rgb(234,0,0)","rgb(236,0,0)","rgb(239,0,0)","rgb(242,0,0)","rgb(244,0,0)","rgb(247,0,0)","rgb(250,0,0)","rgb(252,0,0)","rgb(255,0,0)","rgb(255,3,0)","rgb(255,5,0)","rgb(255,8,0)","rgb(255,11,0)","rgb(255,13,0)","rgb(255,16,0)","rgb(255,19,0)","rgb(255,21,0)","rgb(255,24,0)","rgb(255,27,0)","rgb(255,30,0)","rgb(255,32,0)","rgb(255,35,0)","rgb(255,38,0)","rgb(255,40,0)","rgb(255,43,0)","rgb(255,46,0)","rgb(255,48,0)","rgb(255,51,0)","rgb(255,54,0)","rgb(255,56,0)","rgb(255,59,0)","rgb(255,62,0)","rgb(255,64,0)","rgb(255,67,0)","rgb(255,70,0)","rgb(255,72,0)","rgb(255,75,0)","rgb(255,78,0)","rgb(255,81,0)","rgb(255,83,0)","rgb(255,86,0)","rgb(255,89,0)","rgb(255,91,0)","rgb(255,94,0)","rgb(255,97,0)","rgb(255,99,0)","rgb(255,102,0)","rgb(255,105,0)","rgb(255,107,0)","rgb(255,110,0)","rgb(255,113,0)","rgb(255,115,0)","rgb(255,118,0)","rgb(255,121,0)","rgb(255,123,0)","rgb(255,126,0)","rgb(255,129,0)","rgb(255,132,0)","rgb(255,134,0)","rgb(255,137,0)","rgb(255,140,0)","rgb(255,142,0)","rgb(255,145,0)","rgb(255,148,0)","rgb(255,150,0)","rgb(255,153,0)","rgb(255,156,0)","rgb(255,158,0)","rgb(255,161,0)","rgb(255,164,0)","rgb(255,166,0)","rgb(255,169,0)","rgb(255,172,0)","rgb(255,174,0)","rgb(255,177,0)","rgb(255,180,0)","rgb(255,183,0)","rgb(255,185,0)","rgb(255,188,0)","rgb(255,191,0)","rgb(255,193,0)","rgb(255,196,0)","rgb(255,199,0)","rgb(255,201,0)","rgb(255,204,0)","rgb(255,207,0)","rgb(255,209,0)","rgb(255,212,0)","rgb(255,215,0)","rgb(255,217,0)","rgb(255,220,0)","rgb(255,223,0)","rgb(255,225,0)","rgb(255,228,0)","rgb(255,231,0)","rgb(255,234,0)","rgb(255,236,0)","rgb(255,239,0)","rgb(255,242,0)","rgb(255,244,0)","rgb(255,247,0)","rgb(255,250,0)","rgb(255,252,0)","rgb(255,255,0)","rgb(255,255,4)","rgb(255,255,8)","rgb(255,255,12)","rgb(255,255,16)","rgb(255,255,20)","rgb(255,255,24)","rgb(255,255,27)","rgb(255,255,31)","rgb(255,255,35)","rgb(255,255,39)","rgb(255,255,43)","rgb(255,255,47)","rgb(255,255,51)","rgb(255,255,55)","rgb(255,255,59)","rgb(255,255,63)","rgb(255,255,67)","rgb(255,255,71)","rgb(255,255,75)","rgb(255,255,78)","rgb(255,255,82)","rgb(255,255,86)","rgb(255,255,90)","rgb(255,255,94)","rgb(255,255,98)","rgb(255,255,102)","rgb(255,255,106)","rgb(255,255,110)","rgb(255,255,114)","rgb(255,255,118)","rgb(255,255,122)","rgb(255,255,126)","rgb(255,255,129)","rgb(255,255,133)","rgb(255,255,137)","rgb(255,255,141)","rgb(255,255,145)","rgb(255,255,149)","rgb(255,255,153)","rgb(255,255,157)","rgb(255,255,161)","rgb(255,255,165)","rgb(255,255,169)","rgb(255,255,173)","rgb(255,255,177)","rgb(255,255,180)","rgb(255,255,184)","rgb(255,255,188)","rgb(255,255,192)","rgb(255,255,196)","rgb(255,255,200)","rgb(255,255,204)","rgb(255,255,208)","rgb(255,255,212)","rgb(255,255,216)","rgb(255,255,220)","rgb(255,255,224)","rgb(255,255,228)","rgb(255,255,231)","rgb(255,255,235)","rgb(255,255,239)","rgb(255,255,243)","rgb(255,255,247)","rgb(255,255,251)","rgb(255,255,255)"];
             else
-                colors = colorMapString.split("|");
+                colors = colorMap;
             var colorScale = d3.scaleQuantize()
                     .domain(d3.extent(dataArray[i]))
                     .range(colors);

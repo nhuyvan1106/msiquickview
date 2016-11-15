@@ -148,18 +148,7 @@ var pnnl = {
                     .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
                     .attr("transform", "translate(" + (width / 2) + "," + (0) + ")")  // centre below axis
                     .text(config.y);
-            /*svg.append("rect")
-                    .attr("class", "zoom")
-                    .attr("width", width + config.margin.left + config.margin.right)
-                    .attr("height", height + config.margin.top + config.margin.bottom)
-                    .call(d3.zoom()
-                            .scaleExtent([1, 5])
-                            .translateExtent([[-100, -100], [width + 90, height + 100]])
-                            .on("zoom", zoomed));
 
-            function zoomed() {
-                svg.attr("transform", d3.event.transform);
-            }*/
         },
         drawOverlay: function () {
             $(".overlay").fadeIn("slow").prependTo("body");
@@ -260,7 +249,7 @@ var pnnl = {
                             .append("i")
                             .attr("class", faIcon + " " + closeButtonClass)
                             .on("click", closeAction ? function () {
-                                closeAction("#" + dialog.dialogId);
+                                closeAction.call(this, "#" + dialog.dialogId);
                                 dialog.hide();
                             } : function () {
                                 dialog.hide();
@@ -305,7 +294,7 @@ var pnnl = {
                             .attr("class", posBtnClassName)
                             .text(posBtnLabel)
                             .on("click", function () {
-                                posBtnBehavior(id);
+                                posBtnBehavior.call(dialog, id);
                             });
                     return this;
                 },
@@ -326,7 +315,7 @@ var pnnl = {
                             .attr("type", "button")
                             .attr("class", negBtnClassName)
                             .on("click", negBtnBehavior ? function () {
-                                negBtnBehavior(id);
+                                negBtnBehavior.call(dialog, id);
                             } : dialog.hide)
                             .text(negBtnlabel);
                     return this;
@@ -350,7 +339,7 @@ var pnnl = {
                         };
                     $(id + ".message-body").insertAfter(id + ".alert-dialog-header");
                     $(id + ".btn-group").insertAfter(id + ".message-body");
-                    showBehavior("#" + this.dialogId);
+                    showBehavior.call(this, "#" + this.dialogId);
                 },
                 /*
                  * @param {function} hideBehavior Optional. How to hide the dialog
@@ -361,7 +350,7 @@ var pnnl = {
                     if (!hideBehavior)
                         $(id).fadeOut();
                     else
-                        hideBehavior(id);
+                        hideBehavior.call(this, id);
                     d3.event.stopImmediatePropagation();
                     setTimeout(function () {
                      d3.select(id).remove();
