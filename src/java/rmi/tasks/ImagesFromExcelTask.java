@@ -12,11 +12,11 @@ public class ImagesFromExcelTask extends Class1 implements Task<Void>, Serializa
 
     private final String path;
     private final List<String> fileNames;
-    private final Double[][] ranges;
+    private final double[][] ranges;
     private static final long serialVersionUID = 227L;
     private final int threshold;
     private final String dataset;
-    public ImagesFromExcelTask(String path, List<String> fileNames, Double[][] ranges, int threshold, String dataset) throws MWException {
+    public ImagesFromExcelTask(String path, List<String> fileNames, double[][] ranges, int threshold, String dataset) throws MWException {
         this.path = path;
         this.fileNames = fileNames;
         this.ranges = ranges;

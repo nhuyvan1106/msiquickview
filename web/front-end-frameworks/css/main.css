@@ -31,9 +31,18 @@ a:hover {
   cursor: pointer;
   text-decoration: none; }
 
-.pnl-dropdown-menu-right, .tabs-container .dataset-selection, .overlay-window .dataset-selection, .tabs-container #load-more-container, .overlay-window #load-more-container, .tabs-container #tools, .overlay-window #tools, .overlay-window .color-map-selection {
+.pnl-dropdown-menu-right, .pnl-dropdown-menu-bottom, .tabs-container #load-more-container, .overlay-window #load-more-container, .tabs-container #tools, .overlay-window #tools, .tabs-container .dataset-selection, .overlay-window .dataset-selection, .overlay-window .color-map-selection {
   flex-grow: 3; }
-  .pnl-dropdown-menu-right ul, .tabs-container .dataset-selection ul, .overlay-window .dataset-selection ul, .tabs-container #load-more-container ul, .overlay-window #load-more-container ul, .tabs-container #tools ul, .overlay-window #tools ul, .overlay-window .color-map-selection ul {
+  .pnl-dropdown-menu-right > div > a, .pnl-dropdown-menu-bottom > div > a, .tabs-container #load-more-container > div > a, .overlay-window #load-more-container > div > a, .tabs-container #tools > div > a, .overlay-window #tools > div > a, .tabs-container .dataset-selection > div > a, .overlay-window .dataset-selection > div > a, .overlay-window .color-map-selection > div > a {
+    line-height: 30px;
+    margin: 5px;
+    width: 248px;
+    text-align: left;
+    display: block; }
+    .pnl-dropdown-menu-right > div > a i, .pnl-dropdown-menu-bottom > div > a i, .tabs-container #load-more-container > div > a i, .overlay-window #load-more-container > div > a i, .tabs-container #tools > div > a i, .overlay-window #tools > div > a i, .tabs-container .dataset-selection > div > a i, .overlay-window .dataset-selection > div > a i, .overlay-window .color-map-selection > div > a i {
+      margin-top: 8px;
+      float: right; }
+  .pnl-dropdown-menu-right ul, .pnl-dropdown-menu-bottom ul, .tabs-container #load-more-container ul, .overlay-window #load-more-container ul, .tabs-container #tools ul, .overlay-window #tools ul, .tabs-container .dataset-selection ul, .overlay-window .dataset-selection ul, .overlay-window .color-map-selection ul {
     box-shadow: 2px 4px 10px 3px gray;
     width: 254px;
     position: absolute;
@@ -44,28 +53,23 @@ a:hover {
     border-radius: 2px;
     top: 5px;
     padding-left: 0px;
-    z-index: 10; }
-  .pnl-dropdown-menu-right li, .tabs-container .dataset-selection li, .overlay-window .dataset-selection li, .tabs-container #load-more-container li, .overlay-window #load-more-container li, .tabs-container #tools li, .overlay-window #tools li, .overlay-window .color-map-selection li {
+    z-index: 100; }
+  .pnl-dropdown-menu-right li, .pnl-dropdown-menu-bottom li, .tabs-container #load-more-container li, .overlay-window #load-more-container li, .tabs-container #tools li, .overlay-window #tools li, .tabs-container .dataset-selection li, .overlay-window .dataset-selection li, .overlay-window .color-map-selection li {
     list-style-type: none;
     line-height: 40px;
     transition: background-color 0.2s linear;
     padding-left: 10px;
+    text-align: left;
     color: #09f; }
-    .pnl-dropdown-menu-right li:hover, .tabs-container .dataset-selection li:hover, .overlay-window .dataset-selection li:hover, .tabs-container #load-more-container li:hover, .overlay-window #load-more-container li:hover, .tabs-container #tools li:hover, .overlay-window #tools li:hover, .overlay-window .color-map-selection li:hover {
+    .pnl-dropdown-menu-right li:hover, .pnl-dropdown-menu-bottom li:hover, .tabs-container #load-more-container li:hover, .overlay-window #load-more-container li:hover, .tabs-container #tools li:hover, .overlay-window #tools li:hover, .tabs-container .dataset-selection li:hover, .overlay-window .dataset-selection li:hover, .overlay-window .color-map-selection li:hover {
       background-color: #efefef;
       cursor: pointer; }
 
-.pnl-dropdown-menu-toggler-right, #pnl-dropdown-menu-toggler-right, .tabs-container #dataset-selection-toggler, .overlay-window #dataset-selection-toggler, .tabs-container #load-more-toggler, .overlay-window #load-more-toggler, .tabs-container #select-a-tool-toggler, .overlay-window #select-a-tool-toggler, .overlay-window #color-map-selection-toggler {
-  line-height: 30px;
-  margin: 5px;
-  width: 248px;
-  text-align: left;
-  display: flex;
-  flex-direction: row; }
-  .pnl-dropdown-menu-toggler-right span, #pnl-dropdown-menu-toggler-right span, .tabs-container #dataset-selection-toggler span, .overlay-window #dataset-selection-toggler span, .tabs-container #load-more-toggler span, .overlay-window #load-more-toggler span, .tabs-container #select-a-tool-toggler span, .overlay-window #select-a-tool-toggler span, .overlay-window #color-map-selection-toggler span {
-    flex-grow: 2; }
-  .pnl-dropdown-menu-toggler-right i, #pnl-dropdown-menu-toggler-right i, .tabs-container #dataset-selection-toggler i, .overlay-window #dataset-selection-toggler i, .tabs-container #load-more-toggler i, .overlay-window #load-more-toggler i, .tabs-container #select-a-tool-toggler i, .overlay-window #select-a-tool-toggler i, .overlay-window #color-map-selection-toggler i {
-    margin-top: 8px; }
+.pnl-dropdown-menu-bottom > div, .tabs-container #load-more-container > div, .overlay-window #load-more-container > div, .tabs-container #tools > div, .overlay-window #tools > div {
+  display: inline-block; }
+.pnl-dropdown-menu-bottom ul, .tabs-container #load-more-container ul, .overlay-window #load-more-container ul, .tabs-container #tools ul, .overlay-window #tools ul {
+  left: initial;
+  top: initial; }
 
 .toggler {
   display: inline-block;
@@ -154,14 +158,6 @@ form {
     cursor: move; }
   .tabs-container #load-more-container, .overlay-window #load-more-container, .tabs-container #tools, .overlay-window #tools {
     visibility: hidden; }
-    .tabs-container #load-more-container > div, .overlay-window #load-more-container > div, .tabs-container #tools > div, .overlay-window #tools > div {
-      display: inline-block; }
-    .tabs-container #load-more-container ul, .overlay-window #load-more-container ul, .tabs-container #tools ul, .overlay-window #tools ul {
-      left: initial;
-      top: initial;
-      background-color: white;
-      margin-top: 5px;
-      z-index: 10; }
   .tabs-container #load-more-toggler, .overlay-window #load-more-toggler, .tabs-container #select-a-tool-toggler, .overlay-window #select-a-tool-toggler {
     margin-bottom: -5px; }
   .tabs-container #select-tool-done, .overlay-window #select-tool-done, .tabs-container #select-tool-cancel, .overlay-window #select-tool-cancel {
@@ -366,8 +362,7 @@ form {
 .alert-dialog .alert-dialog-header-close-action-icon, .error-dialog .alert-dialog-header-close-action-icon, .notification-dialog .alert-dialog-header-close-action-icon, .add-roi-dialog .alert-dialog-header-close-action-icon, .file-selection-dialog .alert-dialog-header-close-action-icon, .context-menu-dialog .alert-dialog-header-close-action-icon, .upload-optical-image-dialog .alert-dialog-header-close-action-icon {
   right: 10px;
   top: 5px;
-  position: absolute;
-  /*transition: transform .2s linear;*/ }
+  position: absolute; }
 .alert-dialog button, .error-dialog button, .notification-dialog button, .add-roi-dialog button, .file-selection-dialog button, .context-menu-dialog button, .upload-optical-image-dialog button {
   transition: background-color .2s ease-in;
   width: 75px;
@@ -451,7 +446,7 @@ form {
     border-left: 14px solid #d3d3d3;
     position: absolute;
     left: -28px;
-    top: 1px;
+    top: calc(calc(100% - 30px)/2);
     width: 25px;
     height: 25px;
     transform: rotate(180deg); }
@@ -461,7 +456,7 @@ form {
     border-right: 18px solid white;
     position: absolute;
     left: -27px;
-    top: 1px;
+    top: calc(calc(100% - 30px)/2);
     width: 28px;
     height: 25px;
     transform: scale(0.7, 0.7); }
@@ -493,7 +488,6 @@ form {
     border-bottom: none; }
 
 .upload-optical-image-dialog {
-  top: 50%;
   left: calc(calc(100% - 350px)/2);
   top: calc(calc(100% - 178px)/2);
   right: initial;

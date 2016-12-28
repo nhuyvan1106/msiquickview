@@ -15,14 +15,14 @@ import org.apache.poi.ss.usermodel.*;
  */
 public class ExcelExtractor {
 
-    public static Double[][] extractSheet(Workbook wb) {
+    public static double[][] extractSheet(Workbook wb) {
         Iterator<Row> rows = wb.getSheetAt(0).iterator();
-        List<Double[]> list = new ArrayList<>();
+        List<double[]> list = new ArrayList<>();
         
         while(rows.hasNext()) {
             Row row = rows.next();
-            list.add(new Double[] { row.getCell(0).getNumericCellValue(), row.getCell(1).getNumericCellValue() });
+            list.add(new double[] { row.getCell(0).getNumericCellValue(), row.getCell(1).getNumericCellValue() });
         }
-        return list.toArray(new Double[list.size()][2]);
+        return list.toArray(new double[list.size()][2]);
     }
 }

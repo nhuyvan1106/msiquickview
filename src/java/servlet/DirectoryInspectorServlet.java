@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import json.JsonWriter;
+import org.apache.shiro.SecurityUtils;
 import resource.ApplicationResource;
 
 @WebServlet(name = "DirectoryInspectorServlet", urlPatterns = {"/DirectoryInspectorServlet/view-files", "/DirectoryInspectorServlet/load-more-images",
@@ -20,7 +21,7 @@ public class DirectoryInspectorServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json");
-        Path userDir = Paths.get(System.getProperty("user.home"), resources.getStorage(), request.getParameter("user-dir"));
+        Path userDir = Paths.get(System.getProperty("user.home"), resources.getStorage(), SecurityUtils.getSubject().getPrincipal().toString());
         String datasetName = request.getParameter("dataset-name");
         Writer writer = response.getWriter();
         JsonGenerator generator = resources.getJsonFactory().createGenerator(writer);

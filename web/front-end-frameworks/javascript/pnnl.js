@@ -2,40 +2,15 @@
 var pnnl = {
     /*********** DATA LOADING RELATED MODULE ***********/
     data: {
-        upload: function (url, userDir, datasetName, files, opticalImage, folder, notes, successCallback, errorCallback) {
-            var formData = new FormData();
-            formData.append("user-dir", userDir);
-            formData.append("dataset-name", datasetName);
-            formData.append("folder", folder);
-            formData.append("notes", notes);
-            formData.append("opticalImage", opticalImage);
-            var xhr = new XMLHttpRequest();
-            files.forEach(function (file, i) { formData.append("file-" + i, file); });
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200)
-                        successCallback();
-                    else
-                        errorCallback(xhr.statusText);
-                }
-
-            };
-            xhr.open("POST", url);
-            xhr.setRequestHeader("enctype", "multipart/form-data");
-            xhr.send(formData);
-        },
-        loadData: function (url, data, successCallback, errorCallback) {
-            //window.history.pushState({"user-dir": userDir, "file-name": fileName}, "", "http://localhost:8080/Java-Matlab-Integration/DataFetcherServlet/load-data");
-            $.ajax(url, {
-                "method": "GET",
-                "data": data,
-                "success": function (data) {
-                    successCallback(data);
-                },
-                "error": function (xhr) {
-                    errorCallback(xhr.statusText);
-                }
+        upload: function (url, datasetName, files, opticalImage, folder, successCallback, errorCallback) {
+            var params = [];
+            params[0] = ["dataset-name", datasetName];
+            params[1] = ["folder", folder];
+            params[2] = ["opticalImage", opticalImage];
+            files.forEach(function (file, i) {
+                params[(3+i)] = ["file-" + i, file];
             });
+            pnnl.utils.ajaxPost(url,params,successCallback,errorCallback);
         },
         /*
          * @param {integer} offset Total number of elements read so far in the intensity/mass values arrays
@@ -158,6 +133,7 @@ var pnnl = {
         },
         removeSpinnerOverlay: function () {
             $(".spinner, .overlay").fadeOut();
+            $(".validation-error-dialog, .hint-dialog").fadeOut(400, function () { $(this).remove(); });
         },
         /*
          * @param {number} x The new x coordinate of the indicator line to move to relative to the y axis.
@@ -355,8 +331,27 @@ var pnnl = {
                     setTimeout(function () {
                      d3.select(id).remove();
                      }, 500);
+                },
+                init: function(func) {
+                    func("#" + this.dialogId);
+                    return this;
                 }
             };
+        },
+        showHintDialog: function(dialogClass, body, inputElem) {
+            var inputElemRect = inputElem.getBoundingClientRect();
+            pnnl.dialog.newDialogBuilder()
+                    .createAlertDialog(dialogClass, dialogClass + "-" + inputElem.id)
+                    .setMessageBody(body)
+                    .removeHeader()
+                    .show(function(id) {
+                        var $dialog = $(id);
+                        $dialog.fadeIn()
+                                .css({
+                                    "left": (inputElemRect.right + 30) + "px",
+                                    "top": inputElemRect.top - ($dialog.height() - inputElemRect.height)/2 - 5 + pnnl.utils.getScrollTop() + "px"
+                                });
+            });
         }
     },
     /*********** FORM INPUT VALIDATION MODULE ***********/
@@ -365,16 +360,14 @@ var pnnl = {
          * @param {string} formName value of form's name attribute
          * @return true if validation passes, false otherwise
          */
-        validate: function (formName) {
-            var excludes = arguments.length > 1 ? Array.prototype.slice.call(arguments, 1) : -1;
+        validateNotEmpty: function (formName) {
+            var excludes = arguments.length > 1 ? Array.prototype.slice.call(arguments, 1) : null;
             if (document.forms[formName].length === 0)
                 throw new Error("Form with name \"" + formName + "\" does not exist.");
             var emptyInputElements = Array.prototype.filter.call(document.forms[formName].elements, function (elem) {
                 return (elem.tagName === "INPUT" || elem.tagName === "SELECT" || elem.tagName === "TEXTAREA") && !elem.value;
             }).filter(function(elem) {
-                return excludes !== -1 ? !excludes.some(function(e) {
-                    return e === elem.id;
-                }) : true;
+                return excludes ? !excludes.some(function(e) { return e === elem.id; }) : true;
             });
             if (emptyInputElements.length !== 0) {
                 emptyInputElements.forEach(function (elem, i) {
@@ -400,22 +393,29 @@ var pnnl = {
                 return false;
             } else
                 return true;
+        },
+        validateWithRegEx: function(inputElem, regex, msg) {
+            if (!regex.test(inputElem.value)) {
+                pnnl.dialog.showHintDialog("hint-dialog", msg, inputElem);
+                return false;
+            }
+            return true;
         }
     },
     utils: {
         getScrollTop: function () {
             return document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop;
         },
-        ajaxPost: function (url, params, successCallback, errorCallback) {
+        ajaxPost: function (url, params, successCallback, errorCallback, cleanupCallback) {
             var formData = new FormData();
-            Object.keys(params).forEach(function(paramName) {
-               formData.append(paramName, params[paramName]); 
+            params.forEach(function(param) {
+               formData.append(param[0], param[1]); 
             });
-            formData.append("user-dir", localStorage.getItem("user-dir"));
-            formData.append("dataset-name", $("#selected-dataset").text());
             var xhr = new XMLHttpRequest();
             xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4)
+                if (xhr.readyState === 4) {
+                    if (cleanupCallback)
+                        cleanupCallback();
                     switch (xhr.status) {
                         case 200:
                             successCallback(xhr.responseText);
@@ -424,6 +424,7 @@ var pnnl = {
                             errorCallback(xhr.statusText);
                             break;
                     }
+                }
             };
             xhr.open("POST", url);
             xhr.setRequestHeader("enctype", "multipart/form-data");

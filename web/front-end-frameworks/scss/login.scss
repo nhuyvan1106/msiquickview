@@ -1,0 +1,141 @@
+@import 'main';
+body {
+    counter-reset: questionIndex;
+}
+label {
+    font-weight: 600;
+}
+.login-form {
+    width: 30%;
+    border: 2px solid rgba(200,200,200,0.5);
+    border-radius: 3px;
+    text-align: center;
+    padding-bottom: 20px;
+    margin: 10% auto auto auto;
+    box-shadow: 0px 0px 20px 0px gray;
+    .form-group:first-child {
+        margin-top: 20px;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    h1 {
+        font-size: x-large;
+        color: brown;
+        margin-bottom: 20px;
+        font-weight: bold;
+    }
+    #submit {
+        border: 2px solid rgba(200,200,200,0.5);
+        margin-bottom: 10px;
+    }
+    .form-control,span,label {
+        line-height: 40px;
+        height: 40px;
+        border-radius: 3px;
+        display: inline-block;
+    }
+    span {
+        border-right: 1px solid rgba(200,200,200,0.5);;
+        width: 45px;
+        position: absolute;
+    }
+    .form-control {
+        border: 2px solid rgba(200,200,200,0.5);
+        width: 80%;
+        padding-left: 50px;
+        z-index: 10;
+    }
+    label {
+        position: absolute;
+        margin-left: 50px;
+        color: rgb(205,205,205);
+        display:inline;
+    }
+    label:hover {
+        cursor: text;
+    }
+}
+.new-account-form-dialog {
+    @extend .upload-optical-image-dialog;
+    width: 30%;
+    left: calc(calc(100% - 30%)/2);
+    top: 20%;
+    .alert-dialog-header-title {
+        font-size: larger;
+    }
+    p {
+        margin-bottom: 0px;
+    }
+}
+.new-account-form {
+    @extend .login-form;
+    width: 100%;
+    border: none;
+    box-shadow: none;
+    margin-top: 20px;
+    padding-bottom: 0;
+    label {
+        font-size: medium;
+    }
+}
+.hint-dialog {
+    @extend .alert-dialog;
+    @extend .validation-error-dialog;
+    max-width: 400px;
+    width: initial;
+    .message-body {
+        font-size: medium;
+        padding-left: 10px;
+        padding-right: 10px;
+        line-height: 18px;
+        text-align: justify;
+        color: red;
+    }
+}
+
+.security-questions-container {
+    position: relative;
+    @extend .pnl-dropdown-menu-bottom;
+    & > div {
+        width: 80%;
+        padding: 0;
+    }
+    & > div > a {
+        width: 100%;
+        margin: 0px;
+        border: 2px solid rgba(200, 200, 200, 0.5);
+        height: 40px;
+        border-radius: 3px;
+        i {
+            margin-top: 5px;
+        }
+    }
+
+    span {
+        line-height: 25px;
+        overflow: hidden;
+        width: 70%;
+        border-right: none;
+    }
+
+    ul {
+        width: 100%;
+        margin-left: 0px;
+    }
+
+    li {
+        font-size: small;
+        line-height: 35px;
+        color: #000;
+    }
+    li:before {
+        counter-increment: questionIndex;
+        content: counter(questionIndex) ". ";
+    }
+    .form-control {
+        margin-top: 10px;
+        padding-left: 10px;
+        margin-bottom: 10px;
+    }
+}

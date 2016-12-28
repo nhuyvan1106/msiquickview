@@ -14,6 +14,7 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import matlab.IonImageGenerator;
+import org.apache.shiro.SecurityUtils;
 import resource.ApplicationResource;
 import rmi.tasks.PixelCountTask;
 
@@ -31,8 +32,8 @@ public class IonImageGeneratorServlet extends HttpServlet {
                double lowerBound = Double.parseDouble(request.getParameter("lower-bound"));
                 double upperBound = Double.parseDouble(request.getParameter("upper-bound"));
                 String[] fileNames = request.getParameter("file-names").split(",");
-                Path dir = Paths.get(System.getProperty("user.home"), res.getStorage(), request.getParameter("user-dir"), 
-                        request.getParameter("dataset-name"), request.getParameter("file-type"));
+                Path dir = Paths.get(System.getProperty("user.home"), res.getStorage(), SecurityUtils.getSubject().getPrincipal().toString(), 
+                                    request.getParameter("dataset-name"), request.getParameter("file-type"));
                 for (int i = 0; i < fileNames.length; i++)
                     fileNames[i] = dir.resolve(fileNames[i]).toString();
                 Object[] result = imageGenerator.generate(lowerBound, upperBound, fileNames);

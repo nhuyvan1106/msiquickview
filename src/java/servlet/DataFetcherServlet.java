@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import javax.servlet.*;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
+import org.apache.shiro.SecurityUtils;
 import remote_proxy.Task;
 import resource.ApplicationResource;
 import rmi.tasks.*;
@@ -30,8 +31,8 @@ public class DataFetcherServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, MWException, RemoteException, NotBoundException {
 
-        Path datasetDir = Paths.get(System.getProperty("user.home"), res.getStorage(), request.getParameter("user-dir"),
-                request.getParameter("dataset-name"));
+        Path datasetDir = Paths.get(System.getProperty("user.home"), res.getStorage(), 
+                                    SecurityUtils.getSubject().getPrincipal().toString(), request.getParameter("dataset-name"));
         response.setContentType("application/json");
         try (Writer writer = response.getWriter();
             JsonGenerator generator = res.getJsonFactory().createGenerator(writer)) {
@@ -125,11 +126,6 @@ public class DataFetcherServlet extends HttpServlet {
         } catch (RemoteException | NotBoundException ex) {
             Logger.getLogger(DataFetcherServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
-    @Override
-    public String getServletInfo() {
-        return "Short description";
     }
     
     private void writeArray(JsonGenerator generator, String field, int[] array) {

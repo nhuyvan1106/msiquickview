@@ -33,6 +33,17 @@ a:hover {
 
 .pnl-dropdown-menu-right {
     flex-grow: 3;
+    & > div > a {
+        line-height: 30px;
+        margin: 5px;
+        width: 248px;
+        text-align: left;
+        display: block;
+        i {
+            margin-top: 8px;
+            float: right;
+        }
+    }
     ul {
         box-shadow: 2px 4px 10px 3px gray;
         width: 254px;
@@ -44,7 +55,7 @@ a:hover {
         border-radius: 2px;
         top: 5px;
         padding-left: 0px;
-        z-index: 10;
+        z-index: 100;
     }
 
     li {
@@ -52,6 +63,7 @@ a:hover {
         line-height: 40px;
         transition: background-color 0.2s linear;
         padding-left: 10px;
+        text-align: left;
         color: #09f;
         &:hover {
             background-color: #efefef;
@@ -59,21 +71,16 @@ a:hover {
         }
     }
 }
-.pnl-dropdown-menu-toggler-right, #pnl-dropdown-menu-toggler-right {
-    line-height: 30px;
-    margin: 5px;
-    width: 248px;
-    text-align: left;
-    display: flex;
-    flex-direction: row;
 
-    span {
-        flex-grow: 2;
+.pnl-dropdown-menu-bottom {
+    @extend .pnl-dropdown-menu-right;
+    & > div {
+        display: inline-block;
     }
-    i {
-        margin-top: 8px;
+    ul {
+        left: initial;
+        top: initial;
     }
-
 }
 
 .toggler {
@@ -182,26 +189,13 @@ form {
     .dataset-selection {
         @extend .pnl-dropdown-menu-right;
     }
-    #dataset-selection-toggler {
-        @extend #pnl-dropdown-menu-toggler-right;
-    }
+
     #load-more-container {
         visibility: hidden;
-        @extend .dataset-selection;
-        & > div {
-            display: inline-block;
-        }
-        ul {
-            left: initial;
-            top: initial;
-            background-color: white;
-            margin-top: 5px;
-            z-index: 10;
-        }
+        @extend .pnl-dropdown-menu-bottom;
     }
 
     #load-more-toggler {
-        @extend #dataset-selection-toggler;
         margin-bottom: -5px;
     }
 
@@ -469,7 +463,6 @@ form {
         right: 10px;
         top: 5px;
         position: absolute;
-        /*transition: transform .2s linear;*/
         @extend .close-btn;
     }
     button {
@@ -575,7 +568,7 @@ form {
         border-left: 14px solid #d3d3d3;
         position: absolute;
         left: -28px;
-        top: 1px;
+        top: calc(calc(100% - 30px)/2);
         width: 25px;
         height: 25px;
         transform: rotate(180deg);
@@ -586,7 +579,7 @@ form {
         border-right: 18px solid white;
         position: absolute;
         left: -27px;
-        top: 1px;
+        top: calc(calc(100% - 30px)/2);
         width: 28px;
         height: 25px;
         transform: scale(0.7,0.7);
@@ -598,6 +591,7 @@ form {
         display: none;
     }
 }
+
 .context-menu-dialog {
     @extend .file-selection-dialog;
     width: 250px;
@@ -628,12 +622,11 @@ form {
 
 .upload-optical-image-dialog {
     @extend .alert-dialog;
-    top: 50%;
     left: calc(calc(100% - 350px)/2);
     top: calc(calc(100% - 178px)/2);
     right: initial;
     z-index: 30;
-    
+
     .alert-dialog-header {
         background-color: #7EB2DD;
         color: white;
@@ -948,9 +941,6 @@ form {
             height: 55px;
             margin-bottom: 1px;
         }
-    }
-    #color-map-selection-toggler {
-        @extend #pnl-dropdown-menu-toggler-right;
     }
     .selected-image-name {
         background-color: lightblue;
