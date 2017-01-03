@@ -58,7 +58,8 @@
                     function (filesToPush) {
                         filesToPush = filesToPush.split("|");
                         var data = {
-                            upsert: {}
+                            upsert: {},
+                            script:""
                         };
                         if (notes) {
                             data.script = "ctx._source." + fileType + "Notes.add('" + notes + "');";

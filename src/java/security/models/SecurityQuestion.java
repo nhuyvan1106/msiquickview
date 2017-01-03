@@ -25,8 +25,6 @@ public class SecurityQuestion implements Serializable {
     @Size(min = 1, max = 150)
     @Column(name = "question")
     private String question;
-    @OneToMany(mappedBy = "securityQuestionId")
-    private List<AccountSecurityQuestion> accountSecurityQuestionList;
 
     public SecurityQuestion() {
     }
@@ -54,14 +52,6 @@ public class SecurityQuestion implements Serializable {
 
     public void setQuestion(String question) {
         this.question = question;
-    }
-
-    public List<AccountSecurityQuestion> getAccountSecurityQuestionList() {
-        return accountSecurityQuestionList;
-    }
-
-    public void setAccountSecurityQuestionList(List<AccountSecurityQuestion> accountSecurityQuestionList) {
-        this.accountSecurityQuestionList = accountSecurityQuestionList;
     }
 
     @Override

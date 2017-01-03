@@ -82,13 +82,13 @@ label {
 .hint-dialog {
     @extend .alert-dialog;
     @extend .validation-error-dialog;
-    max-width: 400px;
+    margin-right: 2em;
     width: initial;
     .message-body {
         font-size: medium;
         padding-left: 10px;
         padding-right: 10px;
-        line-height: 18px;
+        line-height: 1.15em;
         text-align: justify;
         color: red;
     }

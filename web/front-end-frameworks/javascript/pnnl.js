@@ -349,7 +349,7 @@ var pnnl = {
                         $dialog.fadeIn()
                                 .css({
                                     "left": (inputElemRect.right + 30) + "px",
-                                    "top": inputElemRect.top - ($dialog.height() - inputElemRect.height)/2 - 5 + pnnl.utils.getScrollTop() + "px"
+                                    "top": inputElemRect.top - ($dialog.height() - inputElemRect.height)/2 - 10 + pnnl.utils.getScrollTop() + "px"
                                 });
             });
         }

@@ -122,16 +122,20 @@
                                                             }
                                                         )
                                                         .length === $newAccountForm.find("input").length;
-                                    // TODO Remove
-                                    isFormValid = true;
                                     if (isFormValid) {
-                                        $.ajax("/Java-Matlab-Integration/security/accounts",{
+                                        $.ajax("/Java-Matlab-Integration/security/accounts/registration",{
                                             method: "POST",
-                                            data: {
+                                            contentType: "application/json",
+                                            data: JSON.stringify({
                                                 username:$newAccountForm.find("#new-account-username").val(),
                                                 password:$newAccountForm.find("#repeat-password").val(),
                                                 email:$newAccountForm.find("#new-account-email").val(),
-                                            },
+                                                questions: [
+                                                    { id:+$newAccountForm.find("#question-1 .selected-question-id").attr("id"),answer:$newAccountForm.find("#answer-1").val() },
+                                                    { id:+$newAccountForm.find("#question-2 .selected-question-id").attr("id"),answer:$newAccountForm.find("#answer-2").val() },
+                                                    { id:+$newAccountForm.find("#question-3 .selected-question-id").attr("id"),answer:$newAccountForm.find("#answer-3").val() }
+                                                ]
+                                            }),
                                             error: function() {
                                                 $(thisDialogId + " p strong").text("Something went wrong. Please try again.");
                                                 $("input[type='password']").val("").focusout();
@@ -153,12 +157,21 @@
                             })
                             .setMessageBody(body)
                             .init(function() {
-                                $(".security-questions-container > div")
+                                $(".security-questions-container > div > a")
                                     .click(
                                         function(event) {
                                             event.preventDefault();
-                                                $(this).find("ul")
-                                                        .fadeToggle();
+                                            //Retrieve the ids of the selected questions
+                                            //So we can't remove them from the next question menus
+                                            var selectedQuestionIds = $(".selected-question-id")
+                                                                        .get()
+                                                                        .filter(function(elem) { return elem.id; })
+                                                                        .map(function(elem) { return "#" + elem.id; })
+                                                                        .reduce(function(prev, next) { return prev + "," + next; }, "none");
+                                            $(this).next("ul")
+                                                    .fadeToggle()
+                                                    .children()
+                                                    .remove(selectedQuestionIds);
                                         }
                                     );
                                 populateQuestions();
@@ -166,67 +179,66 @@
                                 $(".new-account-form #new-account-username")
                                     .focusin(
                                         function() {
-                                            if (this.dataset.state !== "valid" && document.querySelector("#hint-dialog-" + this.id) === null)
-                                                pnnl.dialog.showHintDialog("hint-dialog", "<span>Username can contain letters, numbers, periods and underscores. Maximum 50 characters long</span>", this);
+                                            showInputEntryHint(this, "Username may contain lowercase and uppercase letters, numbers, periods and underscores. Maximum 50 characters long");
                                         }
                                     )
                                     .focusout(
                                         function() {
                                             var userNameElem = this;
-                                            if (validateWithRegex(userNameElem, /[a-z0-9_.]{1,50}/g))
-                                                $.ajax("/Java-Matlab-Integration/security/accounts/existing-account", {
+                                            if (validateWithRegex(userNameElem, [/^[\w\d.]{1,50}$/g], "Username may contain lowercase and uppercase letters, numbers, periods and underscores. Maximum 50 characters long"))
+                                                $.ajax("/Java-Matlab-Integration/security/accounts/exists", {
                                                     method: "POST",
                                                     data: {username:userNameElem.value},
-                                                    error: function() {
+                                                    error: function(xhr, cause, ex) {
                                                         pnnl.dialog.showHintDialog("hint-dialog", "<span>An account with username <strong>"+userNameElem.value+"</strong> already exists</span>", userNameElem);
-                                                        userNameElem.removeAttribute("data-state");
-                                                        userNameElem.style.border = "2px solid red";
+                                                        validationResult(ex, userNameElem);
                                                     },
                                                     success: function() {
-                                                        userNameElem.setAttribute("data-state", "valid");
-                                                        $("#hint-dialog-" + userNameElem.id).remove();
-                                                        userNameElem.style.border = "2px solid rgba(200, 200, 200, 0.5)";
+                                                        validationResult(null, userNameElem);
                                                     }
-                                                }); 
+                                                });
                                         }
                                     );
                                 $(".new-account-form #new-account-email")
                                     .focusin(
                                         function() {
-                                            showInputEntryHint(this, "Please enter a valid email address");
+                                            showInputEntryHint(this, "Invalid email format");
                                         }
                                     )
                                     .focusout(
                                         function() {
-                                            validateWithRegex(this, /[a-zA-Z0-9._]+(?:\.[a-zA-Z0-9._])*@[a-zA-Z0-9_]+\.[a-zA-Z0-9]{1,4}/);
+                                            validateWithRegex(this, [/[^@]@[^@]/g], "Invalid email format")
                                         }
                                     );
                                 
                                 $(".new-account-form #new-account-password")
                                     .focusin(
                                         function() {
-                                            showInputEntryHint(this, "Valid password must contain a combination of letters, numbers, and these special characters <strong>!</strong>, <strong>@</strong>, <strong>#</strong>, <strong>$</strong>, <strong>_</strong> and be between 8 to 100 characters long.");
+                                            showInputEntryHint(this, "Valid password must contain a combination of lowercase and uppercase letters, numbers, and one or more of these special characters <strong>!</strong>, <strong>@</strong>, <strong>#</strong>, <strong>$</strong>, <strong>_</strong> and be between 8 to 100 characters long.");
                                         }
                                     )
                                     .focusout(
                                         function() {
-                                            validateWithRegex(this, /(?:[\w\d!@#$][\w\d!@#$]){8,100}/);
+                                            validateWithRegex(this, [/[a-z]+/g, /[A-Z]+/g, /\d+/g, /[_!@#$]+/g, /^.{8,100}$/g], "Valid password must contain a combination of lowercase and uppercase letters, numbers, and one or more of these special characters <strong>!</strong>, <strong>@</strong>, <strong>#</strong>, <strong>$</strong>, <strong>_</strong> and be between 8 to 100 characters long.");
                                         }
                                     );
                             
                                 $(".new-account-form #repeat-password")
                                     .focusout(
                                         function() {
-                                            showInputEntryHint(this, "Passwords don't match");
-                                            validateWithRegex(this, new RegExp($(".new-account-form #new-account-password").val()));
+                                            validateWithRegex(this, [new RegExp("^" + $(".new-account-form #new-account-password").val() + "$")], "Passwords don't match");
                                         }
                                     );
                                 
                                 $(".security-questions-container input")
-                                    .focusout(
+                                    .focusin(
                                         function() {
                                             showInputEntryHint(this, "Valid answer must contain letters, numbers, and spaces only and be at least 4 characters long");
-                                            validateWithRegex(this, new RegExp("[a-zA-Z0-9\\s]{4,}"));
+                                        }
+                                    )
+                                    .focusout(
+                                        function() {
+                                            validateWithRegex(this, [new RegExp("^[a-zA-Z0-9\\s]{4,}$")], "Valid answer must contain letters, numbers, and spaces only and be at least 4 characters long");
                                         }
                                     );
                             })
@@ -265,17 +277,27 @@
                             }
                         );
                 }
-                function validateWithRegex(inputElem, regex) {
-                    if (regex.test(inputElem.value)) {
+                function validateWithRegex(inputElem, regexes, errorMsg) {
+                    var result = regexes.every(function(regex) { return regex.test(inputElem.value); });
+                    if (result)
+                        validationResult(null, inputElem);
+                    else {
+                        validationResult(new Error("Failed Validation"), inputElem);
+                        showInputEntryHint(inputElem, errorMsg);
+                    }
+                    return result;
+                }
+                
+                // Show or remove red error indicator border
+                function validationResult(ex, inputElem) {
+                    if (ex) {
+                        inputElem.removeAttribute("data-state");
+                        inputElem.style.border = "2px solid red";
+                    }
+                    else {
                         $("#hint-dialog-" + inputElem.id).remove();
                         inputElem.setAttribute("data-state", "valid");
                         inputElem.style.border = "2px solid rgba(200, 200, 200, 0.5)";
-                        return true;
-                    }
-                    else {
-                        inputElem.removeAttribute("data-state");
-                        inputElem.style.border = "2px solid red";
-                        return false;
                     }
                 }
                 // Call to populate each security questions selection menu when new account
@@ -305,6 +327,7 @@
                                                         .find(".selected-question-id")
                                                         .attr("id", key)
                                                         .text(this.innerHTML);
+                                                    $(this).parent().fadeOut();
                                                 });
                                     }
                             );

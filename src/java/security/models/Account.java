@@ -1,6 +1,7 @@
 package security.models;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.*;
 import static javax.persistence.EnumType.*;
 import javax.validation.constraints.*;
@@ -68,11 +69,9 @@ public class Account implements Serializable {
     @Column(name = "host")
     private String host;
 
-    /*
-    Not really needed for now
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "username", fetch = FetchType.LAZY)
     private List<AccountSecurityQuestion> accountSecurityQuestionList;
-    */
+    
     public Account() {
         this.status = Status.ACTIVE;
         this.userRole = "regular";
@@ -146,13 +145,13 @@ public class Account implements Serializable {
         this.host = host;
     }
     
-    /*public List<AccountSecurityQuestion> getAccountSecurityQuestionList() {
+    public List<AccountSecurityQuestion> getAccountSecurityQuestionList() {
         return accountSecurityQuestionList;
     }
 
     public void setAccountSecurityQuestionList(List<AccountSecurityQuestion> accountSecurityQuestionList) {
         this.accountSecurityQuestionList = accountSecurityQuestionList;
-    }*/
+    }
 
     @Override
     public int hashCode() {
@@ -173,7 +172,7 @@ public class Account implements Serializable {
 
     @Override
     public String toString() {
-        return "security.Account[ username=" + username + " ]";
+        return "security..models.Account[ username=" + username + " ]";
     }
 
     public Status getStatus() {

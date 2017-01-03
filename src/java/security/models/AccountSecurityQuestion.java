@@ -1,26 +1,15 @@
 package security.models;
 
 import java.io.Serializable;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.persistence.*;
+import javax.validation.constraints.*;
 
 @Entity
 @Table(name = "account_security_question")
 @NamedQueries({
     @NamedQuery(name = "AccountSecurityQuestion.findAll", query = "SELECT a FROM AccountSecurityQuestion a"),
     @NamedQuery(name = "AccountSecurityQuestion.findByUsername", query = "SELECT a FROM AccountSecurityQuestion a WHERE a.username = :username"),
-    @NamedQuery(name = "AccountSecurityQuestion.findByQuestionId", query = "SELECT a FROM AccountSecurityQuestion a WHERE a.securityQuestionId = :questionId"),
+    @NamedQuery(name = "AccountSecurityQuestion.findByQuestionId", query = "SELECT a FROM AccountSecurityQuestion a WHERE a.questionId = :questionId"),
     @NamedQuery(name = "AccountSecurityQuestion.findById", query = "SELECT a FROM AccountSecurityQuestion a WHERE a.id = :id")})
 public class AccountSecurityQuestion implements Serializable {
 
@@ -37,24 +26,21 @@ public class AccountSecurityQuestion implements Serializable {
     @Column(name = "id")
     private int id;
     
-    @JoinColumn(name = "security_question_id", referencedColumnName = "id")
-    @ManyToOne
-    private SecurityQuestion securityQuestionId;
-    
     @JoinColumn(name = "username", referencedColumnName = "username")
     @ManyToOne(optional = false)
     private Account username;
 
+    @Basic(optional = false)
+    @Column(name = "security_question_id")
+    private short questionId;
+
     public AccountSecurityQuestion() {
     }
-
-    public AccountSecurityQuestion(int id) {
-        this.id = id;
-    }
-
-    public AccountSecurityQuestion(int id, String answer) {
-        this.id = id;
+    
+    public AccountSecurityQuestion(short questionId, String answer, Account account) {
+        this.questionId = questionId;
         this.answer = answer;
+        this.username = account;
     }
 
     public String getAnswer() {
@@ -73,12 +59,12 @@ public class AccountSecurityQuestion implements Serializable {
         this.id = id;
     }
 
-    public SecurityQuestion getSecurityQuestionId() {
-        return securityQuestionId;
+    public short getQuestionId() {
+        return questionId;
     }
 
-    public void setSecurityQuestionId(SecurityQuestion securityQuestionId) {
-        this.securityQuestionId = securityQuestionId;
+    public void setQuestionId(short questionId) {
+        this.questionId = questionId;
     }
 
     public Account getUsername() {

@@ -11,6 +11,8 @@ import org.apache.shiro.realm.AuthenticatingRealm;
 import org.apache.shiro.util.ByteSource;
 import security.exceptions.ForeignHostException;
 import security.models.Account.Status;
+import utils.EJBLocator;
+import utils.EJBLocator.Type;
 
 public class JPARealm extends AuthenticatingRealm {
 
@@ -20,7 +22,7 @@ public class JPARealm extends AuthenticatingRealm {
             super.setAuthenticationCachingEnabled(true);
             super.setCredentialsMatcher(new Sha256PasswordMatcher());
             InitialContext ctx = new InitialContext();
-            userBean = (JPAAccountService) ctx.lookup("java:global/Java-Matlab-Integration/JPAAccountService");
+            userBean = EJBLocator.getBean(Type.JPAAccountService);
         } catch (NamingException ex) {
             Logger.getLogger(JPARealm.class.getName()).log(Level.SEVERE, null, ex);
         }
