@@ -19,7 +19,7 @@ import javax.validation.constraints.*;
 })
 public class Account implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     public enum Status {
         ACTIVE, DISABLED, LOCKED

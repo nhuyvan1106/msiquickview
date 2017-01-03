@@ -7,13 +7,11 @@ import javax.validation.constraints.*;
 @Entity
 @Table(name = "account_security_question")
 @NamedQueries({
-    @NamedQuery(name = "AccountSecurityQuestion.findAll", query = "SELECT a FROM AccountSecurityQuestion a"),
     @NamedQuery(name = "AccountSecurityQuestion.findByUsername", query = "SELECT a FROM AccountSecurityQuestion a WHERE a.username = :username"),
-    @NamedQuery(name = "AccountSecurityQuestion.findByQuestionId", query = "SELECT a FROM AccountSecurityQuestion a WHERE a.questionId = :questionId"),
     @NamedQuery(name = "AccountSecurityQuestion.findById", query = "SELECT a FROM AccountSecurityQuestion a WHERE a.id = :id")})
 public class AccountSecurityQuestion implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 50)

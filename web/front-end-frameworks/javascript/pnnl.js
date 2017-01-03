@@ -349,7 +349,7 @@ var pnnl = {
                         $dialog.fadeIn()
                                 .css({
                                     "left": (inputElemRect.right + 30) + "px",
-                                    "top": inputElemRect.top - ($dialog.height() - inputElemRect.height)/2 - 10 + pnnl.utils.getScrollTop() + "px"
+                                    "top": inputElemRect.top - ($dialog.height() - inputElemRect.height)/2 - 7.5 + pnnl.utils.getScrollTop() + "px"
                                 });
             });
         }
@@ -393,13 +393,6 @@ var pnnl = {
                 return false;
             } else
                 return true;
-        },
-        validateWithRegEx: function(inputElem, regex, msg) {
-            if (!regex.test(inputElem.value)) {
-                pnnl.dialog.showHintDialog("hint-dialog", msg, inputElem);
-                return false;
-            }
-            return true;
         }
     },
     utils: {

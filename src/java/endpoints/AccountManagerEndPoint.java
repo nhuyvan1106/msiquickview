@@ -1,10 +1,10 @@
 package endpoints;
 
-import java.net.*;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.json.*;
 import javax.naming.NamingException;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -30,7 +30,7 @@ public class AccountManagerEndPoint {
     @POST
     @Consumes(value = APPLICATION_JSON)
     @Path("registration")
-    public Response newAccount(@Context UriInfo uriInfo, JsonObject data) throws URISyntaxException, NamingException {
+    public Response newAccount(@Context HttpServletRequest request, JsonObject data) throws NamingException {
         //TODO Remove
         System.out.println(data);
         accountService = EJBLocator.getBean(JPAAccountService);
@@ -39,7 +39,7 @@ public class AccountManagerEndPoint {
         Sha256Hash hash = new Sha256Hash(password, salt, 1024);
         Account newUser = new Account(data.getString("username"), hash.toBase64(), data.getString("email"));
         newUser.setSalt(salt);
-        newUser.setHost(uriInfo.getRequestUri().getHost());
+        newUser.setHost(request.getRemoteAddr());
         
         List<AccountSecurityQuestion> questions = data.getJsonArray("questions")
                                                     .getValuesAs(JsonObject.class)
@@ -51,9 +51,9 @@ public class AccountManagerEndPoint {
         Subject user = SecurityUtils.getSubject();
         try {
             user.login(new HostAuthenticationToken(newUser.getUsername(), password, newUser.getHost()));
-            URI uri = new URI("/Java-Matlab-Integration");
-            return Response.temporaryRedirect(uri).build();
+            return Response.ok().build();
         } catch (AuthenticationException ex) {
+            // TODO Remove
             System.out.println(ex.getMessage());
             return Response.status(401).build();
         }
@@ -62,7 +62,7 @@ public class AccountManagerEndPoint {
     @Path("questions")
     @Produces(APPLICATION_JSON)
     @GET
-    public JsonObject getQuestions(@Context UriInfo uriInfo) throws NamingException {
+    public JsonObject getQuestions() throws NamingException {
         questionService = EJBLocator.getBean(JPASecurityQuestionService);
         JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
         questionService.findAll()

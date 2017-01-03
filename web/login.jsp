@@ -44,6 +44,10 @@
         </div>
         <script>
             (function () {
+                $(document.documentElement).click(function(event) {
+                    if (event.target.className.indexOf("selected-question-id") === -1)
+                        $(".security-questions-container ul").fadeOut();
+                });
                 $(".login-form").submit(function (event) {
                     if (!pnnl.validation.validateNotEmpty(this.name)) {
                         event.preventDefault();
@@ -163,15 +167,19 @@
                                             event.preventDefault();
                                             //Retrieve the ids of the selected questions
                                             //So we can't remove them from the next question menus
+                                            var thisQuestionId = this.querySelector(".selected-question-id").id;
                                             var selectedQuestionIds = $(".selected-question-id")
                                                                         .get()
-                                                                        .filter(function(elem) { return elem.id; })
+                                                                        .filter(function(elem) { return elem.id !== thisQuestionId && elem.id; })
                                                                         .map(function(elem) { return "#" + elem.id; })
                                                                         .reduce(function(prev, next) { return prev + "," + next; }, "none");
+                                            // Only show the questions that are not selected
                                             $(this).next("ul")
                                                     .fadeToggle()
                                                     .children()
-                                                    .remove(selectedQuestionIds);
+                                                    .css("display", "block")
+                                                    .filter(selectedQuestionIds)
+                                                    .css("display", "none");
                                         }
                                     );
                                 populateQuestions();
@@ -207,7 +215,7 @@
                                     )
                                     .focusout(
                                         function() {
-                                            validateWithRegex(this, [/[^@]@[^@]/g], "Invalid email format")
+                                            validateWithRegex(this, [/[^@]@[^@]/g], "Invalid email format");
                                         }
                                     );
                                 
@@ -307,7 +315,6 @@
                         method: "GET",
                         Accept: "application/json",
                         success: function(questionObj) {
-                            //var questions = JSON.parse(questionObj);
                             var uls = document.querySelectorAll(".security-questions-container ul");
                             uls.forEach(
                                     function(ul) {

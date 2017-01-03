@@ -6,11 +6,11 @@ USE `msi_quickview` ;
 
 CREATE TABLE IF NOT EXISTS `msi_quickview`.`account` (
   `username` VARCHAR(50) NOT NULL,
-  `password` VARCHAR(256) NOT NULL,
+  `password` VARCHAR(100) NOT NULL,
   `user_role` VARCHAR(20) NOT NULL DEFAULT 'regular',
   `status` VARCHAR(10) NOT NULL DEFAULT 'ACTIVE',
   `email` VARCHAR(100) NOT NULL,
-  `salt` VARCHAR(100) NOT NULL,
+  `salt` VARCHAR(50) NOT NULL,
   `host` VARCHAR(50) NOT NULL,
   PRIMARY KEY (`username`),
   UNIQUE INDEX `username_UNIQUE` (`username` ASC))
