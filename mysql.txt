@@ -1,9 +1,6 @@
-
-CREATE DATABASE IF NOT EXISTS `msi_quickview` DEFAULT CHARACTER SET utf8 ;
-
 DROP DATABASE IF EXISTS `msi_quickview`;
 
-CREATE DATABASE IF NOT EXISTS `msi_quickview`;
+CREATE DATABASE IF NOT EXISTS `msi_quickview` DEFAULT CHARACTER SET utf8 ;
 
 USE `msi_quickview` ;
 
@@ -27,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `msi_quickview`.`security_question` (
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC))
 ENGINE = InnoDB
-AUTO_INCREMENT = 6
+AUTO_INCREMENT = 1
 DEFAULT CHARACTER SET = utf8;
 
 CREATE TABLE IF NOT EXISTS `msi_quickview`.`account_security_question` (
@@ -40,13 +37,13 @@ CREATE TABLE IF NOT EXISTS `msi_quickview`.`account_security_question` (
   INDEX `username` (`username` ASC),
   CONSTRAINT `username_fk`
     FOREIGN KEY (`username`)
-    REFERENCES `msi_quickview`.`account` (`username`),
+    REFERENCES `msi_quickview`.`account` (`username`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
 
 INSERT INTO `security_question`(`question`) VALUES
 	('What is your favorite food?'),
-	('What are the last four digits of your vehicle's VIN number?'),
+	("What are the last four digits of your vehicle's VIN number?"),
 	('What was your childhood nickname?'),
 	('What is the last name of the teacher who gave you your first failing grade?'),
 	('Where did you have your first kiss?'),
