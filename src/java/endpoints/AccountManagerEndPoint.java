@@ -44,7 +44,7 @@ public class AccountManagerEndPoint {
         List<AccountSecurityQuestion> questions = data.getJsonArray("questions")
                                                     .getValuesAs(JsonObject.class)
                                                     .stream()
-                                                    .map(object -> new AccountSecurityQuestion((short)object.getInt("id"), object.getString("answer"), newUser))
+                                                    .map(object -> new AccountSecurityQuestion((short)object.getInt("id"), new Sha256Hash(object.getString("answer"), salt, 1024).toBase64(), newUser))
                                                     .collect(Collectors.toList());
         newUser.setAccountSecurityQuestionList(questions);
         accountService.create(newUser);
