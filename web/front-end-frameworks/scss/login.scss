@@ -79,20 +79,6 @@ label {
         font-size: medium;
     }
 }
-.hint-dialog {
-    @extend .alert-dialog;
-    @extend .validation-error-dialog;
-    margin-right: 2em;
-    width: initial;
-    .message-body {
-        font-size: medium;
-        padding-left: 10px;
-        padding-right: 10px;
-        line-height: 1.15em;
-        text-align: justify;
-        color: red;
-    }
-}
 
 .security-questions-container {
     position: relative;
@@ -109,14 +95,15 @@ label {
         border-radius: 3px;
         i {
             margin-top: 5px;
+            float: right;
         }
-    }
 
-    span {
-        line-height: 25px;
-        overflow: hidden;
-        width: 70%;
-        border-right: none;
+        span {
+            line-height: 25px;
+            overflow: hidden;
+            width: 70%;
+            border-right: none;
+        }
     }
 
     ul {

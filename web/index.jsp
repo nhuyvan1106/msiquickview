@@ -1,9 +1,13 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags" %>
+
 <!DOCTYPE html>
 <html>
     <head>
         <title>MSI Quickview</title>
         <meta charset="UTF-8">
+        <base href="Java-Matlab-Integration"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="front-end-frameworks/external/bootstrap-3.3.7-dist/css/bootstrap.min.css"/>
         <link rel="stylesheet" href="front-end-frameworks/external/font-awesome-4.6.3/css/font-awesome.min.css"/>
@@ -18,7 +22,7 @@
     </head>
     <body>
         <div class="overlay" style="display:none;position:fixed;top:0;width:100%;margin:0;height:100%;z-index:20;background:rgba(0,256,256,0.25)"></div>
-        
+
         <div class="wrapper">
             <div class="toggler">
                 <i class="fa fa-arrow-right fa-2x" aria-hidden="true"></i>
@@ -52,8 +56,22 @@
                         <i class="fa fa-chevron-right fa-lg" aria-hidden="true" style="margin-left: 20px"></i>
                     </a>
                 </div>
+                <shiro:hasRole name="ADMIN">
+                    <div id="show-admin-console-container">
+                        <a id="show-admin-console" class="" onclick="$('.admin-console').fadeIn(1500); $('.toggler').click(); return false">
+                            Admin Console
+                        </a>
+                    </div>
+                </shiro:hasRole>
+
+                <div id="show-edit-account-details-container">
+                    <a id="show-edit-account-details" class="" onclick="$('.toggler').click(); return false">
+                        Edit Account Details
+                    </a>
+                </div>
+
                 <div id="logout-container" class="">
-                    <a id="logout" class="" href="/Java-Matlab-Integration/logout">
+                    <a id="logout" class="" href="logout">
                         Logout
                     </a>
                 </div>
@@ -71,10 +89,10 @@
                         <label class="label label-primary">Select Optical Image (Optional)</label>
                         <input accept="image/*" type="file" multiple="multiple" required="required" class="form-control" name="file-name" id="optical-image"/>
                     </div>
-<!--                    <div class="form-group">
-                        <label class="label label-primary">Username</label>
-                        <input type="text" required="required" class="form-control" name="user-dir" id="user-dir"/>
-                    </div>-->
+                    <!--                    <div class="form-group">
+                                            <label class="label label-primary">Username</label>
+                                            <input type="text" required="required" class="form-control" name="user-dir" id="user-dir"/>
+                                        </div>-->
                     <div class="form-group">
                         <label class="label label-primary">DataSet Name</label>
                         <input type="text" required="required" class="form-control" name="dataset-name" id="dataset-name"/>
@@ -103,10 +121,10 @@
                         <label class="label label-primary">Select Files to Generate Images for</label>
                         <input type="file" multiple="multiple" required="required" class="form-control" id="file-names" style="width:275px"/>
                     </div>
-<!--                    <div class="form-group">
-                        <label class="label label-primary">Username</label>
-                        <input type="text" required="required" class="form-control" name="user-dir" id="user-dir"/>
-                    </div>-->
+                    <!--                    <div class="form-group">
+                                            <label class="label label-primary">Username</label>
+                                            <input type="text" required="required" class="form-control" name="user-dir" id="user-dir"/>
+                                        </div>-->
                     <div class="form-group">
                         <label class="label label-primary">DataSet Name</label>
                         <input type="text" required="required" class="form-control" name="dataset-name" id="dataset-name"/>
@@ -127,10 +145,10 @@
                     <i class="fa fa-close fa-2x close-btn"></i>
                 </div>
                 <form name="show-uploaded-files-form" id="show-uploaded-files-form">
-<!--                    <div class="form-group">
-                        <label class="label label-primary">Username</label>
-                        <input type="text" required="required" class="form-control" name="user-dir" id="user-dir"/>
-                    </div>-->
+                    <!--                    <div class="form-group">
+                                            <label class="label label-primary">Username</label>
+                                            <input type="text" required="required" class="form-control" name="user-dir" id="user-dir"/>
+                                        </div>-->
                     <div class="form-group">
                         <label class="label label-primary">DataSet Name</label>
                         <input type="text" placeholder="Leave empty to target all datasets" required="required" class="form-control" name="dataset-name" id="dataset-name"/>
@@ -176,7 +194,7 @@
                         <div>
                             <a class="btn btn-default" id="select-a-tool-toggler">
                                 <span id="none">Select a tool</span>
-                                <i class="fa fa-chevron-down" aria-hidden="true" style="margin-left: 70px;"></i>
+                                <i class="fa fa-chevron-down" aria-hidden="true"></i>
                             </a>
                             <ul class="floating-list">
                                 <li id="warp">Warp</li>
@@ -307,9 +325,9 @@
                 </div>
             </div>
             <footer style="text-align:center;font-size:small;margin-top:20px;position:relative">
-                <a href="" onclick="event.preventDefault()" id="pub">Publications</a>&nbsp;&nbsp;|&nbsp;&nbsp;
-                <a href="" onclick="event.preventDefault()" id="usage-guide">Usage Guide</a>&nbsp;&nbsp;|&nbsp;&nbsp;
-                <a href="" id="contact-us" onclick="event.preventDefault()">Contact Us</a>
+                <a onclick="return false;" id="pub">Publications</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+                <a onclick="return false;" id="usage-guide">Usage Guide</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+                <a onclick="return false;" id="contact-us" >Contact Us</a>
             </footer>
 
             <div class="window my-dialog publications">
@@ -386,7 +404,7 @@
                     <ul>
                         <li>
                             <strong><i style="display:inline-block;width:30px;line-height:30px;text-align:center;border:1px solid gray;border-radius:50%" class="fa fa-arrow-right" aria-hidden="true"></i>
-                            </strong>: Display site menu.
+                            </strong>: Display main menu.
                         </li>
                         <li>
                             <strong>Discovery</strong>: Navigate to Kibana Discovery page.
@@ -401,11 +419,7 @@
                                     <strong>Select Files</strong>: (Required) Open file selection widget. All files selected <em>must</em> either have .cdf or .hdf extension.
                                 </li>
                                 <li>
-                                    <strong>Username</strong>: (Required) Files uploaded will be stored
-                                    inside a central storage location under a folder specific to a particular user
-                                    . This application uses this unique username to generate a separate folder 
-                                    for each unique user<strong>. Please choose a unique name</strong> to identify this location on the server. This name
-                                    will be needed later on to access uploaded files or to upload new files.
+                                    <strong>Select Optical Image</strong>: (Optional) Optionally attach one optical image to this upload for the specified dataset.
                                 </li>
                                 <li>
                                     <strong>Dataset Name</strong>: (Required) Name of the dataset corresponding to the files being uploaded.
@@ -428,7 +442,7 @@
                                     under the folder location specific to the current user.
                                 </li>
                                 <li>
-                                    <strong>Username</strong>: (Required) Current user's folder location.
+                                    <strong>Dataset Name</strong>: (Required) Name of the dataset corresponding to the .cdf or .hdf files selected above.
                                 </li>
                                 <li>
                                     <strong>Additional Notes (Optional)</strong>: This field is optional.
@@ -439,9 +453,6 @@
                             <strong>Show Uploaded Files</strong>: A convenient widget enabling browsing through
                             the folder generated for the current user to view uploaded files.
                             <ul>
-                                <li>
-                                    <strong>Username</strong>: (Required) Folder location designated for the current user.
-                                </li>
                                 <li>
                                     <strong>Dataset Name</strong>: Retrieve uploaded files for a specific dataset
                                     or leave empty to view files for all available datasets.
@@ -542,244 +553,545 @@
                     <button type="button" id="done" class="btn btn-default">Done</button>
                 </form>
             </div>
+            <shiro:hasRole name="ADMIN">
+                <div class="admin-console">
+                    <nav>
+                        <div class="nav-item-container">
+                            <input type="radio" name="nav" value=".account-details-container"/>
+                            <div class="nav-item">
+                                <a onclick="return false" id="manage-users">
+                                    <i class="fa fa-users" aria-hidden="true"></i>
+                                    <span class="nav-item-title">Manage Users</span>
+                                </a>
+
+                            </div>
+                            <div id="user-search">
+                                <input autofocus class="" type="text" id="username" placeholder="Search a specific user or leave blank"/>
+                                <div class='search-by-status form-group app-dropdown-menu'>
+                                    <div>
+                                        <a href='' onclick='return false;' class='btn btn-default'>
+                                            <span class="selected-status" id='ALL'>Filter by status</span>
+                                            <i class='fa fa-chevron-down' aria-hidden='true'></i>
+                                        </a>
+                                        <ul>
+                                            <li id='ALL'>ALL</li>
+                                            <li id='ACTIVE'>ACTIVE</li>
+                                            <li id='DISABLED'>DISABLED</li>
+                                            <li id='LOCKED'>LOCKED</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary" id="search">Load More</button>
+                            </div>
+
+                        </div>
+                        <div class="nav-item-container">
+                            <input type="radio" name="nav" value=".questions-container"/>
+                            <div class="nav-item">
+                                <a onclick="return false" id="manage-security-questions">
+                                    <i class="fa fa-shield" aria-hidden="true"></i>
+                                    <span class="nav-item-title">Manage Security Questions</span>
+                                </a>
+                            </div>
+                            <div id="add-new-question-container">
+                                <button class="btn btn-primary" id="add-new-question">Add a new question</button>
+                            </div>
+                        </div>
+
+                        <div class="nav-item-container">
+                            <div class="nav-item">
+                                <a onclick="$('.admin-console').fadeOut(); return false" id="home">
+                                    <i class="fa fa-home" aria-hidden="true"></i>
+                                    <span class="nav-item-title">Home Page</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="nav-item-container">
+                            <div class="nav-item">
+                                <a href="logout" id="logout">
+                                    <i class="fa fa-power-off" aria-hidden="true"></i>
+                                    <span class="nav-item-title">Log out</span>
+                                </a>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="admin-console-content">
+                        <div>
+                            <!--<div class="total-user"></div>-->
+                            <table class="account-details-container">
+                                <thead>
+                                <th class="no-container">No.</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Security Role</th>
+                                <th>Last Accessed</th>
+                                <th>Available Actions</th>
+                                </thead>
+                                <tbody>
+                                    <tr class="account-details" style="display:none">
+                                        <td class="no"></td>
+                                        <td class="username"></td>
+                                        <td class="email"></td>
+                                        <td class="status"></td>
+                                        <td class="role"></td>
+                                        <td class="last-accessed-time">
+                                            <p></p>
+                                        </td>
+                                        <td class="actions">
+                                            <button class="btn btn-default edit">Edit</button>
+                                            <button class="btn btn-danger delete">Delete</button>
+                                        </td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div>
+                            <table class="questions-container">
+                                <thead>
+                                    <!--<th class="radio-button-container">&nbsp;</th>-->
+                                <th class="no-container">No.</th>
+                                <th>Question</th>
+                                <th>Available Actions</th>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    d3.select(document.head).append("link").attr("rel", "stylesheet").attr("href", "front-end-frameworks/css/admin-console.css");
+                </script>
+                <script src="front-end-frameworks/javascript/admin-console.js"></script>
+            </shiro:hasRole>
         </div>
         <i class="spinner fa fa-spinner fa-pulse" style="position:absolute;left:48%;font-size:8em;line-height:100%;display:none;z-index:25"></i>
         <script src="front-end-frameworks/javascript/main.js"></script>
         <script>
-            
-            (function ($) {
-                /*
-                 * Static behaviors of UI components that are likely never changed should be defined here so 
-                 * they can be set up on page load, any code that talks to a server should be implemented in a separate file.
-                 */
-                var nav = d3.select("nav");
-                nav.selectAll("div").each(function (p, index) {
-                    $(this).css("top", index * 104 + index * 5 + "px");
-                });
-                $(".toggler").click(function (event) {
-                    event.stopImmediatePropagation();
-                    nav.selectAll("div").classed("selected", false);
-                    if (nav.classed("closed")) {
-                        nav.classed("closed", false)
-                                .selectAll("div")
-                                .transition()
-                                .ease(d3.easeBackOut)
-                                .duration(700)
-                                .delay(function (d, index) {
-                                    return index * 90;
-                                })
-                                .style("opacity", 1)
-                                .style("left", "0px");
-                        d3.select(this).transition().duration(500).style("transform", "rotate(180deg)");
-                    } else {
-                        nav.classed("closed", true)
-                                .selectAll("div")
-                                .transition()
-                                .duration(500)
-                                .ease(d3.easeBackIn)
-                                .delay(function (p, index, group) { return (group.length - index) * 90; })
-                                .style("opacity", "0")
-                                .style("left", "-300px");
-                        $(".form-container").fadeOut();
-                        $(".validation-error-dialog").fadeOut(400, function () { $(this).remove(); });
-                        d3.select(this).transition().duration(500).style("transform", "rotate(0deg)");
-                    }
-                });
-                $(document.documentElement).click(function (event) {
-                    if (!$.contains($("nav").get(0), event.target) && $(".form-container").has(event.target).length === 0
-                            && !$(event.target).hasClass("form-container") && !$("nav").hasClass("closed"))
-                        $(".toggler").click();
-                    $(".context-menu-dialog").hide();
-                    $(".floating-list").fadeOut();
-                });
-                $("#dataset-selection-toggler, #color-map-selection-toggler").click(function (event) {
-                    event.stopImmediatePropagation();
-                    $(this).next("ul").fadeToggle();
-                });
-                $("#load-more-toggler, #select-a-tool-toggler").click(function () {
-                    event.stopImmediatePropagation();
-                    if (this.getAttribute("disabled") !== "disabled")
-                        $(this).next("ul").fadeToggle();
-                });
-                $(".color-map-list canvas").each(function() {
-                    var colors = "0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,94,96,98,100,102,104,106,108,110,112,114,116,118,120,122,124,126,128,130,132,134,136,138,140,142,144,146,148,150,152,154,156,158,160,162,164,166,168,170,172,174,176,178,180,182,184,186,188,190,192,194,196,198,200,202,204,206,208,210,212,214,216,218,220,222,224,226,228,230,232,234,236,238,240,242,244,246,248,250,252,255";
-                    var ctx = this.getContext("2d");
-                    var imageData = ctx.getImageData(0,0,128,1);
-                    var data = imageData.data;
-                    var colorMap = [];
-                    switch (this.id) {
-                        case "red":
-                           colors.split(",")
-                                    .forEach(function(color) { colorMap.push(parseInt(color),0,0,255); });
-                        case "green":
-                           colors.split(",")
-                                    .forEach(function(color) { colorMap.push(0,parseInt(color),0,255); });
-                           break;
-                        case "blue":
-                           colors.split(",")
-                                    .forEach(function(color) { colorMap.push(0,0,parseInt(color),255); });
-                           break;
-                    }
-                    for (var i = 0; i < colorMap.length; i++)
-                        data[i] = colorMap[i];
-                    ctx.putImageData(imageData,0,0);
-                }).click(function() { 
-                    $(".selected-color-map").attr("id", this.id).text(this.id); 
-                });
-                
-                $("#tabs-container").draggable({"handle": ".header"}).find(".tab").click(function (event) {
-                    event.stopImmediatePropagation();
-                    var $this = $(this);
-                    if (this.id !== $(".active-tab").attr("id")) {
-                        $(".roi-metadata").fadeOut();
-                        $(".validation-error-dialog").remove();
-                        $(".tab").each(function () {
-                            $(this).removeClass("active-tab");
-                            $("#" + $(this).data("activate")).hide();
+                    (function ($) {
+                        // Initialize the position of each main menu item
+                        var nav = d3.select("nav");
+                        nav.selectAll("div").each(function (p, index) {
+                            $(this).css("top", index * 104 + index * 5 + "px");
                         });
-                        $this.addClass("active-tab");
-                        $("#" + $this.data("activate")).fadeIn()
-                                .find("li")
-                                .each(function (i, e) { $(e).css("background-color", "white");});
-                        $("#add-roi, #upload-optical-image").css("display","none");
-                        if (this.id === "images-tab" || this.id === "optical-tab" || this.id === "rois-roiImages-tab") {
-                            $("#quantity #current").text(this.dataset.currentQuantity)
-                                        .next()
-                                        .text(this.dataset.totalQuantity);
-                            if (document.querySelector("#select-a-tool-toggler span").id !== "none")
-                                document.querySelector("#tools #select-tool-cancel").style.visibility = "visible";
-                            if (document.querySelectorAll(".selected-image").length === 2)
-                                document.querySelector("#tools #select-tool-done").style.visibility = "visible";
-                            if (this.dataset.currentQuantity === this.dataset.totalQuantity)
-                                document.querySelector("#load-more-toggler").setAttribute("disabled", "disabled");
-                            else
-                                document.querySelector("#load-more-toggler").removeAttribute("disabled");
-                            $("#load-more-container, #tools").css("visibility", "visible");
 
-                            if (this.id === "rois-roiImages-tab") {
-                                $("#tools, #tools > a").css("visibility","hidden");
-                                document.querySelector("#add-roi").style.display = "inline-block";
+                        // main meny toggle
+                        $(".toggler").click(function (event) {
+                            event.stopImmediatePropagation();
+                            nav.selectAll("div").classed("selected", false);
+                            if (nav.classed("closed")) {
+                                nav.classed("closed", false)
+                                        .selectAll("div")
+                                        .transition()
+                                        .ease(d3.easeBackOut)
+                                        .duration(700)
+                                        .delay(function (d, index) {
+                                            return index * 90;
+                                        })
+                                        .style("opacity", 1)
+                                        .style("left", "0px");
+                                d3.select(this).transition().duration(500).style("transform", "rotate(180deg)");
+                            } else {
+                                nav.classed("closed", true)
+                                        .selectAll("div")
+                                        .transition()
+                                        .duration(500)
+                                        .ease(d3.easeBackIn)
+                                        .delay(function (p, index, group) {
+                                            return (group.length - index) * 90;
+                                        })
+                                        .style("opacity", "0")
+                                        .style("left", "-300px");
+                                $(".form-container").fadeOut();
+                                $(".validation-error-dialog").fadeOut(400, function () {
+                                    $(this).remove();
+                                });
+                                d3.select(this).transition().duration(500).style("transform", "rotate(0deg)");
                             }
-                            else if (this.id === "optical-tab")
-                                document.querySelector("#upload-optical-image").style.display = "inline-block";
-                        } else
-                            $("#load-more-container, #tools, #select-tool-cancel, #select-tool-done").css("visibility", "hidden");
-                    }
-                });
+                        });
 
-                $(".close-btn").click(function (event) {
-                    event.stopImmediatePropagation();
-                    d3.selectAll(".validation-error-dialog")
-                            .transition()
-                            .style("opacity", 0)
-                            .duration(500)
-                            .remove();
-                    $(this).parent().parent().fadeOut();
-                });
+                        // When the user clicks anywhere else except for the main menu itself and its children
+                        // We close it
+                        $(document.documentElement).click(function (event) {
+                            if (!$.contains($("nav").get(0), event.target) && $(".form-container").has(event.target).length === 0
+                                    && !$(event.target).hasClass("form-container") && !$("nav").hasClass("closed"))
+                                $(".toggler").click();
+                            $(".context-menu-dialog").hide();
+                            $(".floating-list").fadeOut();
+                            $(".app-dropdown-menu ul").fadeOut();
+                        });
 
-                $(".close-tab-btn").click(function (event) {
-                    event.stopImmediatePropagation();
-                    var $parent = $(this.parentElement.parentElement.parentElement);
-                    var offset = $parent.offset();
-                    d3.select($parent.get(0))
-                            .style("transform-origin", "0 100%")
-                            .transition()
-                            .duration(800)
-                            .style("opacity", 0)
-                            .style("transform", "translate(-" + offset.left + "px,"
-                                    + (document.documentElement.clientHeight - 5 - offset.top - $parent.height() + pnnl.utils.getScrollTop())
-                                    + "px) scale(0,0)");
-                });
-                $("#tab-opener").click(function (event) {
-                    event.stopImmediatePropagation();
-                    d3.select("#tabs-container")
-                            .transition()
-                            .duration(800)
-                            .style("transform", "scale(1,1)")
-                            .style("top", pnnl.utils.getScrollTop() + 80 + "px")
-                            .style("opacity", 1);
-                    d3.select(".overlay-window")
-                            .transition()
-                            .duration(800)
-                            .style("transform", "scale(1,1)")
-                            .style("top", pnnl.utils.getScrollTop() + 80 + "px")
-                            .style("opacity", 1);
-                });
+                        $("#show-edit-account-details").click(function () {
+                            var body = "<h1>Security Check</h1>\n\
+                                        <strong style='color:red'>(You must pass all the following security checks prior to updating your account details)</strong>\n\
+                                        <form name='security-check-form' id='security-check-form' data-state='invalid'>\n\
+                                            <div class='form-group'>\n\
+                                                <label for='check-current-password'>Current Password</label>\n\
+                                                <input type='password' class='form-control' id='check-current-password' name='check-current-password'/>\n\
+                                            </div>\n\
+                                            <div class='form-group'>\n\
+                                                <label>Question 1</label>\n\
+                                                <span id='check-question-1'></span>\n\
+                                                <label>&nbsp;</label>\n\
+                                                <input type='text' class='form-control question' id='check-answer-1' name='check-answer-1'/>\n\
+                                            </div>\n\
+                                            <div class='form-group'>\n\
+                                                <label>Question 2</label>\n\
+                                                <span id='check-question-2'></span>\n\
+                                                <label>&nbsp;</label>\n\
+                                                <input type='text' class='form-control question' id='check-answer-2' name='check-answer-2'/>\n\
+                                            </div>\n\
+                                            <div class='form-group'>\n\
+                                                <label>Question 3</label>\n\
+                                                <span id='check-question-3'></span>\n\
+                                                <label>&nbsp;</label>\n\
+                                                <input type='text' class='form-control question' id='check-answer-3' name='check-answer-3' data-type='answer-3'/>\n\
+                                            </div>\n\
+                                            <button type='button' class='btn btn-default' id='security-check'>Check</button>\n\
+                                        </form><hr/>\n\
+                                        <form name='edit-account-details-form' id='edit-account-details-form'>\n\
+                                            <div class='form-group'>\n\
+                                                <label>Username</label>\n\
+                                                <span id='username'></span>\n\
+                                            </div>\n\
+                                            <div class='form-group'>\n\
+                                                <label for='email'>Email</label>\n\
+                                                <input disabled type='email' class='form-control' id='email' name='email'/>\n\
+                                            </div>\n\
+                                            <div class='form-group'>\n\
+                                                <label for='new-password'>New Password</label>\n\
+                                                <input disabled type='password' class='form-control' id='password' name='password'/>\n\
+                                            </div>\n\
+                                            <div class='form-group'>\n\
+                                                <label for='password-repeat'>Re-Enter Password</label>\n\
+                                                <input disabled type='password' class='form-control' id='password-repeat' name='password-repeat'/>\n\
+                                            </div>\n\
+                                            <div class='form-group question'>\n\
+                                                <label>Question 1</label>\n\
+                                                <span id='question-1'></span>\n\
+                                                <label>New Answer</label>\n\
+                                                <input disabled type='text' class='form-control' id='answer-1' name='answer-1'/>\n\
+                                            </div>\n\
+                                            <div class='form-group question'>\n\
+                                                <label>Question 2</label>\n\
+                                                <span id='question-2'></span>\n\
+                                                <label>New Answer</label>\n\
+                                                <input disabled type='text' class='form-control' id='answer-2' name='answer-2'/>\n\
+                                            </div>\n\
+                                            <div class='form-group question'>\n\
+                                                <label>Question 3</label>\n\
+                                                <span id='question-3'></span>\n\
+                                                <label>New Answer</label>\n\
+                                                <input disabled type='text' class='form-control' id='answer-3' name='answer-3' data-type='answer-3'/>\n\
+                                            </div>\n\
+                                        </form>";
+                            pnnl.dialog
+                                    .newDialogBuilder()
+                                    .createAlertDialog("edit-account-details-dialog")
+                                    .setHeaderTitle("Edit Account Details")
+                                    .setCloseActionButton()
+                                    .setPositiveButton("Save", function () {
+                                        if (!pnnl.validation.validateNotEmpty("security-check-form"))
+                                            return;
+                                        var passwordRepeatElem = document.forms["edit-account-details-form"].elements["password-repeat"];
+                                        if (document.forms["edit-account-details-form"].elements["password"].value !== passwordRepeatElem.value) {
+                                            pnnl.dialog.showHintDialog("hint-dialog", "Passwords don't match", passwordRepeatElem);
+                                            return;
+                                        }
+                                        var editedInputElems = {};
+                                        $("#edit-account-details-form input:not(input#password)")
+                                                .filter(function () {
+                                                    return this.dataset.state === "valid" && this.value;
+                                                })
+                                                .each(function () {
+                                                    editedInputElems[this.name] = this.value;
+                                                })
+                                                .filter(function () {
+                                                    return this.name.indexOf("answer") !== -1;
+                                                })
+                                                .each(function () {
+                                                    editedInputElems[this.name] = {
+                                                        primaryKey: +this.dataset.primaryKey,
+                                                        answer: this.value
+                                                    };
+                                                });
+                                        console.log(editedInputElems);
+                                        if (Object.keys(editedInputElems).length > 0) {
+                                            $.ajax("security/accounts/<%= org.apache.shiro.SecurityUtils.getSubject().getPrincipal()%>", {
+                                                contentType: "application/json",
+                                                method: "PUT",
+                                                data: JSON.stringify(editedInputElems),
+                                                success: function () {
+                                                    pnnl.dialog.showToast(null, "Account details updated successfully.<br/>You will be automatically signed out in 5 seconds");
+                                                    setTimeout(function () {
+                                                        document.querySelector("#logout").click();
+                                                    }, 5000);
+                                                },
+                                                error: function () {
+                                                    pnnl.dialog.showToast(new Error("Internal Server Error"), "Something went wrong. Please try again or contact site admin.");
+                                                }
+                                            });
+                                        }
+                                    })
+                                    .setNegativeButton("Cancel")
+                                    .setMessageBody(body)
+                                    .init(function (dialogId) {
+                                        // Get the current account details to populate the form, e.g. username, email, list of questions
+                                        $.ajax("security/accounts/<%= org.apache.shiro.SecurityUtils.getSubject().getPrincipal()%>", {method: "GET", dataType: "json"})
+                                                .then(function (accountObj) {
+                                                    $(dialogId + " #username").text(accountObj.primaryKey);
+                                                    $(dialogId + " #email").val(accountObj.email);
+                                                    accountObj.questions.forEach(function (question, index) {
+                                                        $(dialogId + " #question-" + (index + 1) + ", " + dialogId + " #check-question-" + (index + 1))
+                                                                .text(question.questionContent)
+                                                                .nextAll("input")
+                                                                .attr("data-primary-key", question.primaryKey);
+                                                    });
+                                                })
+                                                .catch(function (xhr) {
+                                                    console.log(xhr, "Something went wrong, please try again");
+                                                });
+                                        pnnl.validation.initValidationForInput("#edit-account-details-form #email", [/[^@]@[^@]/g], "Invalid email format");
+                                        pnnl.validation.initValidationForInput("#edit-account-details-form #password", [/[a-z]+/g, /[A-Z]+/g, /\d+/g, /[_!@#$]+/g, /^.{8,100}$/g], "Valid password must contain a combination of lowercase and uppercase letters, numbers, and one or more of these special characters <strong>!</strong>, <strong>@</strong>, <strong>#</strong>, <strong>$</strong>, <strong>_</strong> and be between 8 to 100 characters long.");
+                                        pnnl.validation.initValidationForInput("#edit-account-details-form #password-repeat", [new RegExp("", "g")], "Passwords don't match", "#edit-account-details-form #password");
+                                        pnnl.validation.initValidationForInput("#edit-account-details-form .question input", [new RegExp("^[a-zA-Z0-9\\s]{4,}$")], "Valid answer must contain letters, numbers, and spaces only and be at least 4 characters long");
 
-                $("#upload-cdf-hdf, #upload-excel, #show-uploaded-files").click(function (event) {
-                    event.stopImmediatePropagation();
-                    $("nav > div").removeClass("selected");
-                    $(this).parent().addClass("selected");
-                    $(".form-container").fadeOut();
-                    $(".validation-error-dialog").fadeOut(400, function () { $(this).remove(); });
-                    $("#" + $(this).data("activate")).fadeIn().css({"left": $(this).width() + 10 + "px", "top": $(this).offset().top - 150 + "px"});
-                });
-                var handle;
-                $(".forward").click(function (event) {
-                    event.stopImmediatePropagation();
-                    handle = setInterval(function () { $(".next").get(0).click(); }, 500);
-                });
+                                        $("#security-check-form #security-check").click(function () {
+                                            if (!pnnl.validation.validateNotEmpty("security-check-form"))
+                                                return;
+                                            var payload = {
+                                                password: $("#security-check-form #check-current-password").val(),
+                                                answers: $("#security-check-form .question").map(function () {
+                                                    return {primaryKey: +this.dataset.primaryKey, answer: this.value};
+                                                }).get()
+                                            };
+                                            $.ajax("security/accounts/<%= org.apache.shiro.SecurityUtils.getSubject().getPrincipal()%>/validation", {method: "POST", contentType: "application/json", data: JSON.stringify(payload)})
+                                                    .then(function () {
+                                                        $("#edit-account-details-form input").prop("disabled", false);
+                                                        pnnl.dialog.showToast(null, "Security checks were successful. You can now edit your account details.");
+                                                        document.forms["security-check-form"].setAttribute("data-state", "valid");
+                                                    })
+                                                    .catch(function () {
+                                                        pnnl.dialog.showToast(new Error("Authentication Failed"), "Some of the answers did not match what we have in our records. Please try again.");
+                                                    });
+                                            console.log(payload);
+                                        });
+                                    })
+                                    .show(true, function (id) {
+                                        $(id).fadeIn().css({
+                                            "top": "2px",
+                                            "left": "calc((100% - " + $(id).width() + "px)/2)"
+                                        });
+                                    });
+                        });
 
-                $(".backward").click(function (event) {
-                    event.stopImmediatePropagation();
-                    handle = setInterval(function () { $(".prev").get(0).click(); }, 500);
-                });
+                        $("#dataset-selection-toggler, #color-map-selection-toggler").click(function (event) {
+                            event.stopImmediatePropagation();
+                            $(this).next("ul").fadeToggle();
+                        });
+                        $("#load-more-toggler, #select-a-tool-toggler").click(function (event) {
+                            event.stopImmediatePropagation();
+                            if (this.getAttribute("disabled") !== "disabled")
+                                $(this).next("ul").fadeToggle();
+                        });
+                        $(".color-map-list canvas").each(function () {
+                            var colors = "0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,94,96,98,100,102,104,106,108,110,112,114,116,118,120,122,124,126,128,130,132,134,136,138,140,142,144,146,148,150,152,154,156,158,160,162,164,166,168,170,172,174,176,178,180,182,184,186,188,190,192,194,196,198,200,202,204,206,208,210,212,214,216,218,220,222,224,226,228,230,232,234,236,238,240,242,244,246,248,250,252,255";
+                            var ctx = this.getContext("2d");
+                            var imageData = ctx.getImageData(0, 0, 128, 1);
+                            var data = imageData.data;
+                            var colorMap = [];
+                            switch (this.id) {
+                                case "red":
+                                    colors.split(",")
+                                            .forEach(function (color) {
+                                                colorMap.push(parseInt(color), 0, 0, 255);
+                                            });
+                                case "green":
+                                    colors.split(",")
+                                            .forEach(function (color) {
+                                                colorMap.push(0, parseInt(color), 0, 255);
+                                            });
+                                    break;
+                                case "blue":
+                                    colors.split(",")
+                                            .forEach(function (color) {
+                                                colorMap.push(0, 0, parseInt(color), 255);
+                                            });
+                                    break;
+                            }
+                            for (var i = 0; i < colorMap.length; i++)
+                                data[i] = colorMap[i];
+                            ctx.putImageData(imageData, 0, 0);
+                        }).click(function () {
+                            $(".selected-color-map").attr("id", this.id).text(this.id);
+                        });
 
-                $(".stop").click(function (event) {
-                    event.stopImmediatePropagation();
-                    clearInterval(handle);
-                });
+                        $("#tabs-container")
+                                .draggable({"handle": ".header"})
+                                .find(".tab")
+                                .click(function (event) {
+                                    event.stopImmediatePropagation();
+                                    var $this = $(this);
+                                    if (this.id !== $(".active-tab").attr("id")) {
+                                        $(".roi-metadata").fadeOut();
+                                        $(".validation-error-dialog").remove();
+                                        $(".tab").each(function () {
+                                            $(this).removeClass("active-tab");
+                                            $("#" + $(this).data("activate")).hide();
+                                        });
+                                        $this.addClass("active-tab");
+                                        $("#" + $this.data("activate"))
+                                                .fadeIn()
+                                                .find("li")
+                                                .css("background-color", "white");
+                                        $("#add-roi, #upload-optical-image").css("display", "none");
+                                        if (this.id === "images-tab" || this.id === "optical-tab" || this.id === "rois-roiImages-tab") {
+                                            $("#quantity #current")
+                                                    .text(this.dataset.currentQuantity)
+                                                    .next()
+                                                    .text(this.dataset.totalQuantity);
+                                            if (document.querySelector("#select-a-tool-toggler span").id !== "none")
+                                                document.querySelector("#tools #select-tool-cancel").style.visibility = "visible";
+                                            if (document.querySelectorAll(".selected-image").length === 2)
+                                                document.querySelector("#tools #select-tool-done").style.visibility = "visible";
+                                            if (this.dataset.currentQuantity === this.dataset.totalQuantity)
+                                                document.querySelector("#load-more-toggler").setAttribute("disabled", "disabled");
+                                            else
+                                                document.querySelector("#load-more-toggler").removeAttribute("disabled");
+                                            $("#load-more-container, #tools").css("visibility", "visible");
 
-                $("footer #pub").click(function (event) {
-                    event.stopImmediatePropagation();
-                    d3.select(".publications")
-                            .transition()
-                            .duration(400)
-                            .style("display", "block")
-                            .style("opacity", "1")
-                            .select(".my-dialog-body")
-                            .style("opacity", "1")
-                            .selectAll("li")
-                            .transition()
-                            .duration(800)
-                            .ease(d3.easeCubicOut)
-                            .delay(function (d, i) { return i * 100; })
-                            .style("left", "0px")
-                            .style("opacity", "1");
-                });
-                $("footer #usage-guide").click(function (event) {
-                    event.stopImmediatePropagation();
-                    $(".how-to").fadeIn();
-                });
-                $("footer #contact-us").click(function (event) {
-                    event.stopImmediatePropagation();
-                    $(".contact-us").fadeIn();
-                });
-                $(".publications .my-dialog-close-btn").click(function (event) {
-                    event.stopImmediatePropagation();
-                    $(".publications").fadeOut(400, function () {
-                        $(this).css("opacity", "0")
-                            .find(".my-dialog-body")
-                            .css("opacity", "0")
-                            .find("li")
-                            .css({"opacity": "0", "left": "500px"});
-                    });
-                });
-                $(".my-dialog-close-btn").click(function() {
-                   $(".my-dialog").fadeOut(); 
-                });
+                                            if (this.id === "rois-roiImages-tab") {
+                                                $("#tools, #tools > a").css("visibility", "hidden");
+                                                document.querySelector("#add-roi").style.display = "inline-block";
+                                            } else if (this.id === "optical-tab")
+                                                document.querySelector("#upload-optical-image").style.display = "inline-block";
+                                        } else
+                                            $("#load-more-container, #tools, #select-tool-cancel, #select-tool-done").css("visibility", "hidden");
+                                    }
+                                });
 
-                $(".warp-window .my-dialog-close-btn").click(function() {
-                   $(".my-dialog").fadeOut();
-                   document.querySelector("#select-a-tool-toggler").removeAttribute("disabled");
-                   document.querySelectorAll(".warp-window canvas").forEach(function(canvas) {
-                      canvas.getContext("2d").clearRect(0,0,320,235); 
-                   });
-                });
-                $("#remove-images").click(function () {
-                    $("#ion-image-container > *").remove();
-                });
-            })(jQuery);
+                        $(".close-btn").click(function (event) {
+                            event.stopImmediatePropagation();
+                            d3.selectAll(".validation-error-dialog")
+                                    .transition()
+                                    .style("opacity", 0)
+                                    .duration(500)
+                                    .remove();
+                            $(this).parent().parent().fadeOut();
+                        });
+
+                        $(".close-tab-btn").click(function (event) {
+                            event.stopImmediatePropagation();
+                            var $parent = $(this.parentElement.parentElement.parentElement);
+                            var offset = $parent.offset();
+                            d3.select($parent.get(0))
+                                    .style("transform-origin", "0 100%")
+                                    .transition()
+                                    .duration(800)
+                                    .style("opacity", 0)
+                                    .style("transform", "translate(-" + offset.left + "px,"
+                                            + (document.documentElement.clientHeight - 5 - offset.top - $parent.height() + pnnl.utils.getScrollTop())
+                                            + "px) scale(0,0)");
+                        });
+                        $("#tab-opener").click(function (event) {
+                            event.stopImmediatePropagation();
+                            d3.select("#tabs-container")
+                                    .transition()
+                                    .duration(800)
+                                    .style("transform", "scale(1,1)")
+                                    .style("top", pnnl.utils.getScrollTop() + 80 + "px")
+                                    .style("opacity", 1);
+                            d3.select(".overlay-window")
+                                    .transition()
+                                    .duration(800)
+                                    .style("transform", "scale(1,1)")
+                                    .style("top", pnnl.utils.getScrollTop() + 80 + "px")
+                                    .style("opacity", 1);
+                        });
+
+                        $("#upload-cdf-hdf, #upload-excel, #show-uploaded-files").click(function (event) {
+                            event.stopImmediatePropagation();
+                            $("nav > div").removeClass("selected");
+                            $(this).parent().addClass("selected");
+                            $(".form-container").fadeOut();
+                            $(".validation-error-dialog").fadeOut(400, function () {
+                                $(this).remove();
+                            });
+                            $("#" + $(this).data("activate")).fadeIn().css({"left": $(this).width() + 10 + "px", "top": $(this).offset().top - 150 + "px"});
+                        });
+                        var handle;
+                        $(".forward").click(function (event) {
+                            event.stopImmediatePropagation();
+                            handle = setInterval(function () {
+                                $(".next").get(0).click();
+                            }, 500);
+                        });
+
+                        $(".backward").click(function (event) {
+                            event.stopImmediatePropagation();
+                            handle = setInterval(function () {
+                                $(".prev").get(0).click();
+                            }, 500);
+                        });
+
+                        $(".stop").click(function (event) {
+                            event.stopImmediatePropagation();
+                            clearInterval(handle);
+                        });
+
+                        $("footer #pub").click(function (event) {
+                            event.stopImmediatePropagation();
+                            d3.select(".publications")
+                                    .transition()
+                                    .duration(400)
+                                    .style("display", "block")
+                                    .style("opacity", "1")
+                                    .select(".my-dialog-body")
+                                    .style("opacity", "1")
+                                    .selectAll("li")
+                                    .transition()
+                                    .duration(800)
+                                    .ease(d3.easeCubicOut)
+                                    .delay(function (d, i) {
+                                        return i * 100;
+                                    })
+                                    .style("left", "0px")
+                                    .style("opacity", "1");
+                        });
+                        $("footer #usage-guide").click(function (event) {
+                            event.stopImmediatePropagation();
+                            $(".how-to").fadeIn();
+                        });
+                        $("footer #contact-us").click(function (event) {
+                            event.stopImmediatePropagation();
+                            $(".contact-us").fadeIn();
+                        });
+                        $(".publications .my-dialog-close-btn").click(function (event) {
+                            event.stopImmediatePropagation();
+                            $(".publications").fadeOut(400, function () {
+                                $(this).css("opacity", "0")
+                                        .find(".my-dialog-body")
+                                        .css("opacity", "0")
+                                        .find("li")
+                                        .css({"opacity": "0", "left": "500px"});
+                            });
+                        });
+                        $(".my-dialog-close-btn").click(function () {
+                            $(".my-dialog").fadeOut();
+                        });
+
+                        $(".warp-window .my-dialog-close-btn").click(function () {
+                            $(".my-dialog").fadeOut();
+                            document.querySelector("#select-a-tool-toggler").removeAttribute("disabled");
+                            document.querySelectorAll(".warp-window canvas").forEach(function (canvas) {
+                                canvas.getContext("2d").clearRect(0, 0, 320, 235);
+                            });
+                        });
+                        $("#remove-images").click(function () {
+                            $("#ion-image-container > *").remove();
+                        });
+                    })(jQuery);
         </script>
     </body>
 </html>

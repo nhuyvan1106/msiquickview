@@ -8,9 +8,9 @@ var pnnl = {
             params[1] = ["folder", folder];
             params[2] = ["opticalImage", opticalImage];
             files.forEach(function (file, i) {
-                params[(3+i)] = ["file-" + i, file];
+                params[(3 + i)] = ["file-" + i, file];
             });
-            pnnl.utils.ajaxPost(url,params,successCallback,errorCallback);
+            pnnl.utils.ajaxPost(url, params, successCallback, errorCallback);
         },
         /*
          * @param {integer} offset Total number of elements read so far in the intensity/mass values arrays
@@ -68,18 +68,26 @@ var pnnl = {
                     .append("g")
                     .attr("transform", "translate(" + config.margin.left + "," + config.margin.top + ")");
             var xScale = d3.scaleLinear()
-                    .domain(d3.extent(data, function (d) { return d.x; }))
+                    .domain(d3.extent(data, function (d) {
+                        return d.x;
+                    }))
                     .range([0, width])
                     .nice();
             var yScale = d3.scaleLinear()
-                    .domain(d3.extent(data, function (d) { return d.y; }))
+                    .domain(d3.extent(data, function (d) {
+                        return d.y;
+                    }))
                     .range([height, 0])
                     .nice();
             var xAxis = d3.axisBottom(xScale);
             var yAxis = d3.axisLeft(yScale);
             var lineData = d3.line()
-                    .x(function (d) { return xScale(d.x); })
-                    .y(function (d) { return yScale(d.y); });
+                    .x(function (d) {
+                        return xScale(d.x);
+                    })
+                    .y(function (d) {
+                        return yScale(d.y);
+                    });
             svg.append("g")
                     .attr("class", "x axis")
                     .attr("transform", "translate(0," + height + ")")
@@ -133,7 +141,9 @@ var pnnl = {
         },
         removeSpinnerOverlay: function () {
             $(".spinner, .overlay").fadeOut();
-            $(".validation-error-dialog, .hint-dialog").fadeOut(400, function () { $(this).remove(); });
+            $(".validation-error-dialog, .hint-dialog").fadeOut(400, function () {
+                $(this).remove();
+            });
         },
         /*
          * @param {number} x The new x coordinate of the indicator line to move to relative to the y axis.
@@ -161,7 +171,7 @@ var pnnl = {
                  * @param {string} id An optional id attribute for this dialog
                  * @returns An empty dialog object
                  */
-                createAlertDialog: function (alertDialogClass, id) {
+                createAlertDialog: function (alertDialogClass, id, addtionClasses) {
                     if (!alertDialogClass)
                         throw new Error("Dialog class name is required.");
                     this.dialogClassName = alertDialogClass;
@@ -169,6 +179,7 @@ var pnnl = {
                     d3.select("body")
                             .append("div")
                             .attr("class", this.dialogClassName)
+                            .classed(addtionClasses, addtionClasses ? true : false)
                             .attr("id", this.dialogId)
                             .append("div")
                             .attr("class", "alert-dialog-header");
@@ -224,10 +235,9 @@ var pnnl = {
                     d3.select("#" + this.dialogId + " " + ".alert-dialog-header")
                             .append("i")
                             .attr("class", faIcon + " " + closeButtonClass)
-                            .on("click", closeAction ? function () {
-                                closeAction.call(this, "#" + dialog.dialogId);
-                                dialog.hide();
-                            } : function () {
+                            .on("click", function () {
+                                if (closeAction)
+                                    closeAction.call(this, "#" + dialog.dialogId);
                                 dialog.hide();
                             });
                     return this;
@@ -271,6 +281,7 @@ var pnnl = {
                             .text(posBtnLabel)
                             .on("click", function () {
                                 posBtnBehavior.call(dialog, id);
+                                dialog.hide();
                             });
                     return this;
                 },
@@ -290,9 +301,11 @@ var pnnl = {
                     btnGroup.append("button")
                             .attr("type", "button")
                             .attr("class", negBtnClassName)
-                            .on("click", negBtnBehavior ? function () {
-                                negBtnBehavior.call(dialog, id);
-                            } : dialog.hide)
+                            .on("click", function () {
+                                if (negBtnBehavior)
+                                    negBtnBehavior.call(dialog, id);
+                                dialog.hide();
+                            })
                             .text(negBtnlabel);
                     return this;
                 },
@@ -302,56 +315,78 @@ var pnnl = {
                     return this;
                 },
                 /*
+                 * @param {boolean} shouldDrawOverlay required. Should the overlay be drawn
                  * @param {function} showBehavior Optional. How to show the dialog
                  * @returns undefined
                  */
-                show: function (showBehavior) {
-                    var id = "#" + this.dialogId + " ";
-                    if (!showBehavior)
-                        showBehavior = function (id) {
-                            $(id).fadeIn().css({"top": 10 + pnnl.utils.getScrollTop() + "px"});
-                            if (d3.event)
-                                d3.event.stopImmediatePropagation();
-                        };
-                    $(id + ".message-body").insertAfter(id + ".alert-dialog-header");
-                    $(id + ".btn-group").insertAfter(id + ".message-body");
-                    showBehavior.call(this, "#" + this.dialogId);
+                show: function (shouldDrawOverlay, showBehavior) {
+                    if (typeof arguments[0] !== "boolean")
+                        throw new Error("shouldDrawOverlay argument must be a boolean");
+                    var id = "#" + this.dialogId;
+                    $(id + " .message-body").insertAfter(id + " .alert-dialog-header");
+                    $(id + " .btn-group").insertAfter(id + " .message-body");
+                    if (shouldDrawOverlay)
+                        pnnl.draw.drawOverlay();
+                    if (showBehavior)
+                        showBehavior.call(this, id);
+                    else
+                        $(id).css({
+                            "top": "calc(" + (screen.availHeight - $(id).height()) + "/2)",
+                            "left": "calc((100% - " + $(id).width() + "px)/2)"
+                        }).fadeIn();
                 },
                 /*
                  * @param {function} hideBehavior Optional. How to hide the dialog
                  * @returns undefined
                  */
                 hide: function (hideBehavior) {
+                    pnnl.draw.removeSpinnerOverlay();
                     var id = "#" + this.dialogId;
-                    if (!hideBehavior)
-                        $(id).fadeOut();
-                    else
+                    $(id).fadeOut();
+                    if (hideBehavior)
                         hideBehavior.call(this, id);
-                    d3.event.stopImmediatePropagation();
                     setTimeout(function () {
-                     d3.select(id).remove();
-                     }, 500);
+                        d3.select(id).remove();
+                    }, 500);
                 },
-                init: function(func) {
+                init: function (func) {
                     func("#" + this.dialogId);
                     return this;
                 }
             };
         },
-        showHintDialog: function(dialogClass, body, inputElem) {
-            var inputElemRect = inputElem.getBoundingClientRect();
+        showHintDialog: function (dialogClass, body, inputElem, addtionClasses) {
+            if (inputElem.dataset.state !== "valid" && !document.querySelector("#" + dialogClass + "-" + inputElem.id)) {
+                var inputElemRect = inputElem.getBoundingClientRect();
+                pnnl.dialog.newDialogBuilder()
+                        .createAlertDialog(dialogClass, dialogClass + "-" + inputElem.id, addtionClasses)
+                        .setMessageBody(body)
+                        .removeHeader()
+                        .show(false, function (id) {
+                            var $dialog = $(id);
+                            $dialog.fadeIn()
+                                    .css({
+                                        "left": (inputElemRect.right + 30) + "px",
+                                        "top": (inputElemRect.top - ($dialog.height() > inputElemRect.height ? inputElemRect.height/2 : 0) + pnnl.utils.getScrollTop()) + "px"
+                                    });
+                        });
+            }
+        },
+        showToast: function (error, message) {
+            $(".notification-dialog").remove();
             pnnl.dialog.newDialogBuilder()
-                    .createAlertDialog(dialogClass, dialogClass + "-" + inputElem.id)
-                    .setMessageBody(body)
+                    .createAlertDialog("notification-dialog")
+                    .setMessageBody(message)
                     .removeHeader()
-                    .show(function(id) {
-                        var $dialog = $(id);
-                        $dialog.fadeIn()
-                                .css({
-                                    "left": (inputElemRect.right + 30) + "px",
-                                    "top": inputElemRect.top - ($dialog.height() - inputElemRect.height)/2 - 7.5 + pnnl.utils.getScrollTop() + "px"
+                    .show(false, function (id) {
+                        $(id).fadeIn()
+                                .delay(7000)
+                                .fadeOut(400, function () {
+                                    $(id).remove();
                                 });
-            });
+                    });
+            if (error)
+                $(".notification-dialog").css("background-color", "red");
         }
     },
     /*********** FORM INPUT VALIDATION MODULE ***********/
@@ -364,35 +399,68 @@ var pnnl = {
             var excludes = arguments.length > 1 ? Array.prototype.slice.call(arguments, 1) : null;
             if (document.forms[formName].length === 0)
                 throw new Error("Form with name \"" + formName + "\" does not exist.");
-            var emptyInputElements = Array.prototype.filter.call(document.forms[formName].elements, function (elem) {
-                return (elem.tagName === "INPUT" || elem.tagName === "SELECT" || elem.tagName === "TEXTAREA") && !elem.value;
-            }).filter(function(elem) {
-                return excludes ? !excludes.some(function(e) { return e === elem.id; }) : true;
-            });
+            var emptyInputElements = Array.prototype.filter
+                    .call(document.forms[formName].elements, function (elem) {
+                        return (elem.tagName === "INPUT" || elem.tagName === "SELECT" || elem.tagName === "TEXTAREA") && !elem.value;
+                    })
+                    .filter(function (elem) {
+                        return excludes ? !excludes.some(function (e) {
+                            return e === elem.id;
+                        }) : true;
+                    });
             if (emptyInputElements.length !== 0) {
-                emptyInputElements.forEach(function (elem, i) {
-                    if (d3.select("#validation-error-dialog-" + i).empty()) {
-                        var dialog = pnnl.dialog.newDialogBuilder()
-                                .createAlertDialog("validation-error-dialog", "validation-error-dialog-" + i);
-                        $("." + dialog.dialogClassName).addClass("alert-dialog");
-                        dialog.setMessageBody("<span style='color:red;'>This field can\'t be empty</span > ")
-                                .show(function (dialogClass) {
-                                    $(dialogClass).fadeIn()
-                                            .css({"left": (elem.getBoundingClientRect().right + 30) + "px", "top": elem.getBoundingClientRect().top + pnnl.utils.getScrollTop() + "px"});
-                                });
-                        d3.select(elem)
-                                .on("change keyup", function () {
-                                    d3.selectAll("." + dialog.dialogClassName)
-                                            .transition()
-                                            .style("opacity", 0)
-                                            .duration(500)
-                                            .remove();
-                                });
-                    }
+                emptyInputElements.forEach(function (elem) {
+                    pnnl.dialog.showHintDialog("validation-error-dialog", "<span style='color:red;'>This field can\'t be empty</span>", elem, "alert-dialog");
+                    elem.onchange = elem.onkeyup = function () {
+                        d3.selectAll(".validation-error-dialog")
+                                .transition()
+                                .style("opacity", 0)
+                                .duration(500)
+                                .remove();
+                    };
                 });
                 return false;
             } else
                 return true;
+        },
+        initValidationForInput: function (inputElemSelector, regexes, errorMsg, passwordElemSelector) {
+            return $(inputElemSelector)
+                    .attr("data-state", "invalid")
+                    .focusin(function () {
+                        pnnl.dialog.showHintDialog("hint-dialog", "<span>" + errorMsg + "</span>", this);
+                    })
+                    .focusout(function () {
+                        if (this.value) {
+                            var inputElem = this;
+                            var validationResult = regexes.every(function (regex) {
+                                if (passwordElemSelector) {
+                                    // Because we initialize the validation on startup so the user has not entered the password at this point
+                                    // so we use this passwordElemSelector flag to figure out if this input element is the password repeat one because its regex
+                                    // is based off of the value of the entered password which is gonna be empty when this function is called.
+                                    var enteredPassword = document.querySelector(passwordElemSelector).value;
+                                    enteredPassword = enteredPassword.replace(/[$]/g, function (matched) {
+                                        // If enteredPassword contains $, it needs to be escaped
+                                        return "\\" + matched;
+                                    });
+                                    return new RegExp("^" + enteredPassword + "$", regex.flags).test(inputElem.value);
+                                }
+
+                                // If the user decides to change their input, then regex will still has its old lastIndex whatever that might be
+                                // So we just copy its source and flag so we can basically reset its lastIndex property because lastIndex is readonly
+                                return new RegExp(regex.source, regex.flags).test(inputElem.value);
+                            });
+                            if (validationResult) {
+                                $("#hint-dialog-" + inputElem.id).remove();
+                                inputElem.setAttribute("data-state", "valid");
+                                inputElem.style.border = "1px solid #ccc";
+                            } else {
+                                inputElem.setAttribute("data-state", "invalid");
+                                inputElem.style.border = "2px solid red";
+                                pnnl.dialog.showHintDialog("hint-dialog", "<span>" + errorMsg + "</span>", inputElem);
+                            }
+                        } else
+                            $("#hint-dialog-" + this.id).remove();
+                    });
         }
     },
     utils: {
@@ -401,11 +469,11 @@ var pnnl = {
         },
         ajaxPost: function (url, params, successCallback, errorCallback, cleanupCallback) {
             var formData = new FormData();
-            params.forEach(function(param) {
-               formData.append(param[0], param[1]); 
+            params.forEach(function (param) {
+                formData.append(param[0], param[1]);
             });
             var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function() {
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     if (cleanupCallback)
                         cleanupCallback();

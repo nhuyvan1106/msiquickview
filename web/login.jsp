@@ -43,8 +43,11 @@
             </form>
         </div>
         <script>
-            (function () {
-                $(document.documentElement).click(function(event) {
+            (function ($) {
+                // TODO Remove
+                $(".login-form #username").val(localStorage.getItem("username"));
+                $(".login-form #password").val(localStorage.getItem("password"));
+                $(document.documentElement).click(function (event) {
                     if (event.target.className.indexOf("selected-question-id") === -1)
                         $(".security-questions-container ul").fadeOut();
                 });
@@ -53,32 +56,34 @@
                         event.preventDefault();
                         return;
                     }
+                    localStorage.setItem("username", $(".login-form #username").val());
+                    localStorage.setItem("password", $(".login-form #password").val());
                 });
                 animateLabels(".login-form");
-                $("#create-new-account").click(function() {
+                $("#create-new-account").click(function () {
                     pnnl.draw.removeSpinnerOverlay();
-                    var body = "<form name='new-account-form' action='' class='new-account-form'>" + 
-                                    "<div class='form-group'>" + 
-                                        "<span><i class='fa fa-user fa-lg' aria-hidden='true'></i></span>" + 
-                                        "<label for='new-account-username'>Username</label>" +
-                                        "<input type='text' class='form-control' id='new-account-username' name='new-account-username'/>" + 
-                                    "</div>" +
-                                    "<div class='form-group'>" + 
-                                        "<span><i class='fa fa-envelope fa-lg' aria-hidden='true'></i></span>" + 
-                                        "<label for='new-account-email'>Email</label>" +
-                                        "<input type='email' class='form-control' id='new-account-email' name='new-account-email'/>" + 
-                                    "</div>" +
-                                    "<div class='form-group'>" + 
-                                        "<span><i class='fa fa-lock fa-lg' aria-hidden='true'></i></span>" + 
-                                        "<label for='new-account-password'>Password</label>" + 
-                                        "<input type='password' class='form-control' id='new-account-password' name='new-account-password'/>" + 
-                                    "</div>" +
-                                    "<div class='form-group'>" + 
-                                        "<span><i class='fa fa-repeat fa-lg' aria-hidden='true'></i></span>" + 
-                                        "<label for='repeat-password'>Re-enter Password</label>" + 
-                                        "<input type='password' class='form-control' id='repeat-password' name='repeat-password'/>" + 
-                                    "</div>" +
-                                    "<div class='security-questions-container' id='question-1'>\n\
+                    var body = "<form name='new-account-form' action='' class='new-account-form'>" +
+                            "<div class='form-group'>" +
+                            "<span><i class='fa fa-user fa-lg' aria-hidden='true'></i></span>" +
+                            "<label for='new-account-username'>Username</label>" +
+                            "<input type='text' class='form-control' id='new-account-username' name='new-account-username'/>" +
+                            "</div>" +
+                            "<div class='form-group'>" +
+                            "<span><i class='fa fa-envelope fa-lg' aria-hidden='true'></i></span>" +
+                            "<label for='new-account-email'>Email</label>" +
+                            "<input type='email' class='form-control' id='new-account-email' name='new-account-email'/>" +
+                            "</div>" +
+                            "<div class='form-group'>" +
+                            "<span><i class='fa fa-lock fa-lg' aria-hidden='true'></i></span>" +
+                            "<label for='new-account-password'>Password</label>" +
+                            "<input type='password' class='form-control' id='new-account-password' name='new-account-password'/>" +
+                            "</div>" +
+                            "<div class='form-group'>" +
+                            "<span><i class='fa fa-repeat fa-lg' aria-hidden='true'></i></span>" +
+                            "<label for='repeat-password'>Re-enter Password</label>" +
+                            "<input type='password' class='form-control' id='repeat-password' name='repeat-password'/>" +
+                            "</div>" +
+                            "<div class='security-questions-container' id='question-1'>\n\
                                         <div>\n\
                                             <a href='' onclick='return false;' class='btn btn-default'>\n\
                                                 <span class='selected-question-id'>Security question 1</span>\n\
@@ -88,7 +93,7 @@
                                         </div>\n\
                                         <input type='text' id='answer-1' class='form-control'/>\n\
                                     </div>" +
-                                    "<div class='security-questions-container' id='question-2'>\n\
+                            "<div class='security-questions-container' id='question-2'>\n\
                                         <div>\n\
                                             <a href='' onclick='return false;' class='btn btn-default'>\n\
                                                 <span class='selected-question-id'>Security question 2</span>\n\
@@ -98,7 +103,7 @@
                                         </div>\n\
                                         <input type='text' id='answer-2' class='form-control'/>\n\
                                     </div>" +
-                                    "<div class='security-questions-container' id='question-3'>\n\
+                            "<div class='security-questions-container' id='question-3'>\n\
                                         <div>\n\
                                             <a href='' onclick='return false;' class='btn btn-default'>\n\
                                                 <span class='selected-question-id'>Security question 3</span>\n\
@@ -108,71 +113,72 @@
                                         </div>\n\
                                         <input type='text' id='answer-3' class='form-control'/>\n\
                                     </div>" +
-                                "</form><p style='color:red'><strong></strong></p>";
+                            "</form><p style='color:red'><strong></strong></p>";
                     pnnl.dialog
                             .newDialogBuilder()
                             .createAlertDialog("new-account-form-dialog")
                             .setHeaderTitle("Create a new account")
-                            .setCloseActionButton("fa fa-lg fa-close", pnnl.draw.removeSpinnerOverlay)
-                            .setPositiveButton("Submit", function(thisDialogId) {
+                            .setCloseActionButton()
+                            .setPositiveButton("Submit", function (thisDialogId) {
                                 if (!pnnl.validation.validateNotEmpty("new-account-form"))
                                     return;
                                 else {
                                     var $newAccountForm = $(".new-account-form");
                                     var isFormValid = $newAccountForm.find("input")
-                                                        .filter(
-                                                            function(index, input) {
-                                                                return input.dataset.state === "valid"; 
-                                                            }
-                                                        )
-                                                        .length === $newAccountForm.find("input").length;
+                                            .filter(function () {
+                                                return this.dataset.state === "valid";
+                                            })
+                                            .length === $newAccountForm.find("input").length;
                                     if (isFormValid) {
-                                        $.ajax("/Java-Matlab-Integration/security/accounts/registration",{
+                                        $.ajax("security/accounts/registration", {
                                             method: "POST",
                                             contentType: "application/json",
                                             data: JSON.stringify({
-                                                username:$newAccountForm.find("#new-account-username").val(),
-                                                password:$newAccountForm.find("#repeat-password").val(),
-                                                email:$newAccountForm.find("#new-account-email").val(),
+                                                username: $newAccountForm.find("#new-account-username").val(),
+                                                password: $newAccountForm.find("#repeat-password").val(),
+                                                email: $newAccountForm.find("#new-account-email").val(),
                                                 questions: [
-                                                    { id:+$newAccountForm.find("#question-1 .selected-question-id").attr("id"),answer:$newAccountForm.find("#answer-1").val() },
-                                                    { id:+$newAccountForm.find("#question-2 .selected-question-id").attr("id"),answer:$newAccountForm.find("#answer-2").val() },
-                                                    { id:+$newAccountForm.find("#question-3 .selected-question-id").attr("id"),answer:$newAccountForm.find("#answer-3").val() }
+                                                    {id: +$newAccountForm.find("#question-1 .selected-question-id").attr("id"), answer: $newAccountForm.find("#answer-1").val()},
+                                                    {id: +$newAccountForm.find("#question-2 .selected-question-id").attr("id"), answer: $newAccountForm.find("#answer-2").val()},
+                                                    {id: +$newAccountForm.find("#question-3 .selected-question-id").attr("id"), answer: $newAccountForm.find("#answer-3").val()}
                                                 ]
                                             }),
-                                            error: function() {
+                                            error: function () {
                                                 $(thisDialogId + " p strong").text("Something went wrong. Please try again.");
                                                 $("input[type='password']").val("").focusout();
                                                 setTimeout(
-                                                        function() {
+                                                        function () {
                                                             $(thisDialogId + " p strong").text("");
                                                         }
                                                 , 5000);
                                             },
-                                            success: function() {
+                                            success: function () {
                                                 window.open("/Java-Matlab-Integration", "_self");
                                             }
                                         });
                                     }
                                 }
                             })
-                            .setNegativeButton("Cancel", function() {
-                                $(".alert-dialog-header-close-action-icon").click();
-                            })
+                            .setNegativeButton("Cancel")
                             .setMessageBody(body)
-                            .init(function() {
+                            .init(function () {
                                 $(".security-questions-container > div > a")
-                                    .click(
-                                        function(event) {
+                                        .click(function (event) {
                                             event.preventDefault();
                                             //Retrieve the ids of the selected questions
                                             //So we can't remove them from the next question menus
                                             var thisQuestionId = this.querySelector(".selected-question-id").id;
                                             var selectedQuestionIds = $(".selected-question-id")
-                                                                        .get()
-                                                                        .filter(function(elem) { return elem.id !== thisQuestionId && elem.id; })
-                                                                        .map(function(elem) { return "#" + elem.id; })
-                                                                        .reduce(function(prev, next) { return prev + "," + next; }, "none");
+                                                    .get()
+                                                    .filter(function (elem) {
+                                                        return elem.id !== thisQuestionId && elem.id;
+                                                    })
+                                                    .map(function (elem) {
+                                                        return "#" + elem.id;
+                                                    })
+                                                    .reduce(function (prev, next) {
+                                                        return prev + "," + next;
+                                                    }, "none");
                                             // Only show the questions that are not selected
                                             $(this).next("ul")
                                                     .fadeToggle()
@@ -180,169 +186,99 @@
                                                     .css("display", "block")
                                                     .filter(selectedQuestionIds)
                                                     .css("display", "none");
-                                        }
-                                    );
+                                        });
                                 populateQuestions();
                                 animateLabels(".new-account-form");
-                                $(".new-account-form #new-account-username")
-                                    .focusin(
-                                        function() {
-                                            showInputEntryHint(this, "Username may contain lowercase and uppercase letters, numbers, periods and underscores. Maximum 50 characters long");
-                                        }
-                                    )
-                                    .focusout(
-                                        function() {
-                                            var userNameElem = this;
-                                            if (validateWithRegex(userNameElem, [/^[\w\d.]{1,50}$/g], "Username may contain lowercase and uppercase letters, numbers, periods and underscores. Maximum 50 characters long"))
-                                                $.ajax("/Java-Matlab-Integration/security/accounts/exists", {
+                                pnnl.validation
+                                        .initValidationForInput(".new-account-form #new-account-username", [/^[\w\d.]{1,50}$/g], "Username may contain lowercase and uppercase letters, numbers, periods and underscores. Maximum 50 characters long")
+                                        .focusout(function () {
+                                            var usernameInputElem = this;
+                                            if (usernameInputElem.dataset.state === "valid")
+                                                $.ajax("security/accounts/exists", {
                                                     method: "POST",
-                                                    data: {username:userNameElem.value},
-                                                    error: function(xhr, cause, ex) {
-                                                        pnnl.dialog.showHintDialog("hint-dialog", "<span>An account with username <strong>"+userNameElem.value+"</strong> already exists</span>", userNameElem);
-                                                        validationResult(ex, userNameElem);
+                                                    data: {username: usernameInputElem.value},
+                                                    error: function () {
+                                                        usernameInputElem.setAttribute("data-state", "invalid");
+                                                        usernameInputElem.style.border = "2px solid red";
+                                                        pnnl.dialog.showHintDialog("hint-dialog", "<span>An account with username <strong>" + usernameInputElem.value + "</strong> already exists</span>", usernameInputElem);
                                                     },
-                                                    success: function() {
-                                                        validationResult(null, userNameElem);
+                                                    success: function () {
+                                                        usernameInputElem.style.border = "1px solid #ccc";
+                                                        usernameInputElem.setAttribute("data-state", "valid");
                                                     }
                                                 });
-                                        }
-                                    );
-                                $(".new-account-form #new-account-email")
-                                    .focusin(
-                                        function() {
-                                            showInputEntryHint(this, "Invalid email format");
-                                        }
-                                    )
-                                    .focusout(
-                                        function() {
-                                            validateWithRegex(this, [/[^@]@[^@]/g], "Invalid email format");
-                                        }
-                                    );
-                                
-                                $(".new-account-form #new-account-password")
-                                    .focusin(
-                                        function() {
-                                            showInputEntryHint(this, "Valid password must contain a combination of lowercase and uppercase letters, numbers, and one or more of these special characters <strong>!</strong>, <strong>@</strong>, <strong>#</strong>, <strong>$</strong>, <strong>_</strong> and be between 8 to 100 characters long.");
-                                        }
-                                    )
-                                    .focusout(
-                                        function() {
-                                            validateWithRegex(this, [/[a-z]+/g, /[A-Z]+/g, /\d+/g, /[_!@#$]+/g, /^.{8,100}$/g], "Valid password must contain a combination of lowercase and uppercase letters, numbers, and one or more of these special characters <strong>!</strong>, <strong>@</strong>, <strong>#</strong>, <strong>$</strong>, <strong>_</strong> and be between 8 to 100 characters long.");
-                                        }
-                                    );
-                            
-                                $(".new-account-form #repeat-password")
-                                    .focusout(
-                                        function() {
-                                            validateWithRegex(this, [new RegExp("^" + $(".new-account-form #new-account-password").val() + "$")], "Passwords don't match");
-                                        }
-                                    );
-                                
-                                $(".security-questions-container input")
-                                    .focusin(
-                                        function() {
-                                            showInputEntryHint(this, "Valid answer must contain letters, numbers, and spaces only and be at least 4 characters long");
-                                        }
-                                    )
-                                    .focusout(
-                                        function() {
-                                            validateWithRegex(this, [new RegExp("^[a-zA-Z0-9\\s]{4,}$")], "Valid answer must contain letters, numbers, and spaces only and be at least 4 characters long");
-                                        }
-                                    );
+                                        });
+                                pnnl.validation.initValidationForInput(".new-account-form #new-account-email", [/[^@]@[^@]/g], "Invalid email format");
+                                pnnl.validation.initValidationForInput(".new-account-form #new-account-password", [/[a-z]+/g, /[A-Z]+/g, /\d+/g, /[_!@#$]+/g, /^.{8,100}$/g], "Valid password must contain a combination of lowercase and uppercase letters, numbers, and one or more of these special characters <strong>!</strong>, <strong>@</strong>, <strong>#</strong>, <strong>$</strong>, <strong>_</strong> and be between 8 to 100 characters long.");
+                                pnnl.validation.initValidationForInput(".new-account-form #repeat-password", [new RegExp("", "g")], "Passwords don't match", ".new-account-form #new-account-password");
+                                pnnl.validation.initValidationForInput(".security-questions-container input", [new RegExp("^[a-zA-Z0-9\\s]{4,}$")], "Valid answer must contain letters, numbers, and spaces only and be at least 4 characters long");
                             })
-                            .show(
-                                function(id) {
-                                    pnnl.draw.drawOverlay();
-                                    $(id).fadeIn().css("top", "2%");
-                                }
-                            );
+                            .show(true, function (id) {
+                                $(id).fadeIn().css("top", "2%");
+                            });
                 });
-                //Display a pop up with a hint when user's entry does not match the validation rule
-                function showInputEntryHint(inputElem, hintMsg) {
-                    if (inputElem.dataset.state !== "valid" && document.querySelector("#hint-dialog-" + inputElem.id) === null)
-                        pnnl.dialog.showHintDialog("hint-dialog", "<span>" + hintMsg + "</span>", inputElem);
-                }
-                //Initialize the animation behaviour on each input field that has a label immediately preceeding it
                 function animateLabels(formClass) {
                     $(formClass + " input")
-                        .focusin(
-                            function() {
+                            .focusin(function () {
                                 d3.select($(this).prev("label").get(0))
                                         .transition()
                                         .duration(400)
                                         .style("margin-top", "-30px")
                                         .style("color", "black");
-                            }
-                        )
-                        .focusout(
-                            function() {
+                            })
+                            .focusout(function () {
                                 if (!this.value)
-                                    d3.select($(this).prev("label").get(0))
-                                        .transition()
-                                        .duration(400)
-                                        .style("color","rgb(205,205,205)")
-                                        .style("margin-top", "0px");
-                            }
-                        );
-                }
-                function validateWithRegex(inputElem, regexes, errorMsg) {
-                    var result = regexes.every(function(regex) { return regex.test(inputElem.value); });
-                    if (result)
-                        validationResult(null, inputElem);
-                    else {
-                        validationResult(new Error("Failed Validation"), inputElem);
-                        showInputEntryHint(inputElem, errorMsg);
-                    }
-                    return result;
-                }
-                
-                // Show or remove red error indicator border
-                function validationResult(ex, inputElem) {
-                    if (ex) {
-                        inputElem.removeAttribute("data-state");
-                        inputElem.style.border = "2px solid red";
-                    }
-                    else {
-                        $("#hint-dialog-" + inputElem.id).remove();
-                        inputElem.setAttribute("data-state", "valid");
-                        inputElem.style.border = "2px solid rgba(200, 200, 200, 0.5)";
-                    }
+                                    d3.select($(this)
+                                            .prev("label")
+                                            .get(0))
+                                            .transition()
+                                            .duration(400)
+                                            .style("color", "rgb(205,205,205)")
+                                            .style("margin-top", "0px");
+                            })
+                            .filter(function () {
+                                return this.value;
+                            })
+                            .prev("label")
+                            .css("color", "black")
+                            .css("margin-top", "-30px");
                 }
                 // Call to populate each security questions selection menu when new account
                 // creation form is opened by making an ajax call to the back end.
                 function populateQuestions() {
-                    $.ajax("/Java-Matlab-Integration/security/questions", {
+                    $.ajax("security/admin/questions", {
                         method: "GET",
                         Accept: "application/json",
-                        success: function(questionObj) {
+                        success: function (data) {
                             var uls = document.querySelectorAll(".security-questions-container ul");
-                            uls.forEach(
-                                    function(ul) {
-                                        var joined = d3.select(ul)
-                                                .selectAll("li")
-                                                .data(Object.keys(questionObj))
-                                                .attr("id", function(key) { return key; })
-                                                .text(function(key) { return questionObj[key]; });
-                                        joined.enter()
-                                                .append("li")
-                                                .attr("id", function(key) { return key; })
-                                                .text(function(key) { return questionObj[key]; })
-                                                .on("click", function(key) {
-                                                    $(this).parents(".security-questions-container")
-                                                        .find("div")
-                                                        .attr("title", this.innerHTML)
-                                                        .find(".selected-question-id")
-                                                        .attr("id", key)
-                                                        .text(this.innerHTML);
-                                                    $(this).parent().fadeOut();
-                                                });
-                                    }
-                            );
+                            uls.forEach(function (ul) {
+                                var joined = d3.select(ul)
+                                        .selectAll("li")
+                                        .data(data.payload);
+
+                                joined.enter()
+                                        .append("li")
+                                        .attr("id", function (questionObj) {
+                                            return questionObj.primaryKey;
+                                        })
+                                        .text(function (questionObj) {
+                                            return questionObj.questionContent;
+                                        })
+                                        .on("click", function (questionObj) {
+                                            $(this).parents(".security-questions-container")
+                                                    .find("div")
+                                                    .attr("title", this.innerHTML)
+                                                    .find(".selected-question-id")
+                                                    .attr("id", questionObj.primaryKey)
+                                                    .text(this.innerHTML);
+                                            $(this).parent().fadeOut();
+                                        });
+                            });
                         },
                         error: console.error
                     });
                 }
-            })();
+            })(jQuery);
         </script>
     </body>
 </html>

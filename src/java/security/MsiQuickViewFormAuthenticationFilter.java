@@ -20,8 +20,6 @@ public class MsiQuickViewFormAuthenticationFilter extends FormAuthenticationFilt
     
     @Override
     protected boolean onLoginSuccess(AuthenticationToken token, Subject subject, ServletRequest request, ServletResponse response) throws Exception {
-        //TODO: If subject has role admin, redirect to admin console
-        // TODO: Implement admin console UI
         ((HttpServletResponse)response).sendRedirect("/Java-Matlab-Integration");
         return true;
     }

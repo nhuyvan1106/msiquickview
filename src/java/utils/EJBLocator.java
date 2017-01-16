@@ -16,7 +16,7 @@ public class EJBLocator {
         }
     }
     public enum Type {
-        JPAAccountService, JPASecurityQuestionService
+        JPAAccountService, JPASecurityQuestionService, JPAQuestionAnswerService
     }
     public static <T> T getBean(Type type) throws NamingException {
         switch (type) {
@@ -24,6 +24,8 @@ public class EJBLocator {
                 return (T)context.lookup(lookup + "JPAAccountService");
             case JPASecurityQuestionService:
                 return (T)context.lookup(lookup + "JPASecurityQuestionService");
+            case JPAQuestionAnswerService:
+                return (T)context.lookup(lookup + "JPAQuestionAnswerService");
             default:
                 return null;
         }

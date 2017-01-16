@@ -1,0 +1,255 @@
+@import 'main';
+@import 'login';
+
+@keyframes background {
+    to { background-color: lightblue; }
+}
+.admin-console {
+    /*display: none;*/
+    top: 0;
+    background-color: #F0EDEE;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    z-index:10;
+    nav, .admin-console-content {
+        height: 100%;
+    }
+
+    nav {
+        width: 30%;
+        max-width: 32%;
+        position: relative;
+        overflow: hidden;
+        left: 0;
+        top: 0;
+        background-color: #19323C;
+    }
+    .nav-item-container {
+        width: 100%;
+        line-height: 3em;
+        position: initial;
+        border: initial;
+        border-radius: initial;
+        box-shadow: initial;
+        background-color: #19323C;
+        left: initial;
+        opacity: 1;
+        text-align: left;
+
+        input[type="radio"] {
+            width: 100%;
+            display: block;
+            position: absolute;
+            height: 3em;
+            opacity: 0;
+            cursor: pointer;
+            &:hover + div.nav-item {
+                background-color: #545454;
+                a {
+                    color: #90D7FF;
+                }
+                i {
+                    color: #E1F2FE;
+                }
+            }
+            &:checked {
+                & + div.nav-item {
+                    background-color: #545454;
+                    a {
+                        color: #90D7FF;
+                    }
+                    i {
+                        color: #E1F2FE;
+                    }
+                }
+                & ~ div#user-search, & ~ div#add-new-question-container {
+                    display: block;
+                }
+            }
+        }
+    }
+
+    div#user-search, div#add-new-question-container {
+        display: none;
+        width: 100%;
+        line-height: initial;
+        input {
+            line-height: 35px;
+            border-radius: 2px;
+            padding-left: 5px;
+            width: 90%;
+            font-size: large;
+        }
+        button {
+            margin-top: 2px;
+        }
+    }
+
+    .search-by-status {
+        @extend .pnl-dropdown-menu-bottom;
+        margin-bottom: initial;
+        flex-grow: 0;
+
+        & > div > a {
+            margin-bottom: 2px;
+            margin-left: 0px;
+            padding-right: 1em;
+            color: black;
+        }
+        li {
+            font-size: medium;
+            color: black;
+        }
+    }
+
+    .nav-item {
+        padding-left: 1em;
+        padding-right: 1.5em;
+
+        &:hover {
+            background-color: #545454;
+            a {
+                color: #90D7FF;
+            }
+            i {
+                color: #E1F2FE;
+            }
+        }
+    }
+    .nav-item-title {
+        padding-left: 1em;
+    }
+
+    a {
+        color: #F2545B;
+        width: 100%;
+    }
+    i {
+        width: 25px;
+    }
+
+    .admin-console-content {
+        counter-reset: myCounter 0;
+        width: 100%;
+        .actions {
+            button {
+                margin-right: 5px;
+                padding: initial;
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+        }
+        table {
+            width: 100%;
+            display: none;
+        }
+        thead {
+            line-height: 5em;
+            background-color: #5DFDCB;
+        }
+
+        th {
+            font-size: large;
+        }
+
+        td {
+            font-size: medium;
+        }
+        tbody {
+            tr {
+                line-height: 3.1em;
+                border-bottom: 1px solid rgba(200,200,200,0.5);
+            }
+        }
+        .account-details-container {
+            .no:before {
+                counter-increment: myCounter;
+                content: counter(myCounter);
+            }
+            td, th {
+                text-align: center;
+            }
+        }
+
+        .questions-container {
+            counter-reset: myCounter 0;
+            .no:before {
+                counter-increment: myCounter;
+                content: counter(myCounter);
+            }
+            .no, .no-container {
+                padding-left: 40px;
+            }
+        }
+        .last-accessed-time p {
+            line-height: 0em;
+        }
+    }
+}
+.found-account {
+    animation: background 1s linear 5;
+}
+.edit-account-details-dialog {
+    @extend .new-account-form-dialog;
+    .message-body {
+        margin-right: 0.5em;
+    }
+}
+
+.edit-account-details-form {
+    @extend .new-account-form;
+    label {
+        color: black;
+        width: 5em;
+        position: relative;
+        display: inline-block;
+        text-align: right;
+        margin-left: 0;
+        margin-right: 1em;
+        vertical-align: top;
+    }
+
+    input.form-control {
+        padding-left: 0.5em;
+        width: 75%;
+    }
+    .form-group {
+        margin-bottom: 5px;
+    }
+
+    .statuses > div {
+        width: 75%; /* So it matches input elements' width above */
+    }
+}
+
+.statuses {
+    @extend .security-questions-container;
+}
+.edit-question-details-dialog {
+    width: 500px;
+    left: calc(calc(100% - 500px)/2);
+    @extend .upload-optical-image-dialog;
+    form {
+        width: 100%;
+    }
+}
+
+/*.edit-username-dialog {
+    @extend .edit-question-details-dialog;
+    width: 350px;
+    left: calc(calc(100% - 350px)/2);
+}*/
+
+.add-new-question-dialog {
+    @extend .edit-question-details-dialog;
+}
+
+.confirm-delete-dialog {
+    @extend .edit-question-details-dialog;
+    .alert-dialog-header {
+        background-color: red;
+    }
+}

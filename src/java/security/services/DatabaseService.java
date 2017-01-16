@@ -13,6 +13,10 @@ public abstract class DatabaseService<T> {
     public void create(T entity) {
         getEntityManager().persist(entity);
     }
+    
+    public void evict(Object primaryKey) {
+        getEntityManager().getEntityManagerFactory().getCache().evict(entityClass, primaryKey);
+    }
 
     public void edit(T entity) {
         getEntityManager().merge(entity);
@@ -32,11 +36,11 @@ public abstract class DatabaseService<T> {
         return getEntityManager().createQuery(cq).getResultList();
     }
 
-    public List<T> findRange(int start, int end) {
+    public List<T> findRange(int start, int size) {
         CriteriaQuery cq = getEntityManager().getCriteriaBuilder().createQuery();
         cq.select(cq.from(entityClass));
         Query q = getEntityManager().createQuery(cq);
-        q.setMaxResults(start - end + 1);
+        q.setMaxResults(size);
         q.setFirstResult(start);
         return q.getResultList();
     }

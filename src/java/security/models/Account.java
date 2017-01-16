@@ -17,13 +17,18 @@ import javax.validation.constraints.*;
     @NamedQuery(name = "Account.findByUsername", query = "SELECT a FROM Account a WHERE a.username = :username"),
     @NamedQuery(name = "Account.findByEmail", query = "SELECT a FROM Account a WHERE a.email = :email")
 })
-public class Account implements Serializable {
+public class Account implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 2L;
 
     public enum Status {
         ACTIVE, DISABLED, LOCKED
     }
+    
+    public enum Role {
+        ADMIN, REGULAR
+    }
+    
     @Id
     @Basic(optional = false)
     @NotNull
@@ -37,11 +42,11 @@ public class Account implements Serializable {
     @Column(name = "password")
     private String password;
     
+    @Enumerated(STRING)
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 20)
     @Column(name = "user_role")
-    private String userRole;
+    private Role userRole;
     
     
     //@Pattern(regexp="[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?", message="Invalid email")//if the field contains email address consider using this annotation to enforce field validation
@@ -68,13 +73,23 @@ public class Account implements Serializable {
     @Size(min = 1, max = 50)
     @Column(name = "host")
     private String host;
+    
+    @Basic(optional = false)
+    @Column(name = "last_accessed_time")
+    private long lastAccessedTime;
+    
+    @Basic(optional = false)
+    @Column(name = "edit_username_attempt")
+    private short editUsernameAttempt;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "username", fetch = FetchType.LAZY)
     private List<AccountSecurityQuestion> accountSecurityQuestionList;
     
     public Account() {
         this.status = Status.ACTIVE;
-        this.userRole = "regular";
+        this.userRole = Role.REGULAR;
+        editUsernameAttempt = 0;
+        lastAccessedTime = 0;
     }
 
     public Account(String username) {
@@ -82,16 +97,15 @@ public class Account implements Serializable {
         this.username = username;
     }
 
-    public Account(String username, String password, String userRole, Status status, String email) {
-        this.username = username;
+    public Account(String username, String password, Role userRole, Status status, String email) {
+        this(username);
         this.password = password;
         this.userRole = userRole;
         this.status = status;
         this.email = email;
     }
     public Account(String username, String password, String email) {
-        this();
-        this.username = username;
+        this(username);
         this.password = password;
         this.email = email;
     }
@@ -112,11 +126,11 @@ public class Account implements Serializable {
         this.password = password;
     }
 
-    public String getUserRole() {
+    public Role getUserRole() {
         return userRole;
     }
 
-    public void setUserRole(String userRole) {
+    public void setUserRole(Role userRole) {
         this.userRole = userRole;
     }
 
@@ -144,6 +158,22 @@ public class Account implements Serializable {
     public void setHost(String host) {
         this.host = host;
     }
+
+    public long getLastAccessedTime() {
+        return lastAccessedTime;
+    }
+
+    public void setLastAccessedTime(long lastAccessedTime) {
+        this.lastAccessedTime = lastAccessedTime;
+    }
+
+    public short getEditUsernameAttempt() {
+        return editUsernameAttempt;
+    }
+
+    public void setEditUsernameAttempt(short editUsernameAttempt) {
+        this.editUsernameAttempt = editUsernameAttempt;
+    }
     
     public List<AccountSecurityQuestion> getAccountSecurityQuestionList() {
         return accountSecurityQuestionList;
@@ -162,7 +192,6 @@ public class Account implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
         if (!(object instanceof Account)) {
             return false;
         }
@@ -172,7 +201,21 @@ public class Account implements Serializable {
 
     @Override
     public String toString() {
-        return "security..models.Account[ username=" + username + " ]";
+        return "security.models.Account[ username=" + username + " ]";
+    }
+
+    @Override
+    public Account clone() throws CloneNotSupportedException {
+        Account newAccount = new Account(this.username, this.password, this.email);
+        newAccount.setHost(this.host);
+        newAccount.setSalt(this.salt);
+        newAccount.setUserRole(this.userRole);
+        newAccount.setStatus(this.status);
+        newAccount.setLastAccessedTime(this.lastAccessedTime);
+        newAccount.setEditUsernameAttempt(this.editUsernameAttempt);
+        this.accountSecurityQuestionList.stream().forEach(e -> e.setUsername(newAccount));
+        newAccount.setAccountSecurityQuestionList(this.accountSecurityQuestionList);
+        return newAccount;
     }
 
     public Status getStatus() {

@@ -144,7 +144,7 @@ public class UploaderServlet extends HttpServlet {
                 connection.setAllowUserInteraction(true);
                 connection.setRequestMethod(method);
 
-                connection.setRequestProperty("Authorization", "Basic ZWxhc3RpYzpjaGFuZ2VtZQ==");
+                //connection.setRequestProperty("Authorization", "Basic ZWxhc3RpYzpjaGFuZ2VtZQ==");
                 connection.connect();
                 try (OutputStream os = connection.getOutputStream()) {
                     os.write(data.getBytes("UTF-8"));

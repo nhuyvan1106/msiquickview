@@ -36,6 +36,11 @@ public class SecurityQuestion implements Serializable {
         this.id = id;
         this.question = question;
     }
+    
+    public SecurityQuestion(String question) {
+        this();
+        this.question = question;
+    }
 
     public short getId() {
         return id;
