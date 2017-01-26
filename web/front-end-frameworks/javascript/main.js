@@ -21,8 +21,7 @@
                 errorCallback("Please either select cdf or hdf files only");
                 return;
             }
-            $("#upload-cdf-hdf-form-container").delay(250).fadeOut();
-            $(".toggler").click();
+            $("#menu-toggler").click();
             $(".error-dialog").fadeOut();
 
             var datasetName = document.getElementById("dataset-name").value;
@@ -77,18 +76,19 @@
                         data.upsert[fileType + "Files"] = filesToPush;
                         pushToES("_update", datasetName, data);
 
-                        $(document.documentElement).off("contextmenu").contextmenu(function (event) {
-                            showContextDialog(event, "", function () {
-                                switch (this.id) {
-                                    case "hide-dialog":
-                                        $(".file-selection-dialog").fadeOut();
-                                        break;
-                                    case "show-dialog":
-                                        $(".file-selection-dialog").fadeIn().css({"top": event.pageY, "left": event.pageX});
-                                        break;
-                                }
-                            });
-                        });
+                        $(document.documentElement).off("contextmenu")
+                                .contextmenu(function (event) {
+                                    showContextDialog(event, "", function () {
+                                        switch (this.id) {
+                                            case "hide-dialog":
+                                                $(".file-selection-dialog").fadeOut();
+                                                break;
+                                            case "show-dialog":
+                                                $(".file-selection-dialog").fadeIn().css({"top": event.pageY, "left": event.pageX});
+                                                break;
+                                        }
+                                    });
+                                });
                         $(".file-selection-dialog .alert-dialog-header-title").html("Click on file to load");
                         d3.select(".file-selection-dialog").selectAll("li").each(function (d, i) {
                             $(this).find(".file-upload-spinner")
@@ -450,8 +450,8 @@
                     }, errorCallback);
                 }, "btn btn-default")
                 .show(true/*, function (id) {
-                    $(id).css("top", "calc(calc(calc(100% - 178px)/2) + " + pnnl.utils.getScrollTop() + ")").fadeIn();
-                }*/);
+                 $(id).css("top", "calc(calc(calc(100% - 178px)/2) + " + pnnl.utils.getScrollTop() + ")").fadeIn();
+                 }*/);
     });
 
     $("#action-container #add-roi").click(function () {
@@ -556,8 +556,7 @@
         if (!pnnl.validation.validateNotEmpty("show-uploaded-files-form", "dataset-name"))
             return;
         else {
-            $("#show-uploaded-files-form-container").delay(250).fadeOut();
-            $(".toggler").click();
+            $("#menu-toggler").click();
             exploreDir(url, $("#show-uploaded-files-form #dataset-name").val());
         }
     });

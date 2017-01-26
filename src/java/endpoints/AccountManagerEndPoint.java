@@ -1,6 +1,6 @@
 package endpoints;
 
-import java.util.ArrayList;
+import endpoints.annotations.RequiresAuthentication;
 import java.util.List;
 import java.util.logging.*;
 import java.util.stream.Collectors;
@@ -18,7 +18,6 @@ import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.apache.shiro.subject.Subject;
 import security.models.Account;
 import security.HostAuthenticationToken;
-import security.Permission;
 import security.models.AccountSecurityQuestion;
 import security.services.*;
 import utils.EJBLocator;
@@ -63,8 +62,8 @@ public class AccountManagerEndPoint {
     @Path("{username}")
     @GET
     @Produces(APPLICATION_JSON)
+    @RequiresAuthentication
     public JsonObject getAccount() throws NamingException {
-        Permission.isAuthenticated();
         Account storedAccount = getCurrentUser();
         return Json.createObjectBuilder()
                 .add("primaryKey", storedAccount.getUsername())
@@ -76,8 +75,8 @@ public class AccountManagerEndPoint {
     @Path("{username}")
     @PUT
     @Consumes(APPLICATION_JSON)
+    @RequiresAuthentication
     public Response editAccountDetail(@PathParam("username") String username, JsonObject payload) throws NamingException {
-        Permission.isAuthenticated();
         Account currentUser = getCurrentUser();
         if (currentUser == null) {
             return Response.notModified().build();
@@ -103,11 +102,11 @@ public class AccountManagerEndPoint {
         return Response.noContent().build();
     }
 
-    @Path("{username}/validation")
+    @Path("{username}/authentication")
     @POST
     @Consumes(APPLICATION_JSON)
+    @RequiresAuthentication
     public Response securityCheckBeforeEdit(JsonObject payload) throws NamingException {
-        Permission.isAuthenticated();
         Account currentUser = getCurrentUser();
         char[] password = payload.getString("password").toCharArray();
         List<JsonObject> answers = payload.getJsonArray("answers").getValuesAs(JsonObject.class);
@@ -117,15 +116,15 @@ public class AccountManagerEndPoint {
         }
         return Response.ok().build();
     }
-
+    
     @Path("exists")
     @POST
     public Response isExisitingAccount(@FormParam("username") String username) throws NamingException {
         Account account = accountService.find(username);
         if (account != null) {
-            return Response.status(444).build();
+            return Response.ok().build();
         }
-        return Response.ok().build();
+        return Response.status(404).build();
     }
 
     private Account getCurrentUser() {

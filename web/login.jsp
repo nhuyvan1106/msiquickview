@@ -6,7 +6,7 @@
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <link rel="stylesheet" type="text/css" href="front-end-frameworks/external/bootstrap-3.3.7-dist/css/bootstrap.min.css"/>
-        <link rel="stylesheet" type="text/css" href="front-end-frameworks/external/font-awesome-4.6.3/css/font-awesome.min.css"/>
+        <link rel="stylesheet" type="text/css" href="front-end-frameworks/external/font-awesome-4.7.0/css/font-awesome.min.css"/>
         <script type="text/javascript" src="front-end-frameworks/javascript/pnnl.js"></script>
         <script type="text/javascript" src="front-end-frameworks/external/d3/d3.4.0.0.min.js"></script>
         <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
@@ -166,7 +166,7 @@
                                         .click(function (event) {
                                             event.preventDefault();
                                             //Retrieve the ids of the selected questions
-                                            //So we can't remove them from the next question menus
+                                            //So we can remove them from the next question menus
                                             var thisQuestionId = this.querySelector(".selected-question-id").id;
                                             var selectedQuestionIds = $(".selected-question-id")
                                                     .get()
@@ -197,12 +197,12 @@
                                                 $.ajax("security/accounts/exists", {
                                                     method: "POST",
                                                     data: {username: usernameInputElem.value},
-                                                    error: function () {
+                                                    success: function () {
                                                         usernameInputElem.setAttribute("data-state", "invalid");
                                                         usernameInputElem.style.border = "2px solid red";
                                                         pnnl.dialog.showHintDialog("hint-dialog", "<span>An account with username <strong>" + usernameInputElem.value + "</strong> already exists</span>", usernameInputElem);
                                                     },
-                                                    success: function () {
+                                                    error: function () {
                                                         usernameInputElem.style.border = "1px solid #ccc";
                                                         usernameInputElem.setAttribute("data-state", "valid");
                                                     }
@@ -246,7 +246,7 @@
                 // Call to populate each security questions selection menu when new account
                 // creation form is opened by making an ajax call to the back end.
                 function populateQuestions() {
-                    $.ajax("security/admin/questions", {
+                    $.ajax("security/questions", {
                         method: "GET",
                         Accept: "application/json",
                         success: function (data) {

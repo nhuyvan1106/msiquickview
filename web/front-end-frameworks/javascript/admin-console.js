@@ -45,7 +45,7 @@
                         .get();
                 return $.ajax("security/admin/accounts?excludes=" + (excludes.length > 0 ? excludes.join(",") : ""), options);
             case ".questions-container":
-                return $.ajax("security/admin/questions", options);
+                return $.ajax("security/questions", options);
         }
     }
     function populateTable(tableClass, data) {

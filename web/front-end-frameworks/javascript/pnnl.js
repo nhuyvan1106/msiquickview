@@ -281,7 +281,6 @@ var pnnl = {
                             .text(posBtnLabel)
                             .on("click", function () {
                                 posBtnBehavior.call(dialog, id);
-                                dialog.hide();
                             });
                     return this;
                 },
@@ -367,7 +366,7 @@ var pnnl = {
                             $dialog.fadeIn()
                                     .css({
                                         "left": (inputElemRect.right + 30) + "px",
-                                        "top": (inputElemRect.top - ($dialog.height() > inputElemRect.height ? inputElemRect.height/2 : 0) + pnnl.utils.getScrollTop()) + "px"
+                                        "top": (inputElemRect.top - ($dialog.height() > inputElemRect.height ? inputElemRect.height / 2 : 0) + pnnl.utils.getScrollTop()) + "px"
                                     });
                         });
             }

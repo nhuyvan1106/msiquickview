@@ -10,7 +10,7 @@
         <base href="Java-Matlab-Integration"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="front-end-frameworks/external/bootstrap-3.3.7-dist/css/bootstrap.min.css"/>
-        <link rel="stylesheet" href="front-end-frameworks/external/font-awesome-4.6.3/css/font-awesome.min.css"/>
+        <link rel="stylesheet" href="front-end-frameworks/external/font-awesome-4.7.0/css/font-awesome.min.css"/>
         <link rel="stylesheet" href="front-end-frameworks/css/main.css"/>
         <link rel="stylesheet" href="front-end-frameworks/css/jquery-ui.min.css"/>
         <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
@@ -24,142 +24,140 @@
         <div class="overlay" style="display:none;position:fixed;top:0;width:100%;margin:0;height:100%;z-index:20;background:rgba(0,256,256,0.25)"></div>
 
         <div class="wrapper">
-            <div class="toggler">
-                <i class="fa fa-arrow-right fa-2x" aria-hidden="true"></i>
-            </div>
             <header>
-                MSI QUICKVIEW
+                <div class="menu-toggler-container">
+                    <input type="checkbox" id='menu-toggler'/>
+                    <span class='bar first-bar'></span>
+                    <span class='bar second-bar'></span>
+                    <span class='bar third-bar'></span>
+                </div>
+                <div class='app-title'>
+                    MSI QUICKVIEW
+                </div>
             </header>
-            <nav class="closed" >
+            <nav class="main-menu" >
                 <!-- Brand and toggle get grouped for better mobile display -->
-                <div id="discoveryPage" class="">
-                    <a target="_blank" href="http://172.18.10.36:5601/app/kibana#/discover/Scientist-Name,-Dataset-Name,-Notes,-Folder-Location,-m-slash-z-list,-m-slash-z-list-file-name-and-sheet-name,-%23-of-raw-files-per-dataset?_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:now-15m,mode:quick,to:now))&_a=(columns:!('Scientist%20Name','%23%20Raw%20Files','Dataset%20Name',Notes,'Folder%20Location','User%20Selected%20m%2Fz%20list%20to%20save','m%2Fz%20Excel%20File','m%2Fz%20Excel%20File%20Sheet%20Name'),filters:!(),index:multi-modal,interval:auto,query:(query_string:(analyze_wildcard:!t,query:'*')),sort:!(_score,desc))">Discovery</a>
-                </div>
-                <div id="dashboard" class="">
-                    <a target="_blank" href="http://172.18.10.36:5601/app/kibana#/dashboard/Default-Mass-Spec-1?_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:now-15m,mode:quick,to:now))&_a=(filters:!(),options:(darkTheme:!t),panels:!((col:1,id:%23-of-Datasets-per-Scientist-with-Dataset-Name-and-Date-of-acquisition,panelIndex:1,row:1,size_x:7,size_y:5,type:visualization),(col:1,id:%23-of-Raw-Files-Per-Dataset,panelIndex:2,row:6,size_x:4,size_y:9,type:visualization),(col:9,id:Aspect-Ratios-per-Dataset,panelIndex:3,row:6,size_x:4,size_y:9,type:visualization),(col:8,id:'Table-with-Scientist-Name-and-basic-stats-like-Unique-%23-of-user-selected-m-slash-z-list-to-save,-std-dev-of-%23-of-raw-files,-Average-%23-of-Raw-files',panelIndex:4,row:1,size_x:5,size_y:5,type:visualization),(col:1,columns:!('Scientist%20Name','%23%20Raw%20Files','Dataset%20Name',Notes,'Folder%20Location','User%20Selected%20m%2Fz%20list%20to%20save','m%2Fz%20Excel%20File','m%2Fz%20Excel%20File%20Sheet%20Name'),id:'Scientist-Name,-Dataset-Name,-Notes,-Folder-Location,-m-slash-z-list,-m-slash-z-list-file-name-and-sheet-name,-%23-of-raw-files-per-dataset',panelIndex:5,row:15,size_x:12,size_y:6,sort:!(_score,desc),type:search),(col:5,id:Dataset-Types-vs.-Scientists-for-Nano-Desi,panelIndex:6,row:6,size_x:4,size_y:5,type:visualization),(col:5,id:Avergae-%23-of-Raw-files-vs.-Dataset-Type,panelIndex:7,row:11,size_x:4,size_y:4,type:visualization)),query:(query_string:(analyze_wildcard:!t,query:'*')),title:'Default%20Mass%20Spec%201',uiState:(P-2:(spy:(mode:(fill:!f,name:table)))))">Dashboard</a>
-                </div>
-                <div id="upload-cdf-hdf-container" class="">
-                    <a id="upload-cdf-hdf" class="" data-activate="upload-cdf-hdf-form-container">
-                        Upload .cdf / .hdf Files
-                        <i class="fa fa-chevron-right fa-lg" aria-hidden="true" style="margin-left: 20px; margin-right: 0px;"></i>
-                    </a>
-                </div>
-                <div id="upload-excel-container" class="">
-                    <a id="upload-excel" class="" data-activate="upload-excel-form-container">
-                        Upload Excel Files
-                        <i class="fa fa-chevron-right fa-lg" aria-hidden="true" style="margin-left: 50px"></i>
-                    </a>
-                </div>
-                <div id="show-uploaded-files-container" class="">
-                    <a id="show-uploaded-files" class="" data-activate="show-uploaded-files-form-container">
-                        Show Uploaded Files
-                        <i class="fa fa-chevron-right fa-lg" aria-hidden="true" style="margin-left: 20px"></i>
-                    </a>
-                </div>
-                <shiro:hasRole name="ADMIN">
-                    <div id="show-admin-console-container">
-                        <a id="show-admin-console" class="" onclick="$('.admin-console').fadeIn(1500); $('.toggler').click(); return false">
-                            Admin Console
+                <ul class="menu">
+                    <li class="menu-item-container">
+                        <input type='radio' onclick="this.nextElementSibling.click()"/>
+                        <a class="menu-item" target="_blank" href="http://172.18.10.36:5601/app/kibana#/discover/Scientist-Name,-Dataset-Name,-Notes,-Folder-Location,-m-slash-z-list,-m-slash-z-list-file-name-and-sheet-name,-%23-of-raw-files-per-dataset?_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:now-15m,mode:quick,to:now))&_a=(columns:!('Scientist%20Name','%23%20Raw%20Files','Dataset%20Name',Notes,'Folder%20Location','User%20Selected%20m%2Fz%20list%20to%20save','m%2Fz%20Excel%20File','m%2Fz%20Excel%20File%20Sheet%20Name'),filters:!(),index:multi-modal,interval:auto,query:(query_string:(analyze_wildcard:!t,query:'*')),sort:!(_score,desc))">
+                            <i class="fa fa-wpexplorer menu-item-icon" aria-hidden="true"></i>
+                            <span class="menu-item-title">Discovery</span>
                         </a>
-                    </div>
-                </shiro:hasRole>
-
-                <div id="show-edit-account-details-container">
-                    <a id="show-edit-account-details" class="" onclick="$('.toggler').click(); return false">
-                        Edit Account Details
-                    </a>
-                </div>
-
-                <div id="logout-container" class="">
-                    <a id="logout" class="" href="logout">
-                        Logout
-                    </a>
-                </div>
-            </nav>        
-            <div class="form-container" id="upload-cdf-hdf-form-container">
-                <div style="text-align: right">
-                    <i class="fa fa-close fa-2x close-btn"></i>
-                </div>
-                <form name="upload-cdf-hdf-form" id="upload-cdf-hdf-form">
-                    <div class="form-group">
-                        <label class="label label-primary">Select Files</label>
-                        <input type="file" multiple="multiple" required="required" class="form-control" name="file-name" id="file-name"/>
-                    </div>
-                    <div class="form-group">
-                        <label class="label label-primary">Select Optical Image (Optional)</label>
-                        <input accept="image/*" type="file" multiple="multiple" required="required" class="form-control" name="file-name" id="optical-image"/>
-                    </div>
-                    <!--                    <div class="form-group">
-                                            <label class="label label-primary">Username</label>
-                                            <input type="text" required="required" class="form-control" name="user-dir" id="user-dir"/>
-                                        </div>-->
-                    <div class="form-group">
-                        <label class="label label-primary">DataSet Name</label>
-                        <input type="text" required="required" class="form-control" name="dataset-name" id="dataset-name"/>
-                    </div>
-                    <div class="form-group">
-                        <label class="label label-primary">Additional Notes (Optional)</label>
-                        <textarea cols="36" rows="3" id="notes"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <button type="button" class="btn btn-default upload">
-                            Upload
-                        </button>
-                    </div>
-                </form>
-            </div>
-            <div class="form-container" id="upload-excel-form-container">
-                <div style="text-align: right">
-                    <i class="fa fa-close fa-2x close-btn"></i>
-                </div>
-                <form name="upload-excel-form" id="upload-excel-form">
-                    <div class="form-group">
-                        <label class="label label-primary">Select Excel File</label>
-                        <input type="file" required="required" class="form-control" id="file-name"/>
-                    </div>
-                    <div class="form-group">
-                        <label class="label label-primary">Select Files to Generate Images for</label>
-                        <input type="file" multiple="multiple" required="required" class="form-control" id="file-names" style="width:275px"/>
-                    </div>
-                    <!--                    <div class="form-group">
-                                            <label class="label label-primary">Username</label>
-                                            <input type="text" required="required" class="form-control" name="user-dir" id="user-dir"/>
-                                        </div>-->
-                    <div class="form-group">
-                        <label class="label label-primary">DataSet Name</label>
-                        <input type="text" required="required" class="form-control" name="dataset-name" id="dataset-name"/>
-                    </div>
-                    <div class="form-group">
-                        <label class="label label-primary">Additional Notes (Optional)</label>
-                        <textarea cols="36" rows="3" id="notes"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <button type="button" class="btn btn-default upload">
-                            Upload
-                        </button>
-                    </div>
-                </form>
-            </div>
-            <div class="form-container" id="show-uploaded-files-form-container">
-                <div style="text-align: right">
-                    <i class="fa fa-close fa-2x close-btn"></i>
-                </div>
-                <form name="show-uploaded-files-form" id="show-uploaded-files-form">
-                    <!--                    <div class="form-group">
-                                            <label class="label label-primary">Username</label>
-                                            <input type="text" required="required" class="form-control" name="user-dir" id="user-dir"/>
-                                        </div>-->
-                    <div class="form-group">
-                        <label class="label label-primary">DataSet Name</label>
-                        <input type="text" placeholder="Leave empty to target all datasets" required="required" class="form-control" name="dataset-name" id="dataset-name"/>
-                    </div>
-                    <div class="form-group">
-                        <button type="button" class="btn btn-default show">
-                            Show
-                        </button>
-                    </div>
-                </form>
-            </div>
+                    </li>
+                    <li class="menu-item-container">
+                        <input type='radio' onclick="this.nextElementSibling.click()"/>
+                        <a class="menu-item" target="_blank" href="http://172.18.10.36:5601/app/kibana#/dashboard/Default-Mass-Spec-1?_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:now-15m,mode:quick,to:now))&_a=(filters:!(),options:(darkTheme:!t),panels:!((col:1,id:%23-of-Datasets-per-Scientist-with-Dataset-Name-and-Date-of-acquisition,panelIndex:1,row:1,size_x:7,size_y:5,type:visualization),(col:1,id:%23-of-Raw-Files-Per-Dataset,panelIndex:2,row:6,size_x:4,size_y:9,type:visualization),(col:9,id:Aspect-Ratios-per-Dataset,panelIndex:3,row:6,size_x:4,size_y:9,type:visualization),(col:8,id:'Table-with-Scientist-Name-and-basic-stats-like-Unique-%23-of-user-selected-m-slash-z-list-to-save,-std-dev-of-%23-of-raw-files,-Average-%23-of-Raw-files',panelIndex:4,row:1,size_x:5,size_y:5,type:visualization),(col:1,columns:!('Scientist%20Name','%23%20Raw%20Files','Dataset%20Name',Notes,'Folder%20Location','User%20Selected%20m%2Fz%20list%20to%20save','m%2Fz%20Excel%20File','m%2Fz%20Excel%20File%20Sheet%20Name'),id:'Scientist-Name,-Dataset-Name,-Notes,-Folder-Location,-m-slash-z-list,-m-slash-z-list-file-name-and-sheet-name,-%23-of-raw-files-per-dataset',panelIndex:5,row:15,size_x:12,size_y:6,sort:!(_score,desc),type:search),(col:5,id:Dataset-Types-vs.-Scientists-for-Nano-Desi,panelIndex:6,row:6,size_x:4,size_y:5,type:visualization),(col:5,id:Avergae-%23-of-Raw-files-vs.-Dataset-Type,panelIndex:7,row:11,size_x:4,size_y:4,type:visualization)),query:(query_string:(analyze_wildcard:!t,query:'*')),title:'Default%20Mass%20Spec%201',uiState:(P-2:(spy:(mode:(fill:!f,name:table)))))">
+                            <i class="fa fa-dashboard menu-item-icon" aria-hidden="true"></i>
+                            <span class="menu-item-title">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="menu-item-container">
+                        <input id="upload-cdf-hdf" type="radio" name="main-menu"/>
+                        <a class="menu-item">
+                            <i class="fa fa-upload menu-item-icon" aria-hidden="true"></i>
+                            <span class="menu-item-title">Upload .cdf / .hdf files</span>
+                            <i class="fa fa-chevron-right more-icon" aria-hidden="true"></i>
+                        </a>
+                        <form name="upload-cdf-hdf-form" id="upload-cdf-hdf-form">
+                            <div class="form-group">
+                                <label class="label label-primary">Select Files</label>
+                                <input type="file" multiple="multiple" required="required" class="form-control" name="file-name" id="file-name"/>
+                            </div>
+                            <div class="form-group">
+                                <label class="label label-primary">Select Optical Image (Optional)</label>
+                                <input accept="image/*" type="file" multiple="multiple" required="required" class="form-control" name="file-name" id="optical-image"/>
+                            </div>
+                            <div class="form-group">
+                                <label class="label label-primary">DataSet Name</label>
+                                <input type="text" required="required" class="form-control" name="dataset-name" id="dataset-name"/>
+                            </div>
+                            <div class="form-group">
+                                <label class="label label-primary">Additional Notes (Optional)</label>
+                                <textarea cols="36" rows="3" id="notes"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <button type="button" class="btn btn-default upload">
+                                    Upload
+                                </button>
+                            </div>
+                        </form>
+                    </li>
+                    <li class="menu-item-container">
+                        <input id="upload-excel" type="radio" name="main-menu"/>
+                        <a class="menu-item">
+                            <i class="fa fa-upload menu-item-icon" aria-hidden="true"></i>
+                            <span class="menu-item-title">Upload excel file</span>
+                            <i class="fa fa-chevron-right more-icon" aria-hidden="true"></i>
+                        </a>
+                        <form name="upload-excel-form" id="upload-excel-form">
+                            <div class="form-group">
+                                <label class="label label-primary">Select Excel File</label>
+                                <input type="file" required="required" class="form-control" id="file-name"/>
+                            </div>
+                            <div class="form-group">
+                                <label class="label label-primary">Select Files to Generate Images for</label>
+                                <input type="file" multiple="multiple" required="required" class="form-control" id="file-names" style="width:275px"/>
+                            </div>
+                            <div class="form-group">
+                                <label class="label label-primary">DataSet Name</label>
+                                <input type="text" required="required" class="form-control" name="dataset-name" id="dataset-name"/>
+                            </div>
+                            <div class="form-group">
+                                <label class="label label-primary">Additional Notes (Optional)</label>
+                                <textarea cols="36" rows="3" id="notes"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <button type="button" class="btn btn-default upload">
+                                    Upload
+                                </button>
+                            </div>
+                        </form>
+                    </li>
+                    <li class="menu-item-container">
+                        <input id="show-uploaded-files" type="radio" name="main-menu"/>
+                        <a class="menu-item">
+                            <i class="fa fa-database menu-item-icon" aria-hidden="true"></i>
+                            <span class="menu-item-title">Show uploaded files</span>
+                            <i class="fa fa-chevron-right more-icon" aria-hidden="true"></i>
+                        </a>
+                        <form name="show-uploaded-files-form" id="show-uploaded-files-form">
+                            <div class="form-group">
+                                <label class="label label-primary">DataSet Name</label>
+                                <input type="text" placeholder="Leave empty to target all datasets" required="required" class="form-control" name="dataset-name" id="dataset-name"/>
+                            </div>
+                            <div class="form-group">
+                                <button type="button" class="btn btn-default show">
+                                    Show
+                                </button>
+                            </div>
+                        </form>
+                    </li>
+                    <shiro:hasRole name="ADMIN">
+                        <li class="menu-item-container">
+                            <input type='radio' id='show-admin-console'/>
+                            <a class="menu-item" onclick="return false">
+                                <i class="fa fa-shield menu-item-icon" aria-hidden="true"></i>
+                                <span class="menu-item-title">Admin Console</span>
+                            </a>
+                        </li>
+                    </shiro:hasRole>
+                    <li class="menu-item-container">
+                        <input id="show-edit-account-details" type='radio'/>
+                        <a class="menu-item" onclick="return false">
+                            <i class="fa fa-pencil menu-item-icon" aria-hidden="true"></i>
+                            <span class="menu-item-title">Edit account details</span>
+                        </a>
+                    </li>   
+                    <li class="menu-item-container">
+                        <input type='radio' onclick="this.nextElementSibling.click()"/>
+                        <a id="logout" class="menu-item" href='logout'>
+                            <i class="fa fa-power-off menu-item-icon" aria-hidden="true"></i>
+                            <span class="menu-item-title">Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
 
             <div class="tabs-container" id="tabs-container">
                 <div class="header">
@@ -324,144 +322,14 @@
                     </div>
                 </div>
             </div>
-            <footer style="text-align:center;font-size:small;margin-top:20px;position:relative">
+            <footer style="z-index:0;text-align:center;font-size:small;margin-top:20px;position:relative;margin-bottom:1em;">
                 <a onclick="return false;" id="pub">Publications</a>&nbsp;&nbsp;|&nbsp;&nbsp;
                 <a onclick="return false;" id="usage-guide">Usage Guide</a>&nbsp;&nbsp;|&nbsp;&nbsp;
                 <a onclick="return false;" id="contact-us" >Contact Us</a>
             </footer>
 
-            <div class="window my-dialog publications">
-                <div class="my-dialog-header">
-                    <div class="my-dialog-close-btn">
-                        <i class="fa fa-close"></i>
-                    </div>
-                </div>
-                <div class="my-dialog-body" onclick="event.stopImmediatePropagation()">
-                    <ol>
-                        <h4>References</h4>
-                        <li>
-                            Thomas M, BS Heath, J Laskin, D Li, EC Liu, KL Hui, AP Kuprat, K Kleese van Dam, and JP Carson.  2012.  "Visualization of High Resolution Spatial Mass Spectrometric Data during Acquisition."  In <em>2012 Annual International Conference of the IEEE Engineering in Medicine and Biology Society (EMBC), August 28 - September 1, San Diego, California</em>, pp. 5545-5548.  IEEE, Piscataway, NJ.  doi:10.1109/EMBC.2012.6347250
-                            [<a target="_blank" href="http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6347250">Link</a>]
-                        </li>
-                        <li>
-                            Lanekoff IT, BS Heath, AV Liyu, M Thomas, JP Carson, and J Laskin.  2012.  "An Automated Platform for High-Resolution Tissue Imaging Using Nanospray Desorption Electrospray Ionization Mass Spectrometry."  <em>Analytical Chemistry</em> 84(19):8351-8356
-                            [<a target="_blank" href="http://pubs.acs.org/doi/abs/10.1021/ac301909a">Link</a>]
-                        </li>
-                        <li>
-                            Kleese van Dam K, JP Carson, AL Corrigan, DR Einstein, ZC Guillen, BS Heath, AP Kuprat, IT Lanekoff, CS Lansing, J Laskin, D Li, Y Liu, MJ Marshall, EA Miller, G Orr, P Pinheiro da Silva, S Ryu, CJ Szymanski, and M Thomas.  2013.  "Velo and REXAN - Integrated Data Management and High Speed Analysis for Experimental Facilities."  In <em>Proceedings of the IEEE 8th International Conference on EScience, October 8-12, 2012, Chicago, Illinois</em>.  IEEE Press, Los Alamitos, CA.  doi: 10.1109/eScience.2012.6404463 
-                            [<a target="_blank" href="http://ieeexplore.ieee.org/abstract/document/6404463/">Link</a>]
-                        </li>
-                        <li>
-                            Lanekoff IT, M Thomas, JP Carson, JN Smith, C Timchalk, and J Laskin.  2013.  "Imaging Nicotine in Rat Brain Tissue by Use of Nanospray Desorption Electrospray Ionization Mass Spectrometry."  <em>Analytical Chemistry</em> 85(2):882-889.  doi:10.1021/ac302308p 
-                            [<a target="_blank" href="http://pubs.acs.org/doi/abs/10.1021/ac302308p">Link</a>]
-                        </li>
-                        <li>
-                            Lanekoff IT, KE Burnum-Johnson, M Thomas, JTL Short, JP Carson, J Cha, SK Dey, P Yang, MC Prieto Conaway, and J Laskin.  2013.  "High-Speed Tandem Mass Spectrometric in Situ Imaging by Nanospray Desorption Electrospray Ionization Mass Spectrometry."  <em>Analytical Chemistry</em> 85(20):9596-9603. doi:10.1021/ac401760s 
-                            [<a target="_blank" href="http://pubs.acs.org/doi/abs/10.1021/ac401760s">Link</a>]
-                        </li>
-                        <li>
-                            Lanekoff IT, M Thomas, and J Laskin.  2014.  "Shotgun Approach for Quantitative Imaging of Phospholipids Using Nanospray Desorption Electrospray Ionization Mass Spectrometry."  <em>Analytical Chemistry</em> 86(3):1872-1880.  doi:10.1021/ac403931r
-                            [<a target="_blank" href="http://pubs.acs.org/doi/abs/10.1021/ac403931r">Link</a>]
-                        </li>
-                        <li>
-                            Lanekoff IT, KE Burnum-Johnson, M Thomas, J Cha, SK Dey, P yang, M Prieto, and J Laskin.  2015.  "Three-Dimensional Imaging of Lipids and Metabolites in Tissues by Nanospray Desorption Electrospray Ionization Mass Spectrometry."  <em>Analytical and Bioanalytical Chemistry</em> 407(8):2063-2071. doi:10.1007/s00216-014-8174-0
-                            [<a target="_blank" href="https://www.ncbi.nlm.nih.gov/pubmed/25395201">Link</a>]
-                        </li>
-                        <li>
-                            Thomas M, K Kleese van Dam, MJ Marshall, AP Kuprat, JP Carson, CS Lansing, ZC Guillen, EA Miller, I Lanekoff, and J Laskin.  2015.  "Towards adaptive, streaming analysis of x-ray tomography data."  <em>Synchrotron Radiation News</em> 28(2):10-14.  doi:10.1080/08940886.2015.1013414
-                            [<a target="_blank" href="http://www.tandfonline.com/doi/full/10.1080/08940886.2015.1013414">Link</a>]
-                        </li>
-                        <li>
-                            Thomas M, J Laskin, B Raju, EG Stephan, TO Elsethagen, NYS Van, and SN Nguyen.  2016.  "Enabling Re-executable Workflows with Near-real-time Visualization, Provenance Capture and Advanced Querying for Mass Spectrometry Data."  In <em>NYSDS 2016 - Data-Driven Discovery</em>.  No publisher listed.  [In Press]
-                        </li>
-                        <h4>External Publications</h4>
-                        <li>
-                            Rao, W., Pan, N. & Yang, Z. J. Am. Soc. Mass Spectrom. 2015. "High Resolution Tissue Imaging Using the Single-probe Mass Spectrometry under Ambient Conditions." 26: 986. doi:10.1007/s13361-015-1091-4
-                            [<a target="_blank" href="https://www.ncbi.nlm.nih.gov/pubmed/25804891">Link</a>]
-                        </li>
-                        <li>
-                            Hilde-Marléne Bergman, Erik Lundin, Malin Andersson and Ingela Lanekoff: “Quantitative mass spectrometry imaging of small-molecule neurotransmitters in rat brain tissue sections using nanospray desorption electrospray ionization.” Analyst, 2016, 141, 3686. 
-                            [<a target="_blank" href="https://www.ncbi.nlm.nih.gov/pubmed/26859000">Link</a>]
-                        </li>
-                        <li>
-                            Rao, Wei et al. “High-Resolution Ambient MS Imaging of Negative Ions in Positive Ion Mode: Using Dicationic Reagents with the Single-Probe.” <em>Journal of the American Society for Mass Spectrometry</em> 27.1 (2016): 124–134. PMC. Web. 12 Sept. 2016.
-                            [<a target="_blank" href="https://www.ncbi.nlm.nih.gov/pubmed/26489411">Link</a>]
-                        </li>
-                        <li>
-                            Rao, W., Pan, N., Yang, Z. "Applications of the Single-probe: Mass Spectrometry Imaging and Single Cell Analysis under Ambient Conditions. J. Vis. Exp. (112), e53911, doi:10.3791/53911 (2016).
-                            [<a target="_blank" href="https://www.ncbi.nlm.nih.gov/pubmed/27341402">Link</a>]
-                        </li>
-                    </ol>
-                </div>
-            </div>
-            <div class="window my-dialog how-to">
-                <div class="my-dialog-header">
-                    <div class="my-dialog-close-btn">
-                        <i class="fa fa-close"></i>
-                    </div>
-                </div>
-                <div class="my-dialog-body" onclick="event.stopImmediatePropagation()">
-                    <ul>
-                        <li>
-                            <strong><i style="display:inline-block;width:30px;line-height:30px;text-align:center;border:1px solid gray;border-radius:50%" class="fa fa-arrow-right" aria-hidden="true"></i>
-                            </strong>: Display main menu.
-                        </li>
-                        <li>
-                            <strong>Discovery</strong>: Navigate to Kibana Discovery page.
-                        </li>
-                        <li>
-                            <strong>Dashboard</strong>: Navigate to Kibana Dashboard page.
-                        </li>
-                        <li>
-                            <strong>Upload .cdf / .hdf Files</strong>: Display a form allowing to select files with either .cdf or .hdf format.
-                            <ul>
-                                <li>
-                                    <strong>Select Files</strong>: (Required) Open file selection widget. All files selected <em>must</em> either have .cdf or .hdf extension.
-                                </li>
-                                <li>
-                                    <strong>Select Optical Image</strong>: (Optional) Optionally attach one optical image to this upload for the specified dataset.
-                                </li>
-                                <li>
-                                    <strong>Dataset Name</strong>: (Required) Name of the dataset corresponding to the files being uploaded.
-                                </li>
-                                <li>
-                                    <strong>Additional Notes (Optional)</strong>: This field is optional.
-                                </li>
-                            </ul>
-                        </li>
-                        <li>
-                            <strong>Upload Excel File</strong>: Entry point to a long-running backend process to
-                            generate ion images from data in the uploaded excel file. Progress tracking is available as soon as the file is uploaded.
-                            <ul>
-                                <li>
-                                    <strong>Select Excel File</strong>: (Required) Excel file to be uploaded and processed.
-                                </li>
-                                <li>
-                                    <strong>Select Files to Generate Images for</strong>: (Required) For which files the images are generated.
-                                    <em>Note:</em> The images are ONLY generated for .cdf or .hdf files which are already present on the server
-                                    under the folder location specific to the current user.
-                                </li>
-                                <li>
-                                    <strong>Dataset Name</strong>: (Required) Name of the dataset corresponding to the .cdf or .hdf files selected above.
-                                </li>
-                                <li>
-                                    <strong>Additional Notes (Optional)</strong>: This field is optional.
-                                </li>
-                            </ul>
-                        </li>
-                        <li>
-                            <strong>Show Uploaded Files</strong>: A convenient widget enabling browsing through
-                            the folder generated for the current user to view uploaded files.
-                            <ul>
-                                <li>
-                                    <strong>Dataset Name</strong>: Retrieve uploaded files for a specific dataset
-                                    or leave empty to view files for all available datasets.
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+            <div class="window my-dialog publications"></div>
+            <div class="window my-dialog how-to"></div>
             <div class='window my-dialog contact-us'>
                 <div class="my-dialog-header">
                     <div class='my-dialog-title'>
@@ -554,116 +422,8 @@
                 </form>
             </div>
             <shiro:hasRole name="ADMIN">
-                <div class="admin-console">
-                    <nav>
-                        <div class="nav-item-container">
-                            <input type="radio" name="nav" value=".account-details-container"/>
-                            <div class="nav-item">
-                                <a onclick="return false" id="manage-users">
-                                    <i class="fa fa-users" aria-hidden="true"></i>
-                                    <span class="nav-item-title">Manage Users</span>
-                                </a>
-
-                            </div>
-                            <div id="user-search">
-                                <input autofocus class="" type="text" id="username" placeholder="Search a specific user or leave blank"/>
-                                <div class='search-by-status form-group app-dropdown-menu'>
-                                    <div>
-                                        <a href='' onclick='return false;' class='btn btn-default'>
-                                            <span class="selected-status" id='ALL'>Filter by status</span>
-                                            <i class='fa fa-chevron-down' aria-hidden='true'></i>
-                                        </a>
-                                        <ul>
-                                            <li id='ALL'>ALL</li>
-                                            <li id='ACTIVE'>ACTIVE</li>
-                                            <li id='DISABLED'>DISABLED</li>
-                                            <li id='LOCKED'>LOCKED</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <button class="btn btn-primary" id="search">Load More</button>
-                            </div>
-
-                        </div>
-                        <div class="nav-item-container">
-                            <input type="radio" name="nav" value=".questions-container"/>
-                            <div class="nav-item">
-                                <a onclick="return false" id="manage-security-questions">
-                                    <i class="fa fa-shield" aria-hidden="true"></i>
-                                    <span class="nav-item-title">Manage Security Questions</span>
-                                </a>
-                            </div>
-                            <div id="add-new-question-container">
-                                <button class="btn btn-primary" id="add-new-question">Add a new question</button>
-                            </div>
-                        </div>
-
-                        <div class="nav-item-container">
-                            <div class="nav-item">
-                                <a onclick="$('.admin-console').fadeOut(); return false" id="home">
-                                    <i class="fa fa-home" aria-hidden="true"></i>
-                                    <span class="nav-item-title">Home Page</span>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div class="nav-item-container">
-                            <div class="nav-item">
-                                <a href="logout" id="logout">
-                                    <i class="fa fa-power-off" aria-hidden="true"></i>
-                                    <span class="nav-item-title">Log out</span>
-                                </a>
-                            </div>
-                        </div>
-                    </nav>
-                    <div class="admin-console-content">
-                        <div>
-                            <!--<div class="total-user"></div>-->
-                            <table class="account-details-container">
-                                <thead>
-                                <th class="no-container">No.</th>
-                                <th>Username</th>
-                                <th>Email</th>
-                                <th>Status</th>
-                                <th>Security Role</th>
-                                <th>Last Accessed</th>
-                                <th>Available Actions</th>
-                                </thead>
-                                <tbody>
-                                    <tr class="account-details" style="display:none">
-                                        <td class="no"></td>
-                                        <td class="username"></td>
-                                        <td class="email"></td>
-                                        <td class="status"></td>
-                                        <td class="role"></td>
-                                        <td class="last-accessed-time">
-                                            <p></p>
-                                        </td>
-                                        <td class="actions">
-                                            <button class="btn btn-default edit">Edit</button>
-                                            <button class="btn btn-danger delete">Delete</button>
-                                        </td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div>
-                            <table class="questions-container">
-                                <thead>
-                                    <!--<th class="radio-button-container">&nbsp;</th>-->
-                                <th class="no-container">No.</th>
-                                <th>Question</th>
-                                <th>Available Actions</th>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                <div class="admin-console" style='display:none'>
                 </div>
-                <script>
-                    d3.select(document.head).append("link").attr("rel", "stylesheet").attr("href", "front-end-frameworks/css/admin-console.css");
-                </script>
-                <script src="front-end-frameworks/javascript/admin-console.js"></script>
             </shiro:hasRole>
         </div>
         <i class="spinner fa fa-spinner fa-pulse" style="position:absolute;left:48%;font-size:8em;line-height:100%;display:none;z-index:25"></i>
@@ -676,50 +436,32 @@
                             $(this).css("top", index * 104 + index * 5 + "px");
                         });
 
-                        // main meny toggle
-                        $(".toggler").click(function (event) {
-                            event.stopImmediatePropagation();
-                            nav.selectAll("div").classed("selected", false);
-                            if (nav.classed("closed")) {
-                                nav.classed("closed", false)
-                                        .selectAll("div")
-                                        .transition()
-                                        .ease(d3.easeBackOut)
-                                        .duration(700)
-                                        .delay(function (d, index) {
-                                            return index * 90;
-                                        })
-                                        .style("opacity", 1)
-                                        .style("left", "0px");
-                                d3.select(this).transition().duration(500).style("transform", "rotate(180deg)");
-                            } else {
-                                nav.classed("closed", true)
-                                        .selectAll("div")
-                                        .transition()
-                                        .duration(500)
-                                        .ease(d3.easeBackIn)
-                                        .delay(function (p, index, group) {
-                                            return (group.length - index) * 90;
-                                        })
-                                        .style("opacity", "0")
-                                        .style("left", "-300px");
-                                $(".form-container").fadeOut();
-                                $(".validation-error-dialog").fadeOut(400, function () {
-                                    $(this).remove();
-                                });
-                                d3.select(this).transition().duration(500).style("transform", "rotate(0deg)");
+                        // main menu toggle
+                        $("#menu-toggler").change(function () {
+                            if (this.checked)
+                                $(".main-menu").removeClass("slide-to-left").addClass("slide-from-left");
+                            else {
+                                $(".main-menu").addClass("slide-to-left")
+                                        .removeClass("slide-from-left")
+                                        .find('input[name="main-menu"]')
+                                        .prop('checked', false)
+                                        .change();
                             }
                         });
 
                         // When the user clicks anywhere else except for the main menu itself and its children
                         // We close it
                         $(document.documentElement).click(function (event) {
-                            if (!$.contains($("nav").get(0), event.target) && $(".form-container").has(event.target).length === 0
-                                    && !$(event.target).hasClass("form-container") && !$("nav").hasClass("closed"))
-                                $(".toggler").click();
                             $(".context-menu-dialog").hide();
                             $(".floating-list").fadeOut();
                             $(".app-dropdown-menu ul").fadeOut();
+                            var isMainMenuOpen = $(".main-menu").offset().left === 0;
+                            var isMenuToggler = event.target.id === 'menu-toggler';
+                            var isMainMenuItem = event.target.name === 'main-menu';
+                            var isFormElem = $("form").has(event.target).length !== 0;
+                            var isForm = event.target.tagName === "FORM";
+                            if (isMainMenuOpen && !isMenuToggler && !isMainMenuItem && !isFormElem && !isForm)
+                                $("#menu-toggler").prop("checked", false).change();
                         });
 
                         $("#show-edit-account-details").click(function () {
@@ -866,7 +608,7 @@
                                                     return {primaryKey: +this.dataset.primaryKey, answer: this.value};
                                                 }).get()
                                             };
-                                            $.ajax("security/accounts/<%= org.apache.shiro.SecurityUtils.getSubject().getPrincipal()%>/validation", {method: "POST", contentType: "application/json", data: JSON.stringify(payload)})
+                                            $.ajax("security/accounts/<%= org.apache.shiro.SecurityUtils.getSubject().getPrincipal()%>/authentication", {method: "POST", contentType: "application/json", data: JSON.stringify(payload)})
                                                     .then(function () {
                                                         $("#edit-account-details-form input").prop("disabled", false);
                                                         pnnl.dialog.showToast(null, "Security checks were successful. You can now edit your account details.");
@@ -1010,15 +752,10 @@
                                     .style("opacity", 1);
                         });
 
-                        $("#upload-cdf-hdf, #upload-excel, #show-uploaded-files").click(function (event) {
-                            event.stopImmediatePropagation();
-                            $("nav > div").removeClass("selected");
-                            $(this).parent().addClass("selected");
-                            $(".form-container").fadeOut();
+                        $(".main-menu input[name='main-menu']").change(function () {
                             $(".validation-error-dialog").fadeOut(400, function () {
                                 $(this).remove();
                             });
-                            $("#" + $(this).data("activate")).fadeIn().css({"left": $(this).width() + 10 + "px", "top": $(this).offset().top - 150 + "px"});
                         });
                         var handle;
                         $(".forward").click(function (event) {
@@ -1042,41 +779,34 @@
 
                         $("footer #pub").click(function (event) {
                             event.stopImmediatePropagation();
-                            d3.select(".publications")
-                                    .transition()
-                                    .duration(400)
-                                    .style("display", "block")
-                                    .style("opacity", "1")
-                                    .select(".my-dialog-body")
-                                    .style("opacity", "1")
-                                    .selectAll("li")
-                                    .transition()
-                                    .duration(800)
-                                    .ease(d3.easeCubicOut)
-                                    .delay(function (d, i) {
-                                        return i * 100;
-                                    })
-                                    .style("left", "0px")
-                                    .style("opacity", "1");
+                            getHtmlFragment('publications-fragment.html', '.publications', function ($publicationContainer) {
+                                d3.select($publicationContainer.get(0))
+                                        .transition()
+                                        .duration(400)
+                                        .style("display", "block")
+                                        .style("opacity", "1")
+                                        .select(".my-dialog-body")
+                                        .style("opacity", "1")
+                                        .selectAll("li")
+                                        .transition()
+                                        .duration(800)
+                                        .ease(d3.easeCubicOut)
+                                        .delay(function (d, i) {
+                                            return i * 100;
+                                        })
+                                        .style("left", "0px")
+                                        .style("opacity", "1");
+                            });
                         });
                         $("footer #usage-guide").click(function (event) {
                             event.stopImmediatePropagation();
-                            $(".how-to").fadeIn();
+                            getHtmlFragment('usage-guide-fragment.html', '.how-to');
                         });
                         $("footer #contact-us").click(function (event) {
                             event.stopImmediatePropagation();
                             $(".contact-us").fadeIn();
                         });
-                        $(".publications .my-dialog-close-btn").click(function (event) {
-                            event.stopImmediatePropagation();
-                            $(".publications").fadeOut(400, function () {
-                                $(this).css("opacity", "0")
-                                        .find(".my-dialog-body")
-                                        .css("opacity", "0")
-                                        .find("li")
-                                        .css({"opacity": "0", "left": "500px"});
-                            });
-                        });
+
                         $(".my-dialog-close-btn").click(function () {
                             $(".my-dialog").fadeOut();
                         });
@@ -1091,6 +821,29 @@
                         $("#remove-images").click(function () {
                             $("#ion-image-container > *").remove();
                         });
+
+                        $("#show-admin-console").click(function () {
+                            getHtmlFragment('admin-console-fragment.html', '.admin-console');
+                        });
+
+                        function getHtmlFragment(fragmentName, renderTarget, renderCallback) {
+                            var $renderTarget = $(renderTarget);
+                            if ($renderTarget.children().length === 0)
+                                $.ajax('protected/' + fragmentName)
+                                        .then(function (html) {
+                                            $renderTarget.html(function (index, oldHtml) {
+                                                return oldHtml + html;
+                                            });
+                                            if (!renderCallback)
+                                                $renderTarget.fadeIn(500);
+                                            renderCallback($renderTarget);
+                                        });
+                            else {
+                                if (!renderCallback)
+                                    $renderTarget.fadeIn(500);
+                                renderCallback($renderTarget);
+                            }
+                        }
                     })(jQuery);
         </script>
     </body>

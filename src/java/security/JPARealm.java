@@ -1,6 +1,5 @@
 package security;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +12,6 @@ import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.crypto.hash.Sha256Hash;
-import org.apache.shiro.realm.AuthenticatingRealm;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
@@ -78,10 +76,7 @@ public class JPARealm extends AuthorizingRealm {
         Set<String> roles = new HashSet<>(1);
         roles.add(storedAccount.getUserRole().toString());
         SimpleAuthorizationInfo authzInfo = new SimpleAuthorizationInfo(roles);
-        
-        Set<String> permissions = new HashSet<>(1);
-        permissions.add(Permission.getPermissionString(storedAccount, Permission.ResourceType.Account));
-        authzInfo.setStringPermissions(permissions);
+
         return authzInfo;
     }
 }

@@ -1,5 +1,7 @@
 package endpoints;
 
+import endpoints.annotations.RequiresAdmin;
+import endpoints.annotations.RequiresAuthentication;
 import java.util.function.Predicate;
 import javax.json.*;
 import javax.naming.NamingException;
@@ -7,14 +9,14 @@ import javax.ws.rs.*;
 import javax.ws.rs.Path;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import javax.ws.rs.core.Response;
-import org.apache.shiro.SecurityUtils;
-import security.Permission;
 import security.models.Account;
 import security.models.SecurityQuestion;
 import security.services.*;
 import utils.EJBLocator;
 
 @Path("admin")
+@RequiresAuthentication
+@RequiresAdmin
 public class AdminEndpoint {
 
     private final JPASecurityQuestionService questionService;
@@ -32,8 +34,6 @@ public class AdminEndpoint {
     @Produces(APPLICATION_JSON)
     @GET
     public JsonObject getAccounts(@QueryParam("excludes") String excludes, @QueryParam("statusFilter") String statusFilter) throws NamingException {
-        Permission.isAuthenticated();
-        Permission.isAdmin(getCurrentUser());
 
         Predicate<Account>[] filter = new Predicate[1];
         filter[0] = account -> true;
@@ -66,8 +66,6 @@ public class AdminEndpoint {
     @Consumes(APPLICATION_JSON)
     @GET
     public JsonObject getAccount(@PathParam("username") String username) throws NamingException {
-        Permission.isAuthenticated();
-        Permission.isAdmin(getCurrentUser());
         Account account = accountService.find(username);
         if (account == null || account.getUserRole() == Account.Role.ADMIN) {
             return Json.createObjectBuilder().add("found", false).build();
@@ -79,8 +77,6 @@ public class AdminEndpoint {
     @PUT
     @Consumes(APPLICATION_JSON)
     public Response editAccountDetail(@PathParam("username") String username, JsonObject payload) throws NamingException {
-        Permission.isAuthenticated();
-        Permission.isAdmin(getCurrentUser());
         Account userAccount = accountService.find(username);
         if (userAccount == null) {
             return Response.notModified().build();
@@ -95,8 +91,6 @@ public class AdminEndpoint {
     @Path("accounts/{username}")
     @DELETE
     public Response deleteAccount(@PathParam("username") String username) throws NamingException {
-        Permission.isAuthenticated();
-        Permission.isAdmin(getCurrentUser());
         Account accountToDelete = accountService.find(username);
         accountService.remove(accountToDelete);
         return Response.noContent().build();
@@ -105,24 +99,11 @@ public class AdminEndpoint {
     /*
      * ****************** QUESTIONS RELATED OPERATIONS *******************
      */
-    @Path("questions")
-    @Produces(APPLICATION_JSON)
-    @GET
-    public JsonObject getQuestions() throws NamingException {
-        // This endpoint is used at account registration so user does not need to be authenticated
-        JsonArrayBuilder arrayBuilder = questionService.findAll()
-                .stream()
-                .map(question -> Json.createObjectBuilder().add("primaryKey", question.getId()).add("questionContent", question.getQuestion()))
-                .reduce(Json.createArrayBuilder(), JsonArrayBuilder::add, JsonArrayBuilder::add);
-        return Json.createObjectBuilder().add("payload", arrayBuilder).build();
-    }
-
+    
     @Path("questions")
     @Produces(APPLICATION_JSON)
     @POST
     public JsonObject addQuestion(@FormParam("questionContent") String questionContent) throws NamingException {
-        Permission.isAuthenticated();
-        Permission.isAdmin(getCurrentUser());
         SecurityQuestion question = new SecurityQuestion(questionContent);
         questionService.create(question);
         return Json.createObjectBuilder()
@@ -134,8 +115,6 @@ public class AdminEndpoint {
     @Path("questions/{questionId}")
     @PUT
     public Response editQuestion(@PathParam("questionId") short questionId, @FormParam("question") String question) throws NamingException {
-        Permission.isAuthenticated();
-        Permission.isAdmin(getCurrentUser());
         SecurityQuestion storedQuestion = questionService.find(questionId);
         storedQuestion.setQuestion(question);
         questionService.edit(storedQuestion);
@@ -146,15 +125,9 @@ public class AdminEndpoint {
     @Path("questions/{questionId}")
     @DELETE
     public Response deleteQuestion(@PathParam("questionId") short questionId) throws NamingException {
-        Permission.isAuthenticated();
-        Permission.isAdmin(getCurrentUser());
         SecurityQuestion storedQuestion = questionService.find(questionId);
         questionService.remove(storedQuestion);
         return Response.noContent().build();
-    }
-
-    private Account getCurrentUser() {
-        return accountService.find(SecurityUtils.getSubject().getPrincipal());
     }
 
     private JsonObjectBuilder toJsonObjectBuilder(Account account) {

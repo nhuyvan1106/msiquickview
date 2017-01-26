@@ -48,7 +48,7 @@ public class UploaderServlet extends HttpServlet {
                 else {
                     request.getParts()
                             .parallelStream()
-                            .skip(4) //Not interested in these first 4 params 'user-dir', 'dataset-name', 'folder', 'opticalImage'
+                            .skip(3) //Not interested in these first 3 params 'dataset-name', 'folder', 'opticalImage'
                             .forEach(part -> save(part, cdfHdfDir, response));
                     if (request.getPart("opticalImage").getSubmittedFileName() != null)
                         save(request.getPart("opticalImage"), userDirectory.resolve("optical"), response);
