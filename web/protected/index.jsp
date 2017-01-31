@@ -378,7 +378,7 @@
                         <div>
                             <a class="btn btn-default" id="color-map-selection-toggler">
                                 <span class="selected-color-map" id="none">Select a color map</span>
-                                <i class="fa fa-chevron-right" aria-hidden="true" style="margin-left: 70px;"></i>
+                                <i class="fa fa-chevron-right" aria-hidden="true"></i>
                             </a>
                             <ul class="floating-list color-map-list">
                                 <li>
@@ -426,6 +426,7 @@
                 </div>
             </shiro:hasRole>
         </div>
+        <div class='edit-account-details-container'></div>
         <i class="spinner fa fa-spinner fa-pulse" style="position:absolute;left:48%;font-size:8em;line-height:100%;display:none;z-index:25"></i>
         <script src="front-end-frameworks/javascript/main.js"></script>
         <script>
@@ -465,167 +466,137 @@
                         });
 
                         $("#show-edit-account-details").click(function () {
-                            var body = "<h1>Security Check</h1>\n\
-                                        <strong style='color:red'>(You must pass all the following security checks prior to updating your account details)</strong>\n\
-                                        <form name='security-check-form' id='security-check-form' data-state='invalid'>\n\
-                                            <div class='form-group'>\n\
-                                                <label for='check-current-password'>Current Password</label>\n\
-                                                <input type='password' class='form-control' id='check-current-password' name='check-current-password'/>\n\
-                                            </div>\n\
-                                            <div class='form-group'>\n\
-                                                <label>Question 1</label>\n\
-                                                <span id='check-question-1'></span>\n\
-                                                <label>&nbsp;</label>\n\
-                                                <input type='text' class='form-control question' id='check-answer-1' name='check-answer-1'/>\n\
-                                            </div>\n\
-                                            <div class='form-group'>\n\
-                                                <label>Question 2</label>\n\
-                                                <span id='check-question-2'></span>\n\
-                                                <label>&nbsp;</label>\n\
-                                                <input type='text' class='form-control question' id='check-answer-2' name='check-answer-2'/>\n\
-                                            </div>\n\
-                                            <div class='form-group'>\n\
-                                                <label>Question 3</label>\n\
-                                                <span id='check-question-3'></span>\n\
-                                                <label>&nbsp;</label>\n\
-                                                <input type='text' class='form-control question' id='check-answer-3' name='check-answer-3' data-type='answer-3'/>\n\
-                                            </div>\n\
-                                            <button type='button' class='btn btn-default' id='security-check'>Check</button>\n\
-                                        </form><hr/>\n\
-                                        <form name='edit-account-details-form' id='edit-account-details-form'>\n\
-                                            <div class='form-group'>\n\
-                                                <label>Username</label>\n\
-                                                <span id='username'></span>\n\
-                                            </div>\n\
-                                            <div class='form-group'>\n\
-                                                <label for='email'>Email</label>\n\
-                                                <input disabled type='email' class='form-control' id='email' name='email'/>\n\
-                                            </div>\n\
-                                            <div class='form-group'>\n\
-                                                <label for='new-password'>New Password</label>\n\
-                                                <input disabled type='password' class='form-control' id='password' name='password'/>\n\
-                                            </div>\n\
-                                            <div class='form-group'>\n\
-                                                <label for='password-repeat'>Re-Enter Password</label>\n\
-                                                <input disabled type='password' class='form-control' id='password-repeat' name='password-repeat'/>\n\
-                                            </div>\n\
-                                            <div class='form-group question'>\n\
-                                                <label>Question 1</label>\n\
-                                                <span id='question-1'></span>\n\
-                                                <label>New Answer</label>\n\
-                                                <input disabled type='text' class='form-control' id='answer-1' name='answer-1'/>\n\
-                                            </div>\n\
-                                            <div class='form-group question'>\n\
-                                                <label>Question 2</label>\n\
-                                                <span id='question-2'></span>\n\
-                                                <label>New Answer</label>\n\
-                                                <input disabled type='text' class='form-control' id='answer-2' name='answer-2'/>\n\
-                                            </div>\n\
-                                            <div class='form-group question'>\n\
-                                                <label>Question 3</label>\n\
-                                                <span id='question-3'></span>\n\
-                                                <label>New Answer</label>\n\
-                                                <input disabled type='text' class='form-control' id='answer-3' name='answer-3' data-type='answer-3'/>\n\
-                                            </div>\n\
-                                        </form>";
-                            pnnl.dialog
-                                    .newDialogBuilder()
-                                    .createAlertDialog("edit-account-details-dialog")
-                                    .setHeaderTitle("Edit Account Details")
-                                    .setCloseActionButton()
-                                    .setPositiveButton("Save", function () {
-                                        if (!pnnl.validation.validateNotEmpty("security-check-form"))
-                                            return;
-                                        var passwordRepeatElem = document.forms["edit-account-details-form"].elements["password-repeat"];
-                                        if (document.forms["edit-account-details-form"].elements["password"].value !== passwordRepeatElem.value) {
-                                            pnnl.dialog.showHintDialog("hint-dialog", "Passwords don't match", passwordRepeatElem);
-                                            return;
-                                        }
-                                        var editedInputElems = {};
-                                        $("#edit-account-details-form input:not(input#password)")
-                                                .filter(function () {
-                                                    return this.dataset.state === "valid" && this.value;
-                                                })
-                                                .each(function () {
-                                                    editedInputElems[this.name] = this.value;
-                                                })
-                                                .filter(function () {
-                                                    return this.name.indexOf("answer") !== -1;
-                                                })
-                                                .each(function () {
-                                                    editedInputElems[this.name] = {
-                                                        primaryKey: +this.dataset.primaryKey,
-                                                        answer: this.value
-                                                    };
-                                                });
-                                        console.log(editedInputElems);
-                                        if (Object.keys(editedInputElems).length > 0) {
-                                            $.ajax("security/accounts/<%= org.apache.shiro.SecurityUtils.getSubject().getPrincipal()%>", {
-                                                contentType: "application/json",
-                                                method: "PUT",
-                                                data: JSON.stringify(editedInputElems),
-                                                success: function () {
-                                                    pnnl.dialog.showToast(null, "Account details updated successfully.<br/>You will be automatically signed out in 5 seconds");
-                                                    setTimeout(function () {
-                                                        document.querySelector("#logout").click();
-                                                    }, 5000);
-                                                },
-                                                error: function () {
-                                                    pnnl.dialog.showToast(new Error("Internal Server Error"), "Something went wrong. Please try again or contact site admin.");
-                                                }
-                                            });
-                                        }
-                                    })
-                                    .setNegativeButton("Cancel")
-                                    .setMessageBody(body)
-                                    .init(function (dialogId) {
-                                        // Get the current account details to populate the form, e.g. username, email, list of questions
-                                        $.ajax("security/accounts/<%= org.apache.shiro.SecurityUtils.getSubject().getPrincipal()%>", {method: "GET", dataType: "json"})
-                                                .then(function (accountObj) {
-                                                    $(dialogId + " #username").text(accountObj.primaryKey);
-                                                    $(dialogId + " #email").val(accountObj.email);
-                                                    accountObj.questions.forEach(function (question, index) {
-                                                        $(dialogId + " #question-" + (index + 1) + ", " + dialogId + " #check-question-" + (index + 1))
-                                                                .text(question.questionContent)
-                                                                .nextAll("input")
-                                                                .attr("data-primary-key", question.primaryKey);
-                                                    });
-                                                })
-                                                .catch(function (xhr) {
-                                                    console.log(xhr, "Something went wrong, please try again");
-                                                });
-                                        pnnl.validation.initValidationForInput("#edit-account-details-form #email", [/[^@]@[^@]/g], "Invalid email format");
-                                        pnnl.validation.initValidationForInput("#edit-account-details-form #password", [/[a-z]+/g, /[A-Z]+/g, /\d+/g, /[_!@#$]+/g, /^.{8,100}$/g], "Valid password must contain a combination of lowercase and uppercase letters, numbers, and one or more of these special characters <strong>!</strong>, <strong>@</strong>, <strong>#</strong>, <strong>$</strong>, <strong>_</strong> and be between 8 to 100 characters long.");
-                                        pnnl.validation.initValidationForInput("#edit-account-details-form #password-repeat", [new RegExp("", "g")], "Passwords don't match", "#edit-account-details-form #password");
-                                        pnnl.validation.initValidationForInput("#edit-account-details-form .question input", [new RegExp("^[a-zA-Z0-9\\s]{4,}$")], "Valid answer must contain letters, numbers, and spaces only and be at least 4 characters long");
-
-                                        $("#security-check-form #security-check").click(function () {
+                            var successCallback = function (body) {
+                                pnnl.dialog
+                                        .newDialogBuilder()
+                                        .createAlertDialog("edit-account-details-dialog")
+                                        .setHeaderTitle("Edit Account Details")
+                                        .setCloseActionButton()
+                                        .setPositiveButton("Save", function () {
                                             if (!pnnl.validation.validateNotEmpty("security-check-form"))
                                                 return;
-                                            var payload = {
-                                                password: $("#security-check-form #check-current-password").val(),
-                                                answers: $("#security-check-form .question").map(function () {
-                                                    return {primaryKey: +this.dataset.primaryKey, answer: this.value};
-                                                }).get()
-                                            };
-                                            $.ajax("security/accounts/<%= org.apache.shiro.SecurityUtils.getSubject().getPrincipal()%>/authentication", {method: "POST", contentType: "application/json", data: JSON.stringify(payload)})
-                                                    .then(function () {
-                                                        $("#edit-account-details-form input").prop("disabled", false);
-                                                        pnnl.dialog.showToast(null, "Security checks were successful. You can now edit your account details.");
-                                                        document.forms["security-check-form"].setAttribute("data-state", "valid");
+                                            var editedInputElems = {};
+                                            var passwordRepeatElem = document.forms["edit-account-details-form"].elements["password-repeat"];
+                                            if ($('#edit-account-details-form #password-repeat').data('state') !== $('#edit-account-details-form #password').data('state')) {
+                                                pnnl.dialog.showToast(new Error('Password and password repeat don\'t match'), 'Make sure your new password conforms to our guidelines.');
+                                                return;
+                                            } else if (passwordRepeatElem.dataset.state === 'valid')
+                                                editedInputElems['password-repeat'] = passwordRepeatElem.value;
+
+                                            $(".security-questions-container .selected-question-id")
+                                                    .filter(function () {
+                                                        return this.id !== 'none' && $('#edit-account-details-form #' + this.dataset.for).data('state') === 'valid';
                                                     })
-                                                    .catch(function () {
-                                                        pnnl.dialog.showToast(new Error("Authentication Failed"), "Some of the answers did not match what we have in our records. Please try again.");
+                                                    .each(function () {
+                                                        var questionToEdit = this;
+                                                        var $matchedQuestionId = $('#security-check-form .question').filter(function () {
+                                                            // questionToEdit.id contains the id of the newly selected question
+                                                            // we are comparing it to the questions that the user selected at account registration
+                                                            // if both ids matches, they just want to change the answer, so we need to use correct id(primary key)
+                                                            // for the corresponding accountSecurityQuestion row. Otherwise, we can just update any of the 3 rows in
+                                                            // account quetion answer table that correspond to this user. That way they won't have 2 questions with the same content.
+                                                            return questionToEdit.id === this.dataset.questionId;
+                                                        });
+                                                        var key;
+                                                        //$matchedQuestionIds must be 1 or 0, or else, there is a bug
+                                                        if ($matchedQuestionId.length === 1)
+                                                            key = $matchedQuestionId.data('accountQuestionPrimaryKey');
+                                                        else if ($matchedQuestionId.length === 0)
+                                                            key = questionToEdit.dataset.accountQuestionPrimaryKey;
+                                                        else
+                                                            console.error('There is a bug');
+                                                        editedInputElems[key] = {
+                                                            questionId: questionToEdit.id,
+                                                            answer: $('#' + questionToEdit.dataset.for).val()
+                                                        };
+                                                        console.log($matchedQuestionId.get());
                                                     });
-                                            console.log(payload);
+                                            console.log(editedInputElems);
+                                            if (Object.keys(editedInputElems).length > 0)
+                                                $.ajax("security/accounts/<%= org.apache.shiro.SecurityUtils.getSubject().getPrincipal()%>", {
+                                                    contentType: "application/json",
+                                                    method: "PUT",
+                                                    data: JSON.stringify(editedInputElems),
+                                                    success: function () {
+                                                        pnnl.dialog.showToast(null, "Account details updated successfully.<br/>You will be automatically signed out in 5 seconds");
+                                                        setTimeout(function () {
+                                                            document.querySelector("#logout").click();
+                                                        }, 5000);
+                                                    },
+                                                    error: function () {
+                                                        pnnl.dialog.showToast(new Error("Internal Server Error"), "Something went wrong. Please try again or contact site admin.");
+                                                    }
+                                                });
+                                            else
+                                                pnnl.dialog.showToast(null, 'Nothing was updated');
+                                            this.hide();
+                                        })
+                                        .setNegativeButton("Cancel")
+                                        .setMessageBody(body)
+                                        .init(function (dialogId) {
+                                            // Get the current account details to populate the form, e.g. username, email, list of questions
+                                            $.ajax("security/accounts/<%= org.apache.shiro.SecurityUtils.getSubject().getPrincipal()%>", {method: "GET", dataType: "json"})
+                                                    .then(function (accountObj) {
+                                                        $(dialogId + " #username").text(accountObj.primaryKey);
+                                                        $(dialogId + " #email").val(accountObj.email);
+                                                        accountObj.questions.forEach(function (question, index) {
+                                                            $('#security-check-form #check-question-' + (index + 1))
+                                                                    .text(question.questionContent)
+                                                                    .nextAll("input")
+                                                                    .attr("data-account-question-primary-key", question.accountQuestionPrimaryKey)
+                                                                    .attr('data-question-id', question.questionId);
+                                                            $('#edit-account-details-form .selected-question-id:nth-child(' + (index + 1) + ')').attr('data-account-question-primary-key', question.accountQuestionPrimaryKey);
+                                                        });
+                                                        pnnl.utils.populateQuestions();
+                                                        $(".security-questions-container > div > a")
+                                                                .click(function (event) {
+                                                                    event.preventDefault();
+                                                                    pnnl.utils.filterOutSelectedQuestions(this);
+                                                                })
+                                                                .find('span')
+                                                                .attr('id', 'none');
+                                                    })
+                                                    .catch(function (xhr) {
+                                                        console.log(xhr, "Something went wrong, please try again");
+                                                    });
+                                            $('#edit-account-details-dialog .positive-btn').attr('disabled', 'disabled');
+                                            pnnl.validation.initValidationForInput("#edit-account-details-form #email", [/[^@]@[^@]/g], "Invalid email format");
+                                            pnnl.validation.initValidationForInput("#edit-account-details-form #password", [/[a-z]+/g, /[A-Z]+/g, /\d+/g, /[_!@#$]+/g, /^.{8,100}$/g], "Valid password must contain a combination of lowercase and uppercase letters, numbers, and one or more of these special characters <strong>!</strong>, <strong>@</strong>, <strong>#</strong>, <strong>$</strong>, <strong>_</strong> and be between 8 to 100 characters long.");
+                                            pnnl.validation.initValidationForInput("#edit-account-details-form #password-repeat", [new RegExp("", "g")], "Passwords don't match", "#edit-account-details-form #password");
+                                            pnnl.validation.initValidationForInput("#edit-account-details-form .question input", [new RegExp("^[a-zA-Z0-9\\s]{4,}$")], "Valid answer must contain letters, numbers, and spaces only and be at least 4 characters long");
+                                            pnnl.validation.initValidationForInput('#edit-account-details-form input[id*="answer"', [new RegExp("^[a-zA-Z0-9\\s]{4,}$")], "Valid answer must contain letters, numbers, and spaces only and be at least 4 characters long");
+
+                                            $("#security-check-form #security-check").click(function () {
+                                                if (!pnnl.validation.validateNotEmpty("security-check-form"))
+                                                    return;
+                                                var payload = {
+                                                    password: $("#security-check-form #check-current-password").val(),
+                                                    answers: $("#security-check-form .question")
+                                                            .map(function () {
+                                                                return {accountQuestionPrimaryKey: +this.dataset.accountQuestionPrimaryKey, answer: this.value};
+                                                            }).get()
+                                                };
+                                                $.ajax("security/accounts/<%= org.apache.shiro.SecurityUtils.getSubject().getPrincipal()%>/authentication", {method: "POST", contentType: "application/json", data: JSON.stringify(payload)})
+                                                        .then(function () {
+                                                            $('#edit-account-details-form input[type="password"').prop("disabled", false);
+                                                            pnnl.dialog.showToast(null, "Security checks were successful. You can now edit your account details.");
+                                                            document.forms["security-check-form"].setAttribute("data-state", "valid");
+                                                            $(dialogId + ' .positive-btn').attr('disabled', null);
+                                                        })
+                                                        .catch(function () {
+                                                            pnnl.dialog.showToast(new Error("Authentication Failed"), "Some of the answers did not match what we have in our records. Please try again.");
+                                                            $('#edit-account-details-dialog .positive-btn').attr('disabled', 'disabled');
+                                                        });
+                                            });
+                                        })
+                                        .show(true, function (id) {
+                                            $(id).fadeIn().css({
+                                                "top": "2px",
+                                                "left": "calc((100% - " + $(id).width() + "px)/2)"
+                                            });
                                         });
-                                    })
-                                    .show(true, function (id) {
-                                        $(id).fadeIn().css({
-                                            "top": "2px",
-                                            "left": "calc((100% - " + $(id).width() + "px)/2)"
-                                        });
-                                    });
+                            };
+                            getHtmlFragment('edit-account-details-form-fragment.html', successCallback, true);
                         });
 
                         $("#dataset-selection-toggler, #color-map-selection-toggler").click(function (event) {
@@ -779,8 +750,9 @@
 
                         $("footer #pub").click(function (event) {
                             event.stopImmediatePropagation();
-                            getHtmlFragment('publications-fragment.html', '.publications', function ($publicationContainer) {
-                                d3.select($publicationContainer.get(0))
+                            var successCallback = function (pubFragment) {
+                                d3.select('.publications')
+                                        .html(pubFragment)
                                         .transition()
                                         .duration(400)
                                         .style("display", "block")
@@ -796,11 +768,30 @@
                                         })
                                         .style("left", "0px")
                                         .style("opacity", "1");
-                            });
+                                $(".publications .my-dialog-close-btn").click(function (event) {
+                                    event.stopImmediatePropagation();
+                                    // .publications element
+                                    $(this.parentElement.parentElement).fadeOut(400, function () {
+                                        $(this).css("opacity", "0")
+                                                .find(".my-dialog-body")
+                                                .css("opacity", "0")
+                                                .find("li")
+                                                .css({"opacity": "0", "left": "500px"});
+                                    });
+                                });
+                            };
+                            getHtmlFragment('publications-fragment.html', successCallback, d3.select('.publications > *').empty());
                         });
+
+
                         $("footer #usage-guide").click(function (event) {
                             event.stopImmediatePropagation();
-                            getHtmlFragment('usage-guide-fragment.html', '.how-to');
+                            var $HowtoContainer = $('.how-to');
+                            var successCallback = function (fragment) {
+                                $HowtoContainer.html(fragment)
+                                        .fadeIn();
+                            };
+                            getHtmlFragment('usage-guide-fragment.html', successCallback, $HowtoContainer.children().length === 0);
                         });
                         $("footer #contact-us").click(function (event) {
                             event.stopImmediatePropagation();
@@ -823,26 +814,23 @@
                         });
 
                         $("#show-admin-console").click(function () {
-                            getHtmlFragment('admin-console-fragment.html', '.admin-console');
+                            var $AdminConsoleContainer = $('.admin-console');
+                            var successCallback = function (fragment) {
+                                $AdminConsoleContainer.html(fragment)
+                                        .fadeIn();
+                            };
+                            getHtmlFragment('admin-console-fragment.html', successCallback, $AdminConsoleContainer.children().length === 0);
                         });
-
-                        function getHtmlFragment(fragmentName, renderTarget, renderCallback) {
-                            var $renderTarget = $(renderTarget);
-                            if ($renderTarget.children().length === 0)
+                        // retrievePredicate: under what condition should the ajax call be made to retrieve the fragment
+                        // just another way to prevent hitting the server too much
+                        function getHtmlFragment(fragmentName, successCallback, retrievePredicate) {
+                            if (arguments.length !== 3)
+                                console.log('Incorrect number of parameters passed. Required fragmentName, successCallback, retrievePredicate');
+                            if (retrievePredicate)
                                 $.ajax('protected/' + fragmentName)
                                         .then(function (html) {
-                                            $renderTarget.html(function (index, oldHtml) {
-                                                return oldHtml + html;
-                                            });
-                                            if (!renderCallback)
-                                                $renderTarget.fadeIn(500);
-                                            renderCallback($renderTarget);
+                                            successCallback(html);
                                         });
-                            else {
-                                if (!renderCallback)
-                                    $renderTarget.fadeIn(500);
-                                renderCallback($renderTarget);
-                            }
                         }
                     })(jQuery);
         </script>

@@ -1,7 +1,4 @@
 @import 'main';
-body {
-    counter-reset: questionIndex;
-}
 label {
     font-weight: 600;
 }
@@ -79,50 +76,21 @@ label {
         font-size: medium;
     }
 }
-
 .security-questions-container {
-    position: relative;
-    @extend .pnl-dropdown-menu-bottom;
+    display: block;
+    width: 100%;
     & > div {
         width: 80%;
-        padding: 0;
     }
     & > div > a {
-        width: 100%;
-        margin: 0px;
-        border: 2px solid rgba(200, 200, 200, 0.5);
-        height: 40px;
-        border-radius: 3px;
-        i {
-            margin-top: 5px;
-            float: right;
-        }
-
+        width: auto;
+        display: block;
         span {
-            line-height: 25px;
-            overflow: hidden;
-            width: 70%;
-            border-right: none;
+            width: 70% !important;
         }
-    }
-
-    ul {
-        width: 100%;
-        margin-left: 0px;
-    }
-
-    li {
-        font-size: small;
-        line-height: 35px;
-        color: #000;
-    }
-    li:before {
-        counter-increment: questionIndex;
-        content: counter(questionIndex) ". ";
-    }
-    .form-control {
-        margin-top: 10px;
-        padding-left: 10px;
-        margin-bottom: 10px;
+        i {
+            float: right;
+            margin-top: 8px;
+        }
     }
 }

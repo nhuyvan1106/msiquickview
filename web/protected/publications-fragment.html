@@ -60,17 +60,3 @@
         </li>
     </ol>
 </div>
-<script>
-    (function ($) {
-        $(".my-dialog-close-btn").click(function (event) {
-            event.stopImmediatePropagation();
-            $(".publications").fadeOut(400, function () {
-                $(this).css("opacity", "0")
-                        .find(".my-dialog-body")
-                        .css("opacity", "0")
-                        .find("li")
-                        .css({"opacity": "0", "left": "500px"});
-            });
-        });
-    })(jQuery);
-</script>

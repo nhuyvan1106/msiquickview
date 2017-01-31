@@ -122,6 +122,10 @@
                             .setPositiveButton("Submit", function (thisDialogId) {
                                 if (!pnnl.validation.validateNotEmpty("new-account-form"))
                                     return;
+                                if ($(".selected-question-id").attr('id') === 'none') {
+                                    pnnl.dialog.showToast(new Error('Security questions not selected'), 'Please select a security question before answering');
+                                    return;
+                                }
                                 else {
                                     var $newAccountForm = $(".new-account-form");
                                     var isFormValid = $newAccountForm.find("input")
@@ -165,29 +169,11 @@
                                 $(".security-questions-container > div > a")
                                         .click(function (event) {
                                             event.preventDefault();
-                                            //Retrieve the ids of the selected questions
-                                            //So we can remove them from the next question menus
-                                            var thisQuestionId = this.querySelector(".selected-question-id").id;
-                                            var selectedQuestionIds = $(".selected-question-id")
-                                                    .get()
-                                                    .filter(function (elem) {
-                                                        return elem.id !== thisQuestionId && elem.id;
-                                                    })
-                                                    .map(function (elem) {
-                                                        return "#" + elem.id;
-                                                    })
-                                                    .reduce(function (prev, next) {
-                                                        return prev + "," + next;
-                                                    }, "none");
-                                            // Only show the questions that are not selected
-                                            $(this).next("ul")
-                                                    .fadeToggle()
-                                                    .children()
-                                                    .css("display", "block")
-                                                    .filter(selectedQuestionIds)
-                                                    .css("display", "none");
-                                        });
-                                populateQuestions();
+                                            pnnl.utils.filterOutSelectedQuestions(this);
+                                        })
+                                        .find('span')
+                                        .attr('id', 'none');
+                                pnnl.utils.populateQuestions();
                                 animateLabels(".new-account-form");
                                 pnnl.validation
                                         .initValidationForInput(".new-account-form #new-account-username", [/^[\w\d.]{1,50}$/g], "Username may contain lowercase and uppercase letters, numbers, periods and underscores. Maximum 50 characters long")
@@ -242,41 +228,6 @@
                             .prev("label")
                             .css("color", "black")
                             .css("margin-top", "-30px");
-                }
-                // Call to populate each security questions selection menu when new account
-                // creation form is opened by making an ajax call to the back end.
-                function populateQuestions() {
-                    $.ajax("security/questions", {
-                        method: "GET",
-                        Accept: "application/json",
-                        success: function (data) {
-                            var uls = document.querySelectorAll(".security-questions-container ul");
-                            uls.forEach(function (ul) {
-                                var joined = d3.select(ul)
-                                        .selectAll("li")
-                                        .data(data.payload);
-
-                                joined.enter()
-                                        .append("li")
-                                        .attr("id", function (questionObj) {
-                                            return questionObj.primaryKey;
-                                        })
-                                        .text(function (questionObj) {
-                                            return questionObj.questionContent;
-                                        })
-                                        .on("click", function (questionObj) {
-                                            $(this).parents(".security-questions-container")
-                                                    .find("div")
-                                                    .attr("title", this.innerHTML)
-                                                    .find(".selected-question-id")
-                                                    .attr("id", questionObj.primaryKey)
-                                                    .text(this.innerHTML);
-                                            $(this).parent().fadeOut();
-                                        });
-                            });
-                        },
-                        error: console.error
-                    });
                 }
             })(jQuery);
         </script>

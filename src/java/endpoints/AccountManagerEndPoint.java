@@ -92,7 +92,7 @@ public class AccountManagerEndPoint {
                     break;
                 default:
                     JPAQuestionAnswerService questionAnswerService = EJBLocator.getBean(JPAQuestionAnswerService);
-                    editAnswer(payload.getJsonObject(key), questionAnswerService, currentUser.getSalt());
+                    editAnswer(key, payload.getJsonObject(key), questionAnswerService, currentUser.getSalt());
                     break;
             }
 
@@ -131,9 +131,10 @@ public class AccountManagerEndPoint {
         return accountService.find(SecurityUtils.getSubject().getPrincipal());
     }
 
-    private void editAnswer(JsonObject answerObj, JPAQuestionAnswerService service, String salt) {
-        AccountSecurityQuestion answer = service.find(answerObj.getInt("primaryKey"));
+    private void editAnswer(String accountQuestionPrimaryKey, JsonObject answerObj, JPAQuestionAnswerService service, String salt) {
+        AccountSecurityQuestion answer = service.find(Integer.parseInt(accountQuestionPrimaryKey));
         answer.setAnswer(new Sha256Hash(answerObj.getString("answer"), salt, 1024).toBase64());
+        answer.setQuestionId(Short.parseShort(answerObj.getString("questionId")));
         service.edit(answer);
         service.evict(answer.getId());
     }
@@ -141,7 +142,7 @@ public class AccountManagerEndPoint {
     private boolean isProvidedAnswerMatched(JsonObject answer, String salt) {
         try {
             JPAQuestionAnswerService questionAnswerService = EJBLocator.getBean(JPAQuestionAnswerService);
-            return questionAnswerService.find(answer.getInt("primaryKey"))
+            return questionAnswerService.find(answer.getInt("accountQuestionPrimaryKey"))
                     .getAnswer()
                     .equals(new Sha256Hash(answer.getString("answer"), salt, 1024).toBase64());
         } catch (NamingException ex) {
@@ -154,8 +155,9 @@ public class AccountManagerEndPoint {
         JPASecurityQuestionService questionService = EJBLocator.getBean(JPASecurityQuestionService);
         return accountSecurityQuestionList.stream()
                 .map(e -> Json.createObjectBuilder()
-                        .add("primaryKey", e.getId())
+                        .add("accountQuestionPrimaryKey", e.getId())
                         .add("questionContent", questionService.find(e.getQuestionId()).getQuestion())
+                        .add("questionId", e.getQuestionId())
                 )
                 .reduce(Json.createArrayBuilder(), JsonArrayBuilder::add, JsonArrayBuilder::add);
     }

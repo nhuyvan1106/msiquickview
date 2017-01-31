@@ -158,6 +158,24 @@ var pnnl = {
             d3.select(".nth-point-indicator").attr("d", "M" + x + " 0," + x + " " + ($("svg").height() - 50));
         }
     },
+    /*dialog: {
+     newDialogBuilder: function (alertDialogClass, id, addtionClasses) {
+     
+     if (!alertDialogClass)
+     throw new Error("Dialog class name is required.");
+     var __dialogClassName = alertDialogClass;
+     var __dialogId = id ? id : alertDialogClass;
+     d3.select("body")
+     .append("div")
+     .attr("class", __dialogClassName)
+     .classed(addtionClasses, addtionClasses ? true : false)
+     .attr("id", __dialogId)
+     .append("div")
+     .attr("class", "alert-dialog-header");
+     return this;
+     }
+     },*/
+
     /*********** DIALOG MODULE ***********/
     dialog: {
         // This function is the entry point to the dialog APIs
@@ -465,6 +483,65 @@ var pnnl = {
     utils: {
         getScrollTop: function () {
             return document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop;
+        },
+        populateQuestions: function populateQuestions() {
+            $.ajax("security/questions", {
+                method: "GET",
+                Accept: "application/json",
+                success: function (data) {
+                    var uls = document.querySelectorAll(".security-questions-container ul");
+                    uls.forEach(function (ul) {
+                        var joined = d3.select(ul)
+                                .selectAll("li")
+                                .data(data.payload);
+
+                        joined.enter()
+                                .append("li")
+                                .attr("id", function (questionObj) {
+                                    return questionObj.primaryKey;
+                                })
+                                .text(function (questionObj) {
+                                    return questionObj.questionContent;
+                                })
+                                .on("click", function (questionObj) {
+                                    var $securityQuestionsContainer = $(this).parents(".security-questions-container");
+                                    var answerInputElemSelector = $securityQuestionsContainer.find("div")
+                                            .attr("title", this.innerHTML)
+                                            .find(".selected-question-id")
+                                            .attr("id", questionObj.primaryKey)
+                                            .text(this.innerHTML)
+                                            .data('for');
+                                    document.querySelector('#' + answerInputElemSelector).removeAttribute('disabled');
+                                    $securityQuestionsContainer.find('ul')
+                                            .fadeOut();
+                                });
+                    });
+                },
+                error: console.error
+            });
+        },
+        filterOutSelectedQuestions: function (selectedQuestionContainerElem) {
+            var selectedQuestionId = selectedQuestionContainerElem.querySelector(".selected-question-id").id;
+            var selectedQuestionIds = $(".selected-question-id")
+                    .get()
+                    .filter(function (elem) {
+                        return elem.id !== selectedQuestionId && elem.id;
+                    })
+                    .map(function (elem) {
+                        return "#" + elem.id;
+                    })
+                    .reduce(function (prev, next) {
+                        return prev + "," + next;
+                    }, "none");
+            // Only show the questions that are not selected
+            var $questionList = $(selectedQuestionContainerElem).next("ul");
+            $questionList.css('bottom', 'initial');
+            $questionList.fadeToggle()
+                    .children()
+                    .css("display", "block")
+                    .filter(selectedQuestionIds)
+                    .css("display", "none");
+            $questionList.css('bottom', ($questionList.offset().top + $questionList.height() - screen.availHeight) > 25 ? '100%' : 'initial');
         },
         ajaxPost: function (url, params, successCallback, errorCallback, cleanupCallback) {
             var formData = new FormData();

@@ -22,7 +22,6 @@
                 return;
             }
             $("#menu-toggler").click();
-            $(".error-dialog").fadeOut();
 
             var datasetName = document.getElementById("dataset-name").value;
             var notes = $("#upload-cdf-hdf-form #notes").val();
@@ -50,9 +49,11 @@
                     .setCloseActionButton()
                     .setMessageBody(ul)
                     .show(false, function (id) {
-                        $(id).fadeIn().css({"top": 10 + pnnl.utils.getScrollTop() + "px"});
+                        $(id).fadeIn()
+                                .css({"top": 10 + pnnl.utils.getScrollTop() + "px"});
                     });
-            $("#file-selection-dialog").draggable({"handle": ".file-selection-dialog-header"})
+            $("#file-selection-dialog")
+                    .draggable({"handle": ".file-selection-dialog-header"})
                     .disableSelection()
                     .css("position", "absolute");
             $(window).scroll(function () {
@@ -76,7 +77,8 @@
                         data.upsert[fileType + "Files"] = filesToPush;
                         pushToES("_update", datasetName, data);
 
-                        $(document.documentElement).off("contextmenu")
+                        $(document.documentElement)
+                                .off("contextmenu")
                                 .contextmenu(function (event) {
                                     showContextDialog(event, "", function () {
                                         switch (this.id) {
@@ -90,19 +92,22 @@
                                     });
                                 });
                         $(".file-selection-dialog .alert-dialog-header-title").html("Click on file to load");
-                        d3.select(".file-selection-dialog").selectAll("li").each(function (d, i) {
-                            $(this).find(".file-upload-spinner")
-                                    .removeClass("fa-pulse fa-spinner")
-                                    .addClass("fa-check");
-                            d3.select(this).on("click", function () {
-                                if (sessionStorage.getItem("file-name") !== this.id || d3.select(".intensity-scan-chart").empty()) {
-                                    pnnl.draw.drawSpinner();
-                                    pnnl.draw.drawOverlay();
-                                    dispatch.call("selectionchange", this);
-                                    loadData(datasetName, this.id);
-                                }
-                            });
-                        });
+                        d3.select(".file-selection-dialog")
+                                .selectAll("li")
+                                .each(function (d, i) {
+                                    $(this).find(".file-upload-spinner")
+                                            .removeClass("fa-pulse fa-spinner")
+                                            .addClass("fa-check");
+                                    d3.select(this)
+                                            .on("click", function () {
+                                                if (sessionStorage.getItem("file-name") !== this.id || d3.select(".intensity-scan-chart").empty()) {
+                                                    pnnl.draw.drawSpinner();
+                                                    pnnl.draw.drawOverlay();
+                                                    dispatch.call("selectionchange", this);
+                                                    loadData(datasetName, this.id);
+                                                }
+                                            });
+                                });
                     }, function (msg) {
                 errorCallback(msg);
                 $(this).find(".file-upload-spinner")
@@ -126,9 +131,10 @@
             var fileNames = Array.prototype.map.call($excelForm.find("#file-names").get(0).files, function (d) {
                 return d.name;
             });
-            if (fileNames.some(function (d) {
+            var invalidFileFormat = fileNames.some(function (d) {
                 return !d.endsWith("cdf") && !d.endsWith("hdf");
-            })) {
+            });
+            if (invalidFileFormat) {
                 errorCallback("Selection must either contain .cdf or .hdf files only.");
                 return;
             }
@@ -140,8 +146,7 @@
             $excelForm.parent()
                     .delay(250)
                     .fadeOut();
-            $(".error-dialog").fadeOut();
-            $(".toggler").click();
+            $("#menu-toggler").click();
 
             var params = [];
             params[0] = ["dataset-name", $excelForm.find("#dataset-name").val()];
@@ -168,7 +173,7 @@
                 pushToES("_update", params[0], data);
             }, function () {
                 statusDetail.select("#job-progress")
-                        .text("Error Occurred");
+                        .text("Something went wrong");
             }, function () {
                 websocket.close();
                 clearInterval(statusInterval);
@@ -216,10 +221,17 @@
             pnnl.draw.drawOverlay();
             pnnl.draw.drawSpinner();
             $.ajax(url, {
-                "data": {"limit": limit, "dataset-name": $("#selected-dataset").text(), "image-folder": activeImageTab.replace("-", "/"),
-                    "image-names": d3.selectAll("#" + activeImageTab + "-tab-content .image-container div").nodes().map(function (e) {
-                        return d3.select(e).text();
-                    }).join("|")},
+                "data": {
+                    "limit": limit,
+                    "dataset-name": $("#selected-dataset").text(),
+                    "image-folder": activeImageTab.replace("-", "/"),
+                    "image-names": d3.selectAll("#" + activeImageTab + "-tab-content .image-container div")
+                            .nodes()
+                            .map(function (e) {
+                                return d3.select(e).text();
+                            })
+                            .join("|")
+                },
                 "method": "GET",
                 "success": function (data) {
                     current += data.imageData.length;
@@ -246,32 +258,33 @@
             $selectedTool.text(this.innerHTML).attr("id", this.id);
             switch (this.id) {
                 case "warp":
-                    $(".image-container img").filter(function () {
-                        return !$(this.parentElement).hasClass("roi-image-container");
-                    }).css("cursor", "pointer").off("click").click(function () {
-                        $(this).toggleClass("selected-image");
-                        switch ($(".selected-image").length) {
-                            case 0:
-                            case 1:
-                                $("#select-tool-done").css("visibility", "hidden");
-                                break;
-                            case 2:
-                                var $selectedImages = $(".selected-image");
-                                if ($selectedImages.filter(".optical-image").length === 0) {
-                                    errorCallback("Please select 1 optical image");
-                                    $selectedImages.last().removeClass("selected-image");
-                                } else if ($selectedImages.filter(".optical-image").length === 2) {
-                                    errorCallback("Please select 1 optical image only");
-                                    $selectedImages.last().removeClass("selected-image");
-                                } else
-                                    $("#select-tool-done").css("visibility", "visible");
-                                break;
-                            default:
-                                errorCallback("Please select 2 images at most");
-                                this.className = this.className.replace("selected-image", "").trim();
-                                break;
-                        }
-                    });
+                    $('.image-container img[class != "roi-image"]')
+                            .css("cursor", "pointer")
+                            .off("click")
+                            .click(function () {
+                                $(this).toggleClass("selected-image");
+                                switch ($(".selected-image").length) {
+                                    case 0:
+                                    case 1:
+                                        $("#select-tool-done").css("visibility", "hidden");
+                                        break;
+                                    case 2:
+                                        var $selectedImages = $(".selected-image");
+                                        if ($selectedImages.filter(".optical-image").length === 0) {
+                                            errorCallback("Please select 1 optical image");
+                                            $selectedImages.last().removeClass("selected-image");
+                                        } else if ($selectedImages.filter(".optical-image").length === 2) {
+                                            errorCallback("Please select 1 optical image only");
+                                            $selectedImages.last().removeClass("selected-image");
+                                        } else
+                                            $("#select-tool-done").css("visibility", "visible");
+                                        break;
+                                    default:
+                                        errorCallback("Please select 2 images at most");
+                                        this.className = this.className.replace("selected-image", "").trim();
+                                        break;
+                                }
+                            });
                     break;
 
                 case "mark-up-window":
@@ -280,7 +293,8 @@
 
                 case "overlay-window":
                     $(".overlay-window").draggable({handle: ".header"}).fadeIn();
-                    d3.select(".image-names").selectAll("div")
+                    d3.select(".image-names")
+                            .selectAll("div")
                             .data($("#images-tab-content img").get())
                             .text(function (img) {
                                 return img.alt;
@@ -458,18 +472,8 @@
         if (this.getAttribute("disabled") !== "disabled") {
             $("#select-a-tool-toggler span").attr("id", "mark-up-window").text("Mark-Up Window");
             document.getElementById("images-tab").click();
-            pnnl.dialog.newDialogBuilder()
-                    .createAlertDialog("add-roi-dialog")
-                    .setHeaderIcon("fa-info-circle", "add-roi-dialog-header")
-                    .setMessageBody("Click on an image to select to draw ROI")
-                    .show(false, function (id) {
-                        $(id).fadeIn().delay(5000).fadeOut(400, function () {
-                            $(id).remove();
-                        });
-                    });
-            $(".image-container").filter(function () {
-                return !$(this).hasClass("roi-image-container");
-            }).find("img")
+            pnnl.dialog.showToast(null, 'Select one image before drawing ROI');
+            $('.image-container img[class != "roi-image"]')
                     .css("cursor", "pointer")
                     .click(function () {
                         var dim = getNaturalImageSize(this);
@@ -784,20 +788,7 @@
     }
     // Global HTTP request response error handling
     function errorCallback(msg) {
-        pnnl.draw.removeSpinnerOverlay();
-        var messageBody = "<div>" + msg + "</div>";
-        $(".error-dialog").remove();
-        pnnl.dialog.newDialogBuilder()
-                .createAlertDialog("error-dialog", "error-dialog")
-                .setHeaderIcon("fa-frown-o")
-                .setMessageBody(messageBody)
-                .setCloseActionButton()
-                .show(false, function (id) {
-                    $(id).fadeIn();
-                });
-        setTimeout(function () {
-            $(".error-dialog").fadeOut();
-        }, 5000);
+        pnnl.dialog.showToast(new Error('Something went wrong'), msg);
     }
     function showContextDialog(event, dialogBody, clickFunction) {
         event.preventDefault();
@@ -946,7 +937,7 @@
                 populateList("#excel-tab-content ul", payload.excel, false);
                 populateImages("#images-tab-content", payload.images, payload.ionImageData, "#images-tab");
                 populateImages("#optical-tab-content", payload.optical, payload.opticalImageData, "#optical-tab", "optical-image");
-                populateImages("#rois-roiImages-tab-content", payload.roiImages, payload.roiImageData, "#rois-roiImages-tab", "roi-image-container");
+                populateImages("#rois-roiImages-tab-content", payload.roiImages, payload.roiImageData, "#rois-roiImages-tab", "roi-image");
                 showButtons("#tab-opener");
                 d3.select("#tabs-container")
                         .transition()
@@ -1177,10 +1168,10 @@
                 .style("position", "absolute")
                 .attr("class", "roi")
                 .append("canvas")
-                .classed("selected-image", true)
                 .style("cursor", "url(" + showPencilCursor() + ") 0 20, auto")
                 .attr("width", $image.width() + "px")
                 .attr("height", $image.height() + "px")
+                .classed("selected-image", true)
                 .on("mousedown", function () {
                     if (d3.event.which === 1) {
                         d3.event.preventDefault();
