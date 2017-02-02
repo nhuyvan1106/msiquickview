@@ -184,9 +184,7 @@
                             <input type='text' class='form-control' id='role' name='role' disabled/>\n\
                         </div>\n\
                     </form>";
-        pnnl.dialog
-                .newDialogBuilder()
-                .createAlertDialog("edit-account-details-dialog")
+        pnnl.dialog.createDialog("edit-account-details-dialog")
                 .setHeaderTitle("Edit Account Details")
                 .setCloseActionButton()
                 .setPositiveButton("Save",
@@ -215,8 +213,8 @@
                                     });
                         })
                 .setNegativeButton("Cancel")
-                .setMessageBody(body)
-                .init(function (dialogId) {
+                .setDialogBody(body)
+                .setOnOpenCallback(function (dialogId) {
                     $(dialogId + " #username").val(accountObj.primaryKey);
                     $(dialogId + " #email").val(accountObj.email);
                     $(dialogId + " #selected-status").text(accountObj.status);
@@ -237,9 +235,7 @@
                 .show(true);
     }
     function editQuestion(questionObj) {
-        pnnl.dialog
-                .newDialogBuilder()
-                .createAlertDialog("edit-question-details-dialog")
+        pnnl.dialog.createDialog("edit-question-details-dialog")
                 .setHeaderTitle("Edit Question")
                 .setCloseActionButton()
                 .setPositiveButton("Save",
@@ -255,14 +251,12 @@
                                     });
                         })
                 .setNegativeButton("Cancel")
-                .setMessageBody("<form><input class='form-control' type='text' id='question' value='" + $("tr.question-details#" + questionObj.primaryKey + " .question").text() + "'/><br/></form>")
+                .setDialogBody("<form><input class='form-control' type='text' id='question' value='" + $("tr.question-details#" + questionObj.primaryKey + " .question").text() + "'/><br/></form>")
                 .show(true);
     }
 
     function addNewQuestion() {
-        pnnl.dialog
-                .newDialogBuilder()
-                .createAlertDialog("add-new-question-dialog")
+        pnnl.dialog.createDialog("add-new-question-dialog")
                 .setHeaderTitle("Add A New Question")
                 .setCloseActionButton()
                 .setPositiveButton("Save",
@@ -295,16 +289,14 @@
                                     });
                         })
                 .setNegativeButton("Cancel")
-                .setMessageBody("<form name='add-new-question-form'><input class='form-control' type='text' id='question'/><br/></form>")
+                .setDialogBody("<form name='add-new-question-form'><input class='form-control' type='text' id='question'/><br/></form>")
                 .show(true);
     }
     function deleteItem(path, itemSelector) {
-        pnnl.dialog
-                .newDialogBuilder()
-                .createAlertDialog("confirm-delete-dialog")
+        pnnl.dialog.createDialog("confirm-delete-dialog")
                 .setCloseActionButton()
                 .setHeaderIcon("fa fa-exclamation-triangle")
-                .setMessageBody("Are you sure you want to delete this item?")
+                .setDialogBody("Are you sure you want to delete this item?")
                 .setPositiveButton("Ok",
                         function (dialogId) {
                             $.ajax(path, {method: "DELETE"})

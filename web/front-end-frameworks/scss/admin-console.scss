@@ -1,5 +1,4 @@
 @import 'main';
-@import 'login';
 
 $ADMIN-CONSOLE-Z-INDEX: 12;
 
@@ -173,14 +172,14 @@ $ADMIN-CONSOLE-Z-INDEX: 12;
     animation: background 1s linear 5;
 }
 .edit-account-details-dialog {
-    @extend .new-account-form-dialog;
+    @extend #edit-account-details-dialog;
     .message-body {
         margin-right: 0.5em;
     }
 }
 
 .edit-account-details-form {
-    @extend .new-account-form;
+    @extend #edit-account-details-form;
     label {
         color: black;
         width: 5em;
@@ -192,16 +191,29 @@ $ADMIN-CONSOLE-Z-INDEX: 12;
         vertical-align: top;
     }
 
+    #selected-status {
+        font-size: small !important;
+    }
     input.form-control {
         padding-left: 0.5em;
         width: 75%;
+        height: 3em;
     }
     .form-group {
-        margin-bottom: 5px;
+        margin-bottom: 1em;
+    }
+    .btn-group {
+        margin: 0;
     }
 
-    .statuses > div {
-        width: 75%; /* So it matches input elements' width above */
+    .statuses {
+        width: 100%;
+        & > div {
+            width: 75%;
+        }
+        ul {
+            width: 50%;
+        }
     }
 }
 
@@ -217,19 +229,13 @@ $ADMIN-CONSOLE-Z-INDEX: 12;
     }
 }
 
-/*.edit-username-dialog {
-    @extend .edit-question-details-dialog;
-    width: 350px;
-    left: calc(calc(100% - 350px)/2);
-}*/
-
 .add-new-question-dialog {
     @extend .edit-question-details-dialog;
 }
 
 .confirm-delete-dialog {
     @extend .edit-question-details-dialog;
-    .alert-dialog-header {
+    .app-dialog-header {
         background-color: red;
     }
 }

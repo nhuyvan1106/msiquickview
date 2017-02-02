@@ -62,7 +62,7 @@
                         <form name="upload-cdf-hdf-form" id="upload-cdf-hdf-form">
                             <div class="form-group">
                                 <label class="label label-primary">Select Files</label>
-                                <input type="file" multiple="multiple" required="required" class="form-control" name="file-name" id="file-name"/>
+                                <input type="file" multiple="multiple" required="required" class="form-control" name="files-to-upload" id="files-to-upload"/>
                             </div>
                             <div class="form-group">
                                 <label class="label label-primary">Select Optical Image (Optional)</label>
@@ -425,18 +425,13 @@
                 <div class="admin-console" style='display:none'>
                 </div>
             </shiro:hasRole>
+            <div class='edit-account-details-container'></div>
+            <div id="frag"></div>
         </div>
-        <div class='edit-account-details-container'></div>
         <i class="spinner fa fa-spinner fa-pulse" style="position:absolute;left:48%;font-size:8em;line-height:100%;display:none;z-index:25"></i>
         <script src="front-end-frameworks/javascript/main.js"></script>
         <script>
                     (function ($) {
-                        // Initialize the position of each main menu item
-                        var nav = d3.select("nav");
-                        nav.selectAll("div").each(function (p, index) {
-                            $(this).css("top", index * 104 + index * 5 + "px");
-                        });
-
                         // main menu toggle
                         $("#menu-toggler").change(function () {
                             if (this.checked)
@@ -453,9 +448,10 @@
                         // When the user clicks anywhere else except for the main menu itself and its children
                         // We close it
                         $(document.documentElement).click(function (event) {
-                            $(".context-menu-dialog").hide();
                             $(".floating-list").fadeOut();
                             $(".app-dropdown-menu ul").fadeOut();
+                            $('#uploaded-files-container').removeClass('slide-to-right')
+                                    .addClass('slide-to-right');
                             var isMainMenuOpen = $(".main-menu").offset().left === 0;
                             var isMenuToggler = event.target.id === 'menu-toggler';
                             var isMainMenuItem = event.target.name === 'main-menu';
@@ -467,9 +463,7 @@
 
                         $("#show-edit-account-details").click(function () {
                             var successCallback = function (body) {
-                                pnnl.dialog
-                                        .newDialogBuilder()
-                                        .createAlertDialog("edit-account-details-dialog")
+                                pnnl.dialog.createDialog("edit-account-details-dialog")
                                         .setHeaderTitle("Edit Account Details")
                                         .setCloseActionButton()
                                         .setPositiveButton("Save", function () {
@@ -532,8 +526,8 @@
                                             this.hide();
                                         })
                                         .setNegativeButton("Cancel")
-                                        .setMessageBody(body)
-                                        .init(function (dialogId) {
+                                        .setDialogBody(body)
+                                        .setOnOpenCallback(function (dialogId) {
                                             // Get the current account details to populate the form, e.g. username, email, list of questions
                                             $.ajax("security/accounts/<%= org.apache.shiro.SecurityUtils.getSubject().getPrincipal()%>", {method: "GET", dataType: "json"})
                                                     .then(function (accountObj) {
@@ -589,12 +583,7 @@
                                                         });
                                             });
                                         })
-                                        .show(true, function (id) {
-                                            $(id).fadeIn().css({
-                                                "top": "2px",
-                                                "left": "calc((100% - " + $(id).width() + "px)/2)"
-                                            });
-                                        });
+                                        .show(true);
                             };
                             getHtmlFragment('edit-account-details-form-fragment.html', successCallback, true);
                         });
@@ -816,8 +805,9 @@
                         $("#show-admin-console").click(function () {
                             var $AdminConsoleContainer = $('.admin-console');
                             var successCallback = function (fragment) {
-                                $AdminConsoleContainer.html(fragment)
-                                        .fadeIn();
+                                if (fragment)
+                                    $AdminConsoleContainer.html(fragment);
+                                $AdminConsoleContainer.fadeIn();
                             };
                             getHtmlFragment('admin-console-fragment.html', successCallback, $AdminConsoleContainer.children().length === 0);
                         });

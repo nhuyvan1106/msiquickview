@@ -56,7 +56,14 @@ public class DataFetcherServlet extends HttpServlet {
                 }
             else {
                 String filePath = datasetDir.resolve(request.getParameter("file-type")+"/"+request.getParameter("file-name")).toString();
-                CdfHdfReaderTask task = new CdfHdfReaderTask(filePath);
+                CdfHdfReaderTask task = null;
+                try {
+                    task = new CdfHdfReaderTask(filePath);
+                }
+                catch (NoClassDefFoundError | MWException | UnsatisfiedLinkError e) {
+                    response.sendError(500);
+                    return;
+                }
                 Object[] result = getReadResult(request.getSession(), filePath, pool, task);
                 if (request.getServletPath().equals("/DataFetcherServlet/load-data"))
                     sendLoadData(generator, result);
@@ -72,7 +79,6 @@ public class DataFetcherServlet extends HttpServlet {
                             break;
                     }
                 }
-                MWArray.disposeArray(task);
             }
             generator.writeEndObject();
         }

@@ -7,14 +7,12 @@
         if (!pnnl.validation.validateNotEmpty("upload-cdf-hdf-form", "notes", "optical-image"))
             return;
         else {
-            var files = Array.prototype.map.call(document.getElementById("file-name").files, function (file) {
-                return file;
-            });
+            var filesToUpload = $.makeArray(document.querySelector('#upload-cdf-hdf-form #files-to-upload').files);
 
-            var isCdf = files.every(function (file) {
+            var isCdf = filesToUpload.every(function (file) {
                 return file.name.endsWith("cdf");
             });
-            var isHdf = files.every(function (file) {
+            var isHdf = filesToUpload.every(function (file) {
                 return file.name.endsWith("hdf");
             });
             if (!isCdf && !isHdf) {
@@ -22,45 +20,41 @@
                 return;
             }
             $("#menu-toggler").click();
+            $('#uploaded-files-container').remove();
+            var datasetName = document.querySelector("#upload-cdf-hdf-form #dataset-name").value;
+            var notes = document.querySelector("#upload-cdf-hdf-form #notes").value;
 
-            var datasetName = document.getElementById("dataset-name").value;
-            var notes = $("#upload-cdf-hdf-form #notes").val();
-            // We are using D3 Dispatches module to handle updating icon when an item is clicked in file selection dialog.
-            var dispatch = d3.dispatch("selectionchange");
-            dispatch.on("selectionchange", function () {
-                var fileList = [];
-                $(".file-selection-dialog li i").each(function () {
-                    $(this).removeClass("fa-check fa-hand-o-left");
-                    fileList.push(this.parentElement.id);
+            var uploadedFilesContainerFragment = document.createDocumentFragment();
+            var list = pnnl.utils.createElem('ul', {
+                id: 'uploaded-files-container'
+            });
+            filesToUpload.forEach(function (file) {
+                var li = pnnl.utils.createElem('li');
+                var input = pnnl.utils.createElem('input', {
+                    type: 'radio',
+                    id: file.name,
+                    name: 'file-to-graph'
                 });
-                sessionStorage.setItem("file-names", fileList.join(","));
-                $(this).find("i").addClass("fa-hand-o-left");
-            });
-            $(".file-selection-dialog").fadeOut().remove();
-            var ul = $("<ul></ul>");
-            files.forEach(function (file) {
-                var fileName = pnnl.data.getFileName(file);
-                ul.append("<li id='" + fileName + "'>" + fileName + "<i class='fa fa-spinner fa-pulse file-upload-spinner' style='position: absolute; right: 20px; top: 15px;'></i></li>");
-            });
+                li.appendChild(input);
 
-            pnnl.dialog.newDialogBuilder()
-                    .createAlertDialog("file-selection-dialog", "file-selection-dialog")
-                    .setHeaderTitle("Uploading...", "file-selection-dialog-header")
-                    .setCloseActionButton()
-                    .setMessageBody(ul)
-                    .show(false, function (id) {
-                        $(id).fadeIn()
-                                .css({"top": 10 + pnnl.utils.getScrollTop() + "px"});
-                    });
-            $("#file-selection-dialog")
-                    .draggable({"handle": ".file-selection-dialog-header"})
-                    .disableSelection()
-                    .css("position", "absolute");
-            $(window).scroll(function () {
-                $("#file-selection-dialog").css({"top": (pnnl.utils.getScrollTop() + 20) + "px"});
+                var span = pnnl.utils.createElem('span', {
+                    textContent: file.name
+                });
+                li.appendChild(span);
+
+                var i = pnnl.utils.createElem('i', {
+                    className: 'fa fa-spinner fa-pulse'
+                });
+                li.appendChild(i);
+                list.appendChild(li);
             });
+            uploadedFilesContainerFragment.appendChild(list);
+            document.querySelector('.wrapper').appendChild(uploadedFilesContainerFragment);
+            $('#uploaded-files-container').removeClass('slide-to-right')
+                    .addClass('slide-from-right');
+
             var fileType = isCdf ? "cdf" : "hdf";
-            pnnl.data.upload(url, datasetName, files, document.getElementById("optical-image").files[0], fileType,
+            pnnl.data.upload(url, datasetName, filesToUpload, document.getElementById("optical-image").files[0], fileType,
                     function (filesToPush) {
                         filesToPush = filesToPush.split("|");
                         var data = {
@@ -80,40 +74,37 @@
                         $(document.documentElement)
                                 .off("contextmenu")
                                 .contextmenu(function (event) {
-                                    showContextDialog(event, "", function () {
+                                    pnnl.dialog.showContextDialog(event, "", function (event) {
+                                        event.stopImmediatePropagation();
                                         switch (this.id) {
                                             case "hide-dialog":
-                                                $(".file-selection-dialog").fadeOut();
+                                                $('#uploaded-files-container').removeClass('slide-to-right')
+                                                        .addClass('slide-to-right');
                                                 break;
                                             case "show-dialog":
-                                                $(".file-selection-dialog").fadeIn().css({"top": event.pageY, "left": event.pageX});
+                                                $('#uploaded-files-container').removeClass('slide-from-right slide-to-right')
+                                                        .addClass('slide-from-right');
                                                 break;
                                         }
+                                        $(".context-menu-dialog").hide();
                                     });
                                 });
-                        $(".file-selection-dialog .alert-dialog-header-title").html("Click on file to load");
-                        d3.select(".file-selection-dialog")
-                                .selectAll("li")
-                                .each(function (d, i) {
-                                    $(this).find(".file-upload-spinner")
-                                            .removeClass("fa-pulse fa-spinner")
-                                            .addClass("fa-check");
-                                    d3.select(this)
-                                            .on("click", function () {
-                                                if (sessionStorage.getItem("file-name") !== this.id || d3.select(".intensity-scan-chart").empty()) {
-                                                    pnnl.draw.drawSpinner();
-                                                    pnnl.draw.drawOverlay();
-                                                    dispatch.call("selectionchange", this);
-                                                    loadData(datasetName, this.id);
-                                                }
-                                            });
-                                });
-                    }, function (msg) {
-                errorCallback(msg);
-                $(this).find(".file-upload-spinner")
-                        .removeClass("fa-pulse fa-spinner")
-                        .addClass("fa-times-circle");
-            });
+                        $('#uploaded-files-container input')
+                                .change(function () {
+                                    pnnl.draw.drawSpinner();
+                                    pnnl.draw.drawOverlay();
+                                    loadData(datasetName, this.id);
+                                    document.documentElement.click();
+                                })
+                                .nextAll('i')
+                                .removeClass("fa-pulse fa-spinner")
+                                .addClass("fa-check");
+                    },
+                    function (msg) {
+                        errorCallback(msg);
+                        $('#uploaded-files-container input').removeClass("fa-pulse fa-spinner")
+                                .addClass("fa-times-circle");
+                    });
         }
     });
 
@@ -449,11 +440,10 @@
     });
 
     $("#upload-optical-image").click(function () {
-        pnnl.dialog.newDialogBuilder()
-                .createAlertDialog("upload-optical-image-dialog")
+        pnnl.dialog.createDialog("upload-optical-image-dialog")
                 .setHeaderTitle("Select optical image")
                 .setCloseActionButton()
-                .setMessageBody("<form name='upload-optical-image-form' id='upload-optical-image-form'>" +
+                .setDialogBody("<form name='upload-optical-image-form' id='upload-optical-image-form'>" +
                         "<input class='form-control' type='file' accept='image/*' id='optical-image'/><br/></form>")
                 .setPositiveButton("Done", function () {
                     if (!pnnl.validation.validateNotEmpty("upload-optical-image-form"))
@@ -684,7 +674,7 @@
                                         .range([0, config.width - config.margin.left - config.margin.right]);
                                 var range = d3.event.selection.map(x.invert);
                                 $("." + config.className).off("contextmenu click").contextmenu(function (event) {
-                                    showContextDialog(event, "<li id='generate-image'>Generate ion image</li>", function () {
+                                    pnnl.dialog.showContextDialog(event, "<li id='generate-image'>Generate ion image</li>", function () {
                                         switch (this.id) {
                                             case "hide-dialog":
                                                 $(".file-selection-dialog").fadeOut();
@@ -696,6 +686,12 @@
                                                 pnnl.draw.drawSpinner();
                                                 pnnl.draw.drawOverlay();
                                                 var fileNames = sessionStorage.getItem("file-names");
+                                                /*var fileNames = $('.uploaded-files-container li input')
+                                                 .map(function () {
+                                                 return this.id;
+                                                 })
+                                                 .get()
+                                                 .join(',');*/
                                                 var datasetName = document.querySelector(".panels .options").dataset.datasetName;
                                                 $.ajax("IonImageGeneratorServlet/generate-image",
                                                         {
@@ -763,8 +759,9 @@
             "method": "GET",
             "data": params,
             "success": successCallback,
-            "error": function (xhr) {
-                errorCallback(xhr.statusText);
+            "error": function () {
+                errorCallback('A fatal error has occurred<br/>Please contact admin');
+                pnnl.draw.removeSpinnerOverlay();
             }
         });
         currentIndex = -1;
@@ -788,35 +785,7 @@
     }
     // Global HTTP request response error handling
     function errorCallback(msg) {
-        pnnl.dialog.showToast(new Error('Something went wrong'), msg);
-    }
-    function showContextDialog(event, dialogBody, clickFunction) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        var body = "<ul>";
-        var fileSelectionDialog = $(".file-selection-dialog");
-        if (fileSelectionDialog.length > 0) {
-            body = "<ul><li id='show-dialog'>Show file selection widget</li>";
-            if (fileSelectionDialog.css("display") === "block")
-                body = "<ul><li id='hide-dialog'>Hide file selection widget</li>";
-        }
-        body += dialogBody + "</ul>";
-        var dialog = $(".context-menu-dialog");
-        if (dialog.length === 0)
-            pnnl.dialog.newDialogBuilder()
-                    .createAlertDialog("context-menu-dialog", "context-menu-dialog")
-                    .setMessageBody(body)
-                    .removeHeader()
-                    .show(false, function (id) {
-                        $(id).show().css({"top": event.pageY, "left": event.pageX});
-                    });
-        else {
-            dialog.find(".message-body").remove();
-            dialog.append("<div class='message-body'>" + body + "</div>")
-                    .show()
-                    .css({"top": event.pageY, "left": event.pageX});
-        }
-        $(".context-menu-dialog li").click(clickFunction);
+        pnnl.dialog.showToast(new Error('Something went wrong'), msg, 10000);
     }
 
     function drawImage(config, dataArray, numRows, numCols, imageName, colorMap) {
@@ -885,7 +854,7 @@
                     return;
                 }
                 var body = "<li id='save-image'>Save</li><li id='select-roi'>Select Region of Interest</li>";
-                showContextDialog(event, body, function (e) {
+                pnnl.dialog.showContextDialog(event, body, function (e) {
                     switch (this.id) {
                         case "hide-dialog":
                             $(".file-selection-dialog").fadeOut();
@@ -1054,7 +1023,7 @@
                     }
                     var body = "<li id='select-roi'>Select Region of Interest</li>";
                     var img = this;
-                    showContextDialog(d3.event, body, function (e) {
+                    pnnl.dialog.showContextDialog(d3.event, body, function (e) {
                         switch (this.id) {
                             case "hide-dialog":
                                 $(".file-selection-dialog").fadeOut();
@@ -1122,7 +1091,7 @@
                 }
                 var body = "<li id='select-roi'>Select Region of Interest</li>";
                 var img = this;
-                showContextDialog(event, body, function (e) {
+                pnnl.dialog.showContextDialog(event, body, function (e) {
                     switch (this.id) {
                         case "hide-dialog":
                             $(".file-selection-dialog").fadeOut();
@@ -1196,7 +1165,7 @@
                 })
                 .on("contextmenu", function () {
                     var body = "<li id='clear'>Clear</li><li id='select-done'>Done</li>";
-                    showContextDialog(d3.event, body, function (e) {
+                    pnnl.dialog.showContextDialog(d3.event, body, function (e) {
                         switch (this.id) {
                             case "hide-dialog":
                                 $(".file-selection-dialog").fadeOut();

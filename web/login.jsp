@@ -114,9 +114,7 @@
                                         <input type='text' id='answer-3' class='form-control'/>\n\
                                     </div>" +
                             "</form><p style='color:red'><strong></strong></p>";
-                    pnnl.dialog
-                            .newDialogBuilder()
-                            .createAlertDialog("new-account-form-dialog")
+                    pnnl.dialog.createDialog("new-account-form-dialog")
                             .setHeaderTitle("Create a new account")
                             .setCloseActionButton()
                             .setPositiveButton("Submit", function (thisDialogId) {
@@ -164,8 +162,8 @@
                                 }
                             })
                             .setNegativeButton("Cancel")
-                            .setMessageBody(body)
-                            .init(function () {
+                            .setDialogBody(body)
+                            .setOnOpenCallback(function () {
                                 $(".security-questions-container > div > a")
                                         .click(function (event) {
                                             event.preventDefault();
@@ -199,9 +197,7 @@
                                 pnnl.validation.initValidationForInput(".new-account-form #repeat-password", [new RegExp("", "g")], "Passwords don't match", ".new-account-form #new-account-password");
                                 pnnl.validation.initValidationForInput(".security-questions-container input", [new RegExp("^[a-zA-Z0-9\\s]{4,}$")], "Valid answer must contain letters, numbers, and spaces only and be at least 4 characters long");
                             })
-                            .show(true, function (id) {
-                                $(id).fadeIn().css("top", "2%");
-                            });
+                            .show(true);
                 });
                 function animateLabels(formClass) {
                     $(formClass + " input")

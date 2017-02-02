@@ -4,18 +4,60 @@ $FORM-Z-INDEX: 30;
 $WINDOW-Z-INDEX: 11;
 $TABS-CONTAINER-Z-INDEX: 11;
 
+@mixin slideIn($animName) {
+    animation: $animName 0.8s cubic-bezier(0, 1.13, 0.63, 0.99) forwards;
+}
+@mixin slideOut($animName) {
+    animation: $animName 0.8s cubic-bezier(0.21, 0.93, 0.63, 0.99) forwards;
+}
+
 @keyframes slideFromLeft {
     to { left: 0%; opacity: 1}
 }
 @keyframes slideToLeft {
-    0% { left: 0%; opacity: 1; }
-    100% { left: -30% ; opacity: 0; }
+    from { left: 0%; opacity: 1}
+    to { left: -30% ; opacity: 0; }
 }
+@keyframes slideFromRight {
+    to { right: 0; opacity: 1}
+}
+@keyframes slideToRight {
+    from { right: 0; opacity: 1}
+    to { right: -25%; opacity: 0}
+}
+@keyframes expand {
+    0% { transform: scaleY(0); opacity: 0 }
+    100% {transform: scaleY(1); opacity: 1 }
+}
+@keyframes collapse {
+    0% { transform: scaleY(1); opacity: 1 }
+    100% { transform: scaleY(0); opacity: 0 }
+}
+
 .slide-from-left {
-    animation: slideFromLeft 0.8s cubic-bezier(0, 1.13, 0.63, 0.99) forwards;
+    @include slideIn(slideFromLeft);
 }
 .slide-to-left {
-    animation: slideToLeft 1s cubic-bezier(0.21, 0.93, 0.63, 0.99) forwards;
+    @include slideOut(slideToLeft)
+}
+.slide-from-right {
+    @include slideIn(slideFromRight);
+    display: block !important;
+}
+.slide-to-right {
+    @include slideOut(slideToRight);
+}
+.expand {
+    animation: expand 0.4s cubic-bezier(0.21, 0.93, 0.63, 0.99) forwards;
+    transform: perspective(100px);
+    transform-origin: 50%;
+    display: block !important;
+}
+
+.collapse {
+    animation: collapse 0.5s cubic-bezier(0.21, 0.93, 0.63, 0.99) forwards;
+    transform: perspective(100px);
+    transform-origin: 50%;
 }
 html {
     height: 100%;
@@ -202,6 +244,7 @@ nav.main-menu {
         position: relative;
         list-style-type: none;
         z-index: 1;
+        perspective: 500px;
         input[type='radio'] {
             width: 100%;
             position: absolute;
@@ -215,7 +258,7 @@ nav.main-menu {
             }
             &[name]:checked ~ form {
                 opacity: 1;
-                visibility: visible;
+                transform: rotateY(0deg);
             }
         }
         .menu-item {
@@ -242,7 +285,6 @@ nav.main-menu {
         form {
             box-shadow: 4px 4px 10px 4px gray;
             border-radius: 2px;
-            visibility: hidden;
             opacity: 0;
             padding: 1em;
             padding-top: 1.2em;
@@ -253,8 +295,9 @@ nav.main-menu {
             top: 0;
             left: 100%;
             line-height: initial;
-            transition: opacity 0.2s linear;
-
+            transition: opacity 0.4s linear, transform 0.6s cubic-bezier(0.1, 0.97, 0.36, 1.01);
+            transform-origin: 0;
+            transform: rotateY(70deg);
             input, textarea {
                 width: 100%;
             }
@@ -262,6 +305,70 @@ nav.main-menu {
     }
 }
 
+#uploaded-files-container {
+    position: fixed;
+    display: none;
+    min-width: 20%;
+    margin: 0;
+    padding: 0;
+    top: 0;
+    bottom: 0;
+    right: -25%;
+    height: 100%;
+    background: white;
+    z-index: 20;
+    box-sizing: border-box;
+    box-shadow: -1px 0px 10px grey;
+    overflow-y: scroll;
+    li {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        position: relative;
+        border-bottom: 1px solid rgb(225,225,225);
+        line-height: 4em;
+        width: 100%;
+        display: block;
+        &:hover, & input:checked {
+            background: #e3e3e3;
+        }
+    }
+    input {
+        width: 100%;
+        position: absolute;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        opacity: 0;
+        cursor:  pointer;
+        &:checked ~ i:before {
+            content: '\f0a5';
+        }
+    }
+    span {
+        display: inline-block;
+        width: 85%;
+        font-size: large;
+        padding-left: 0.5em;
+        vertical-align: middle;
+    }
+    i {
+        width: 10%;
+        text-align: center;
+    }
+
+    .fa-pulse {
+        animation: fa-spin 1s infinite steps(8);
+    }
+    .fa {
+        display: inline-block;
+        font: normal normal normal 14px/1 FontAwesome;
+        font-size: inherit;
+        text-rendering: auto;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
 .tabs-container {
     display: none;
     position: absolute;
@@ -527,7 +634,7 @@ nav.main-menu {
     width: 100px;
     margin: auto auto;
 }
-.alert-dialog {
+.app-dialog {
     display: none;
     position: absolute;
     width: 350px;
@@ -543,8 +650,8 @@ nav.main-menu {
     top: 20px;
 }
 
-.alert-dialog {
-    .alert-dialog-header {
+.app-dialog {
+    .app-dialog-header {
         border-bottom: 1px solid #d3d3d3;
         padding: 10px;
         margin-left: 0;
@@ -553,13 +660,13 @@ nav.main-menu {
         color: green;
         min-height: 50px;
     }
-    .message-body {
+    .app-dialog-body {
         font-size: large;
         line-height: 30px;
         padding: 5px;
         padding-top: 10px;
     }
-    .alert-dialog-header-close-action-icon {
+    .app-dialog-close-btn {
         right: 10px;
         top: 5px;
         position: absolute;
@@ -575,7 +682,7 @@ nav.main-menu {
     }
 }
 .error-dialog {
-    @extend .alert-dialog;
+    @extend .app-dialog;
     min-width: 350px;
     max-width: 800px;
     width: auto;
@@ -583,15 +690,15 @@ nav.main-menu {
     bottom: 10px;
     top: initial;
 
-    .message-body {
+    .app-dialog-body {
         text-align: left;
         padding: 15px;
         margin: 0;
         text-align: center;
     }
 }
-.notification-dialog {
-    @extend .alert-dialog;
+.toast {
+    @extend .app-dialog;
     background-color: #007fff;
     color: white;
     position: fixed;
@@ -601,11 +708,11 @@ nav.main-menu {
 }
 
 .file-selection-dialog {
-    @extend .alert-dialog;
+    @extend .app-dialog;
     position: initial;
     float: right;
     padding-bottom: 0;
-    .message-body {
+    .app-dialog-body {
         overflow-y: auto;
         max-height: 200px;
         min-height: 30px;
@@ -675,10 +782,10 @@ nav.main-menu {
         height: 25px;
         transform: scale(0.7,0.7);
     }
-    .message-body {
+    .app-dialog-body {
         line-height: 13px;
     }
-    .alert-dialog-header {
+    .app-dialog-header {
         display: none;
     }
 }
@@ -693,7 +800,7 @@ nav.main-menu {
     left: initial;
     bottom: initial;
     right: initial;
-    .message-body {
+    .app-dialog-body {
         overflow: hidden;
         max-height: none;
     }
@@ -712,13 +819,13 @@ nav.main-menu {
 }
 
 .upload-optical-image-dialog {
-    @extend .alert-dialog;
+    @extend .app-dialog;
     left: calc(calc(100% - 350px)/2);
     top: calc(calc(100% - 178px)/2);
     right: initial;
     z-index: 30;
 
-    .alert-dialog-header {
+    .app-dialog-header {
         background-color: #7EB2DD;
         color: white;
     }
@@ -1071,8 +1178,8 @@ nav.main-menu {
 #edit-account-details-dialog {
     @extend .upload-optical-image-dialog;
     width: 40%;
-    left: calc(calc(100% - 30%)/2);
-    top: 20%;
+    left: calc((100% - 40%)/2);
+    top: 0;
     h1 {
         font-size: x-large;
         font-weight: bold;
@@ -1085,13 +1192,13 @@ nav.main-menu {
         margin-bottom: 1em;
         text-align: center;
     }
-    .alert-dialog-header-title {
+    .app-dialog-header-title {
         font-size: larger;
     }
     p {
         margin-bottom: 0px;
     }
-    .message-body {
+    .app-dialog-body {
         margin-right: 0.5em;
     }
     hr {
@@ -1152,11 +1259,11 @@ nav.main-menu {
 }
 
 .hint-dialog {
-    @extend .alert-dialog;
+    @extend .app-dialog;
     @extend .validation-error-dialog;
     margin-right: 2em;
     width: initial;
-    .message-body {
+    .app-dialog-body {
         font-size: medium;
         padding-left: 10px;
         padding-right: 10px;

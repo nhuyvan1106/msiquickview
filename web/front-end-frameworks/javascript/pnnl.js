@@ -158,177 +158,165 @@ var pnnl = {
             d3.select(".nth-point-indicator").attr("d", "M" + x + " 0," + x + " " + ($("svg").height() - 50));
         }
     },
-    /*dialog: {
-     newDialogBuilder: function (alertDialogClass, id, addtionClasses) {
-     
-     if (!alertDialogClass)
-     throw new Error("Dialog class name is required.");
-     var __dialogClassName = alertDialogClass;
-     var __dialogId = id ? id : alertDialogClass;
-     d3.select("body")
-     .append("div")
-     .attr("class", __dialogClassName)
-     .classed(addtionClasses, addtionClasses ? true : false)
-     .attr("id", __dialogId)
-     .append("div")
-     .attr("class", "alert-dialog-header");
-     return this;
-     }
-     },*/
 
     /*********** DIALOG MODULE ***********/
     dialog: {
-        // This function is the entry point to the dialog APIs
-        newDialogBuilder: function () {
+        // create and return a dialog object template
+        createDialog: function (dialogClass, id) {
+            if (!dialogClass)
+                throw new Error("Dialog class name is required.");
+            var __dialogFragment = document.createDocumentFragment();
+            var __dialog = pnnl.utils.createElem('div', {
+                'className': dialogClass + ' app-dialog',
+                'id': id ? id : dialogClass
+            });
+            __dialogFragment.appendChild(__dialog);
+
+            var dialogHeader = pnnl.utils.createElem('div', {
+                'className': 'app-dialog-header'
+            });
+            __dialog.appendChild(dialogHeader);
+
+            var dialogBody = pnnl.utils.createElem('div', {
+                className: 'app-dialog-body'
+            });
+            __dialog.appendChild(dialogBody);
+
+            var btnGroup = pnnl.utils.createElem('div', {
+                className: 'btn-group'
+            });
+            __dialog.appendChild(btnGroup);
             return {
-                dialogClassName: "",
-                dialogId: "",
-                /*
-                 * @param {string} alertDialogClass Required. Create a new dialog with the given class name. This class should
-                 *                                @extend(SASS feature) from "alert-dialog" class to inherit default styles.
-                 * @param {string} id An optional id attribute for this dialog
-                 * @returns An empty dialog object
-                 */
-                createAlertDialog: function (alertDialogClass, id, addtionClasses) {
-                    if (!alertDialogClass)
-                        throw new Error("Dialog class name is required.");
-                    this.dialogClassName = alertDialogClass;
-                    this.dialogId = id ? id : alertDialogClass;
-                    d3.select("body")
-                            .append("div")
-                            .attr("class", this.dialogClassName)
-                            .classed(addtionClasses, addtionClasses ? true : false)
-                            .attr("id", this.dialogId)
-                            .append("div")
-                            .attr("class", "alert-dialog-header");
-                    return this;
+                __dialogFragment: __dialogFragment,
+                __dialog: __dialog,
+                __onOpenCallback: null,
+                __onClosedCallback: null,
+                getDialog: function () {
+                    return this.__dialog;
                 },
                 /*
                  * EITHER dialog header's icon OR title can be set at any given time.
                  * @param {string} faHeaderIcon Check FontAwesome website for a list of available icon classes. Default value is fa-info-circle
-                 * @param {string} headerClass Optional class for dialog header. Default is "alert-dialog-header"
                  * @returns This dialog object
                  */
-                setHeaderIcon: function (faHeaderIcon, headerClass) {
-                    var dialogHeaderClass = "#" + this.dialogId + " " + ".alert-dialog-header";
-                    $(dialogHeaderClass).addClass(headerClass ? headerClass : "");
+                setHeaderIcon: function (faHeaderIcon) {
+                    var dialogHeader = this.__dialog.querySelector('.app-dialog-header');
+                    if (!dialogHeader)
+                        throw new Error('Dialog header was removed');
                     if (!faHeaderIcon)
-                        faHeaderIcon = "fa-info-circle";
-                    d3.select(dialogHeaderClass).select(".alert-dialog-header-title").remove();
-                    d3.select(dialogHeaderClass).append("i")
-                            .attr("class", "fa fa-2x alert-dialog-header-icon" + " " + faHeaderIcon);
+                        faHeaderIcon = 'fa-info-circle';
+                    var headerTitle = dialogHeader.querySelector('.app-dialog-header-title');
+                    if (headerTitle)
+                        dialogHeader.removeChild(headerTitle);
+                    var headerIcon = pnnl.utils.createElem('i', {
+                        'className': 'fa fa-2x app-dialog-header-icon' + ' ' + faHeaderIcon
+                    });
+                    dialogHeader.appendChild(headerIcon);
                     return this;
                 },
                 /*
                  * EITHER dialog header's icon OR title can be set at any given time.
                  * @param {string} title Title for our dialog box
-                 * @param {string} headerClass Optional class for dialog header. Default is "alert-dialog-header"
                  * @returns This dialog object
                  */
-                setHeaderTitle: function (title, headerClass) {
-                    var dialogHeaderClass = "#" + this.dialogId + " " + ".alert-dialog-header";
+                setHeaderTitle: function (title) {
                     if (!title && title !== "")
-                        throw new Error("Header title may be an empty string, but must not be null");
-                    $(dialogHeaderClass).addClass(headerClass ? headerClass : "");
-                    d3.select(dialogHeaderClass).select(".alert-dialog-header-icon").remove();
-                    d3.select(dialogHeaderClass).append("span")
-                            .attr("class", "alert-dialog-header-title")
-                            .html(title);
+                        throw new Error('Header title may be an empty string, but must not be null');
+                    var dialogHeader = this.__dialog.querySelector('.app-dialog-header');
+                    if (!dialogHeader)
+                        throw new Error('Dialog header was removed');
+                    var headerIcon = dialogHeader.querySelector('.app-dialog-header-icon');
+                    if (headerIcon)
+                        dialogHeader.removeChild(headerIcon);
+                    var headerTitle = pnnl.utils.createElem('span', {
+                        'className': 'app-dialog-header-title',
+                        'textContent': title
+                    });
+                    dialogHeader.appendChild(headerTitle);
                     return this;
                 },
                 /*
                  * @param {string} faIcon Optional. Default value is "fa fa-lg fa-close". Check FontAwesome website for a list of available icon classes
-                 * @param {string} closeAction Optional. A Default function is used if not specified. How to close our dialog
-                 *                              when the close button is clicked.
-                 * @param {string} closeButtonClass A custom class for dialog close button which is located at the
-                 *                                  upper right hand corner of the dialog. Otherwise, a default value
-                 *                                  "alert-dialog-header-close-action-icon" is used.
                  * @returns This dialog object
                  */
-                setCloseActionButton: function (faIcon, closeAction, closeButtonClass) {
-                    var dialog = this;
+                setCloseActionButton: function (faIcon) {
+                    var dialogHeader = this.__dialog.querySelector('.app-dialog-header');
+                    var thisDialog = this;
                     if (!faIcon)
                         faIcon = "fa fa-lg fa-close";
-                    closeButtonClass = closeButtonClass ? closeButtonClass : "alert-dialog-header-close-action-icon";
-                    d3.select("#" + this.dialogId + " " + ".alert-dialog-header")
-                            .append("i")
-                            .attr("class", faIcon + " " + closeButtonClass)
-                            .on("click", function () {
-                                if (closeAction)
-                                    closeAction.call(this, "#" + dialog.dialogId);
-                                dialog.hide();
-                            });
+                    var closeBtn = pnnl.utils.createElem('i', {
+                        'className': 'app-dialog-close-btn' + ' ' + faIcon,
+                        'onclick': function () {
+                            if (thisDialog.__onClosedCallback)
+                                thisDialog.__onClosedCallback.call(thisDialog, "#" + thisDialog.__dialog.id);
+                            thisDialog.hide();
+                        }
+                    });
+                    dialogHeader.appendChild(closeBtn);
                     return this;
                 },
                 /*
                  * @param {string} content Could contain HTML markup to create custom message body or just plain text.
-                 * @param {string} bodyClass Optional class for dialog body. Default is "message-body"
                  * @returns This dialog object
                  */
-                setMessageBody: function (content, bodyClass) {
-                    var id = "#" + this.dialogId;
+                setDialogBody: function (content) {
                     if (!content)
                         throw new Error("Message body can't be null");
-                    d3.select(id)
-                            .append("div")
-                            .attr("class", "message-body" + (bodyClass ? " " + bodyClass : ""));
-                    $(id + " " + ".message-body").append(content);
+                    this.__dialog.querySelector('.app-dialog-body').innerHTML = content;
                     return this;
                 },
                 /*
                  * @param {string} posBtnLabel This argument is required.
-                 * @param {function} posBtnBehavior This argument is required
-                 * @param {string} posBtnClassName Optional. Class name of the positive button to use in a confirmation
-                 *                                 dialog box. Default value is postive-btn
+                 * @param {function} clickHandler This argument is required
                  * @returns This dialog object
                  */
-                setPositiveButton: function (posBtnLabel, posBtnBehavior, posBtnClassName) {
-                    var id = "#" + this.dialogId;
-                    var dialog = this;
-                    var btnGroup = d3.select(id + " " + ".btn-group");
-                    posBtnClassName = posBtnClassName ? posBtnClassName : "btn btn-default positive-btn";
+                setPositiveButton: function (posBtnLabel, clickHandler) {
                     if (!posBtnLabel)
                         throw new Error("Label for positive button is null.");
-                    if (!posBtnBehavior)
-                        throw new Error("Positive button click behavior is null.");
-                    if (btnGroup.empty())
-                        btnGroup = d3.select(id).append("div").attr("class", "btn-group");
-                    btnGroup.append("button")
-                            .attr("type", "button")
-                            .attr("class", posBtnClassName)
-                            .text(posBtnLabel)
-                            .on("click", function () {
-                                posBtnBehavior.call(dialog, id);
-                            });
+                    if (!clickHandler)
+                        throw new Error("Positive button click handler is null.");
+                    var thisDialog = this;
+                    var btnGroup = thisDialog.__dialog.querySelector('.btn-group');
+                    var positiveBtn = pnnl.utils.createElem('button', {
+                        className: 'btn btn-default positive-btn',
+                        type: 'button',
+                        onclick: function () {
+                            clickHandler.call(thisDialog, '#' + thisDialog.__dialog.id);
+                        },
+                        textContent: posBtnLabel
+                    });
+                    btnGroup.appendChild(positiveBtn);
                     return this;
                 },
-                /*
-                 * Usage is similar to #dialog.setPositiveButton() function but for the negative button. But
-                 * negBtnBehavior argument is optional. Default behavior is used if not given.
-                 */
-                setNegativeButton: function (negBtnlabel, negBtnBehavior, negBtnClassName) {
-                    var id = "#" + this.dialogId;
-                    var btnGroup = d3.select(id + " " + ".btn-group");
-                    var dialog = this;
-                    negBtnClassName = negBtnClassName ? negBtnClassName : "btn btn-default negative-btn";
-                    if (!negBtnlabel)
-                        throw new Error("Label for no button is null.");
-                    if (btnGroup.empty())
-                        btnGroup = d3.select(id).append("div").attr("class", "btn-group");
-                    btnGroup.append("button")
-                            .attr("type", "button")
-                            .attr("class", negBtnClassName)
-                            .on("click", function () {
-                                if (negBtnBehavior)
-                                    negBtnBehavior.call(dialog, id);
-                                dialog.hide();
-                            })
-                            .text(negBtnlabel);
+                setNegativeButton: function (negBtnLabel) {
+                    var thisDialog = this;
+                    var btnGroup = thisDialog.__dialog.querySelector('.btn-group');
+                    var negativeBtn = pnnl.utils.createElem('button', {
+                        className: 'btn btn-default negative-btn',
+                        type: 'button',
+                        onclick: function () {
+                            if (thisDialog.__onClosedCallback)
+                                thisDialog.__onClosedCallback.call(thisDialog, '#' + thisDialog.__dialog.id);
+                            thisDialog.hide();
+                        },
+                        textContent: negBtnLabel ? negBtnLabel : 'Cancel'
+                    });
+                    btnGroup.appendChild(negativeBtn);
                     return this;
                 },
-                // Not all dialog need a header, this is a convenience function to easily remove it
-                removeHeader: function () {
-                    d3.select("#" + this.dialogId + " " + ".alert-dialog-header").remove();
+                // Used to run any initialization code
+                setOnOpenCallback: function (cb) {
+                    this.__onOpenCallback = cb;
+                    return this;
+                },
+                // Clean up code
+                setOnClosedCallback: function (cb) {
+                    this.__onClosedCallback = cb;
+                    return this;
+                },
+                // Not all dialogs need a header, this is a convenience function to easily remove it
+                remove: function (selector) {
+                    this.__dialog.removeChild(this.__dialog.querySelector(selector));
                     return this;
                 },
                 /*
@@ -339,18 +327,16 @@ var pnnl = {
                 show: function (shouldDrawOverlay, showBehavior) {
                     if (typeof arguments[0] !== "boolean")
                         throw new Error("shouldDrawOverlay argument must be a boolean");
-                    var id = "#" + this.dialogId;
-                    $(id + " .message-body").insertAfter(id + " .alert-dialog-header");
-                    $(id + " .btn-group").insertAfter(id + " .message-body");
+                    document.body.appendChild(this.__dialogFragment);
+                    if (this.__onOpenCallback)
+                        this.__onOpenCallback.call(this, '#' + this.__dialog.id);
                     if (shouldDrawOverlay)
                         pnnl.draw.drawOverlay();
+
                     if (showBehavior)
-                        showBehavior.call(this, id);
+                        showBehavior.call(this, '#' + this.__dialog.id);
                     else
-                        $(id).css({
-                            "top": "calc(" + (screen.availHeight - $(id).height()) + "/2)",
-                            "left": "calc((100% - " + $(id).width() + "px)/2)"
-                        }).fadeIn();
+                        this.__dialog.classList.add('expand');
                 },
                 /*
                  * @param {function} hideBehavior Optional. How to hide the dialog
@@ -358,27 +344,26 @@ var pnnl = {
                  */
                 hide: function (hideBehavior) {
                     pnnl.draw.removeSpinnerOverlay();
-                    var id = "#" + this.dialogId;
-                    $(id).fadeOut();
+                    if (this.__onClosedCallback)
+                        this.__onClosedCallback.call(this, '#' + this.__dialog.id);
                     if (hideBehavior)
-                        hideBehavior.call(this, id);
+                        hideBehavior.call(this, '#' + this.__dialog.id);
+                    else
+                        this.__dialog.classList.add('collapse');
+                    var dialog = this.__dialog;
                     setTimeout(function () {
-                        d3.select(id).remove();
-                    }, 500);
-                },
-                init: function (func) {
-                    func("#" + this.dialogId);
-                    return this;
+                        document.body.removeChild(dialog);
+                    }, 2000);
                 }
             };
         },
-        showHintDialog: function (dialogClass, body, inputElem, addtionClasses) {
+        showHintDialog: function (dialogClass, body, inputElem) {
             if (inputElem.dataset.state !== "valid" && !document.querySelector("#" + dialogClass + "-" + inputElem.id)) {
                 var inputElemRect = inputElem.getBoundingClientRect();
-                pnnl.dialog.newDialogBuilder()
-                        .createAlertDialog(dialogClass, dialogClass + "-" + inputElem.id, addtionClasses)
-                        .setMessageBody(body)
-                        .removeHeader()
+                pnnl.dialog.createDialog(dialogClass, dialogClass + "-" + inputElem.id)
+                        .setDialogBody(body)
+                        .remove('.app-dialog-header')
+                        .remove('.btn-group')
                         .show(false, function (id) {
                             var $dialog = $(id);
                             $dialog.fadeIn()
@@ -389,21 +374,49 @@ var pnnl = {
                         });
             }
         },
-        showToast: function (error, message) {
-            $(".notification-dialog").remove();
-            pnnl.dialog.newDialogBuilder()
-                    .createAlertDialog("notification-dialog")
-                    .setMessageBody(message)
-                    .removeHeader()
-                    .show(false, function (id) {
-                        $(id).fadeIn()
-                                .delay(7000)
-                                .fadeOut(400, function () {
-                                    $(id).remove();
-                                });
+        showToast: function (error, message, showDuration) {
+            pnnl.dialog.createDialog("toast")
+                    .setDialogBody(message)
+                    .remove('.app-dialog-header')
+                    .remove('.btn-group')
+                    .setOnOpenCallback(function () {
+                        if (error)
+                            this.getDialog().style.backgroundColor = 'red';
+                    })
+                    .show(false, function () {
+                        this.getDialog().classList.add('expand');
+                        var dialog = this;
+                        setTimeout(function () {
+                            dialog.hide();
+                        }, showDuration ? showDuration : 5000);
                     });
-            if (error)
-                $(".notification-dialog").css("background-color", "red");
+        },
+        showContextDialog: function (event, dialogBody, clickFunction) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            var body = '<ul>';
+            var $uploadedFilesContainer = $('#uploaded-files-container');
+            if ($uploadedFilesContainer.hasClass("slide-to-right"))
+                body = '<ul><li id="show-dialog">Show file selection widget</li>';
+            else
+                body = '<ul><li id="hide-dialog">Hide file selection widget</li>';
+            body += dialogBody + '</ul>';
+            var $dialog = $('.context-menu-dialog');
+            if ($dialog.length === 0)
+                pnnl.dialog.createDialog("context-menu-dialog", "context-menu-dialog")
+                        .setDialogBody(body)
+                        .remove('.app-dialog-header')
+                        .remove('.btn-group')
+                        .show(false, function (id) {
+                            $(id).show().css({"top": event.pageY, "left": event.pageX});
+                        });
+            else {
+                $dialog.css({"top": event.pageY, "left": event.pageX})
+                        .show()
+                        .find(".app-dialog-body")
+                        .html(body);
+            }
+            $(".context-menu-dialog li").click(clickFunction);
         }
     },
     /*********** FORM INPUT VALIDATION MODULE ***********/
@@ -427,7 +440,7 @@ var pnnl = {
                     });
             if (emptyInputElements.length !== 0) {
                 emptyInputElements.forEach(function (elem) {
-                    pnnl.dialog.showHintDialog("validation-error-dialog", "<span style='color:red;'>This field can\'t be empty</span>", elem, "alert-dialog");
+                    pnnl.dialog.showHintDialog("validation-error-dialog", "<span style='color:red;'>This field can\'t be empty</span>", elem);
                     elem.onchange = elem.onkeyup = function () {
                         d3.selectAll(".validation-error-dialog")
                                 .transition()
@@ -566,6 +579,18 @@ var pnnl = {
             xhr.open("POST", url);
             xhr.setRequestHeader("enctype", "multipart/form-data");
             xhr.send(formData);
+        },
+        createElem: function (tag, props) {
+            if (typeof tag !== 'string') {
+                throw new Error('element tag name is required');
+                return;
+            }
+            var elem = document.createElement(tag.toUpperCase());
+            if (props)
+                Object.keys(props).forEach(function (key) {
+                    elem[key] = props[key];
+                });
+            return elem;
         }
     }
 };
