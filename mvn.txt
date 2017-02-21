@@ -1,0 +1,8 @@
+mvn install:install-file -Dfile=./cdf_read-1.0.0.jar -DgroupId=msiquickview -DartifactId=cdf_read -Dversion=1.0.0 -Dpackaging=jar
+mvn install:install-file -Dfile=./generate_ion_image_from_hdf-1.0.0.jar -DgroupId=msiquickview -DartifactId=generate_ion_image_from_hdf -Dversion=1.0.0 -Dpackaging=jar
+mvn install:install-file -Dfile=./javabuilder-1.0.0.jar -DgroupId=msiquickview -DartifactId=javabuilder -Dversion=1.0.0 -Dpackaging=jar
+mvn install:install-file -Dfile=./ProvenClientJavaAPI-all-1.0.0.jar -DgroupId=msiquickview -DartifactId=ProvenClientJavaAPI-all -Dversion=1.0.0 -Dpackaging=jar
+mvn install:install-file -Dfile=./remote_proxy-1.0.0.jar -DgroupId=msiquickview -DartifactId=remote_proxy -Dversion=1.0.0 -Dpackaging=jar
+mvn install:install-file -Dfile=./save_ion_image_for_all_ranges_in_spreadsheet-1.0.0.jar -DgroupId=msiquickview -DartifactId=save_ion_image_for_all_ranges_in_spreadsheet -Dversion=1.0.0 -Dpackaging=jar
+mvn install:install-file -Dfile=./send_data_to_Proven-1.0.0.jar -DgroupId=msiquickview -DartifactId=send_data_to_Proven -Dversion=1.0.0 -Dpackaging=jar
+mvn install:install-file -Dfile=./total_count_of_pixels_in_ROI-1.0.0.jar -DgroupId=msiquickview -DartifactId=total_count_of_pixels_in_ROI -Dversion=1.0.0 -Dpackaging=jar
