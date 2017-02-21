@@ -1,0 +1,118 @@
+<nav>
+    <ul class="menu admin-console-menu">
+        <li class="menu-item-container">
+            <input type="radio" name="admin-console-menu" value=".account-details-container"/>
+            <a class="menu-item" onclick="return false" id="manage-users">
+                <i class="fa fa-users menu-item-icon" aria-hidden="true"></i>
+                <span class="menu-item-title">Manage Users</span>
+            </a>
+            <div id="user-search">
+                <input autofocus class="" type="text" id="username" placeholder="Search a specific user or leave blank"/>
+                <div class='search-by-status form-group app-dropdown-menu'>
+                    <div>
+                        <a href='' onclick='return false;' class='btn btn-default'>
+                            <span class="selected-status" id='ALL'>Filter by status</span>
+                            <i class='fa fa-chevron-down' aria-hidden='true'></i>
+                        </a>
+                        <ul>
+                            <li id='ALL'>ALL</li>
+                            <li id='ACTIVE'>ACTIVE</li>
+                            <li id='DISABLED'>DISABLED</li>
+                            <li id='LOCKED'>LOCKED</li>
+                        </ul>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="search">Load More</button>
+            </div>
+        </li>
+        <li class="menu-item-container">
+            <input type="radio" name="admin-console-menu" value=".questions-container"/>
+            <a class="menu-item" onclick="return false" id="manage-security-questions">
+                <i class="fa fa-shield menu-item-icon" aria-hidden="true"></i>
+                <span class="menu-item-title">Manage Security Questions</span>
+            </a>
+            <button class="btn btn-primary" id="add-new-question">Add a new question</button>
+        </li>
+        <li class="menu-item-container">
+            <input type="radio" name="admin-console-menu" value=".settings"/>
+            <a class="menu-item" onclick="return false" id="change-app-settings">
+                <i class="fa fa-cog menu-item-icon" aria-hidden="true"></i>
+                <span class="menu-item-title">Change Application-Wide Settings</span>
+            </a>
+        </li>
+        <li class="menu-item-container">
+            <input type="radio" name="admin-console-menu" value="" onclick="this.checked = false;$('.admin-console').fadeOut()"/>
+            <a class="menu-item" id="home">
+                <i class="fa fa-home menu-item-icon" aria-hidden="true"></i>
+                <span class="menu-item-title">Home Page</span>
+            </a>
+        </li>
+        <li class="menu-item-container">
+            <input type="radio" name="admin-console-menu" onclick='this.nextElementSibling.click()'/>
+            <a class="menu-item" href="logout" id="logout">
+                <i class="fa fa-power-off menu-item-icon" aria-hidden="true"></i>
+                <span class="menu-item-title">Log out</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+<div class="admin-console-content">
+    <div>
+        <!--<div class="total-user"></div>-->
+        <table class="account-details-container">
+            <thead>
+            <th class="no-container">No.</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Security Role</th>
+            <th>Last Accessed</th>
+            <th>Available Actions</th>
+            </thead>
+            <tbody>
+                <tr class="account-details" style="display:none">
+                    <td class="no"></td>
+                    <td class="username"></td>
+                    <td class="email"></td>
+                    <td class="status"></td>
+                    <td class="role"></td>
+                    <td class="last-accessed-time">
+                        <p></p>
+                    </td>
+                    <td class="actions">
+                        <button class="btn btn-default edit">Edit</button>
+                        <button class="btn btn-danger delete">Delete</button>
+                    </td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div>
+        <table class="questions-container">
+            <thead>
+                <!--<th class="radio-button-container">&nbsp;</th>-->
+            <th class="no-container">No.</th>
+            <th>Question</th>
+            <th>Available Actions</th>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <ul class="settings">
+        <li class="setting">
+            <div class="setting-item">
+                Push image data to Elastic Search
+            </div>
+            <div class="switch-btn">
+                <input type="checkbox" class="switch-btn-status" id="pushImageDataToES"/>
+                <span class="thumb"></span>
+                <span class="on switch-btn-status-text">ON</span>
+                <span class="off switch-btn-status-text">OFF</span>
+            </div>
+        </li>
+    </ul>
+</div>
+<script>
+    d3.select(document.head).append("link").attr("rel", "stylesheet").attr("href", "front-end-frameworks/css/admin-console.css");
+</script>
+<script src="front-end-frameworks/javascript/admin-console.js"></script>

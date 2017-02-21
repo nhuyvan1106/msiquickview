@@ -1,0 +1,93 @@
+<h1>Security Check</h1>
+<strong style='color:red'>(You must pass all the following security checks prior to updating your account details)</strong>
+<form name='security-check-form' id='security-check-form' data-state='invalid'>
+    <div class='form-group'>
+        <label for='check-current-password'>Current Password</label>
+        <input type='password' class='form-control' id='check-current-password' name='check-current-password'/>
+    </div>
+    <div class='form-group'>
+        <label>Question 1</label>
+        <span id='check-question-1'></span>
+        <label>&nbsp;</label>
+        <input type='text' class='form-control question' id='check-answer-1' name='check-answer-1'/>
+    </div>
+    <div class='form-group'>
+        <label>Question 2</label>
+        <span id='check-question-2'></span>
+        <label>&nbsp;</label>
+        <input type='text' class='form-control question' id='check-answer-2' name='check-answer-2'/>
+    </div>
+    <div class='form-group'>
+        <label>Question 3</label>
+        <span id='check-question-3'></span>
+        <label>&nbsp;</label>
+        <input type='text' class='form-control question' id='check-answer-3' name='check-answer-3' data-type='answer-3'/>
+    </div>
+    <button type='button' class='btn btn-default' id='security-check'>Check</button>
+</form><hr/>
+<form name='edit-account-details-form' id='edit-account-details-form'>
+    <div class='form-group'>
+        <label>Username</label>
+        <span id='username'></span>
+    </div>
+    <div class='form-group'>
+        <label for='email'>Email</label>
+        <input disabled type='email' class='form-control' id='email' name='email'/>
+    </div>
+    <div class='form-group'>
+        <label for='new-password'>New Password</label>
+        <input disabled type='password' class='form-control' id='password' name='password'/>
+    </div>
+    <div class='form-group'>
+        <label for='password-repeat'>Re-Enter Password</label>
+        <input disabled type='password' class='form-control' id='password-repeat' name='password-repeat'/>
+    </div>
+    <div class="form-group">
+        <label>New Question 1</label>    
+        <div class='security-questions-container' id='question-1'>
+            <div>
+                <a href='' onclick='return false;' class='btn btn-default'>
+                    <span class='selected-question-id' data-for="answer-1">Select a question</span>
+                    <i class='fa fa-chevron-down' aria-hidden='true'></i>
+                </a>
+                <ul></ul>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="answer-1">New Answer</label>
+        <input type='text' id='answer-1' class='form-control' disabled/>
+    </div>
+    <div class="form-group">
+        <label>New Question 2</label>    
+        <div class='security-questions-container' id='question-2'>
+            <div>
+                <a href='' onclick='return false;' class='btn btn-default'>
+                    <span class='selected-question-id' data-for="answer-2">Select a question</span>
+                    <i class='fa fa-chevron-down' aria-hidden='true'></i>
+                </a>
+                <ul></ul>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="answer-2">New Answer</label>
+        <input type='text' id='answer-2' class='form-control' disabled/>
+    </div>
+    <div class="form-group">
+        <label>New Question 3</label>    
+        <div class='security-questions-container' id='question-3'>
+            <div>
+                <a href='' onclick='return false;' class='btn btn-default'>
+                    <span class='selected-question-id' data-for="answer-3">Select a question</span>
+                    <i class='fa fa-chevron-down' aria-hidden='true'></i>
+                </a>
+                <ul></ul>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="answer-3">New Answer</label>
+        <input type='text' id='answer-3' class='form-control' disabled/>
+    </div>
+</form>
