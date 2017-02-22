@@ -252,6 +252,7 @@ nav.main-menu {
     z-index: $MAIN-MENU-Z-INDEX;
 }
 
+$GRADIENT-COLOR: #FEDC97;
 .menu {
     margin-top: 1.5px;
     transition: background-color 0.2s linear;
@@ -267,8 +268,32 @@ nav.main-menu {
         z-index: 1;
         perspective: 500px;
         input[type='radio'] {
-            &:hover + .menu-item, &[name]:checked + .menu-item {
-                background-color: rgba(200,200,200,0.6);
+            &:before, &:after {
+                content: '';
+                position: absolute;
+                display: inline-block;
+                width: 5px;
+                height: 100%;
+                background-color: white;
+                transform: scaleX(0);
+                transform-origin: 0 0;
+                transition: transform 0.5s cubic-bezier(0.16, 0.66, 0.46, 1.01);
+                opacity: 1;
+            }
+            &:after {
+                right: 0;
+            }
+            &:hover + .menu-item:before, &[name]:checked + .menu-item:before {
+                transform: scaleX(1);
+            }
+            &:hover + .menu-item:after, &[name]:checked + .menu-item:after {
+                transform: scaleX(1);
+            }
+            &:hover + .menu-item .menu-item-title:before, &[name]:checked + .menu-item .menu-item-title:before {
+                transform: scaleY(1);
+            }
+            &:hover + .menu-item .menu-item-title:after, &[name]:checked + .menu-item .menu-item-title:after {
+                transform: scaleY(1);
             }
             &[name]:checked ~ form {
                 opacity: 1;
@@ -278,6 +303,23 @@ nav.main-menu {
         .menu-item {
             display: block;
             color: white;
+            &:before, &:after {
+                content: '';
+                position: absolute;
+                display: inline-block;
+                width: 100%;
+                height: 3px;
+                background-image: linear-gradient(to right, white 10%, $GRADIENT-COLOR 90%);
+                transform: scaleX(0);
+                transform-origin: 0 0;
+                transition: transform 0.5s cubic-bezier(0.16, 0.66, 0.46, 1.01);
+            }
+            &:after {
+                transform-origin: 100% 100%;
+                background-image: linear-gradient(to left, white 10%, $GRADIENT-COLOR 90%);
+                bottom: 0;
+                left: 0;
+            }
             & > * {
                 display: inline-block;
             }
@@ -290,6 +332,24 @@ nav.main-menu {
                 width: 68%;
                 margin-left: 1em;
                 font-size: 1.5em;
+                &:before, &:after {
+                    position: absolute;
+                    display: inline-block;
+                    content: '';
+                    height: 100%;
+                    width: 3px;
+                    background-image: linear-gradient(to top, $GRADIENT-COLOR 10%, white 90%);
+                    left: 0;
+                    transform: scaleY(0);
+                    transform-origin: 0 100%;
+                    transition: transform 0.25s 0.4s cubic-bezier(0.16, 0.66, 0.46, 1.01);
+                }
+                &:after {
+                    background-image: linear-gradient(to bottom, $GRADIENT-COLOR 10%, white 90%);
+                    transform-origin: 0 0;
+                    right: 0;
+                    left: initial;
+                }
             }
             .more-icon {
                 font-size: x-large;
@@ -826,7 +886,7 @@ nav.main-menu {
     width: 80%;
     box-shadow: 0px 0px 2px 2px gray;
     margin-left: 10%;
-    position: absolute;
+    position: fixed;
     top: 5px;
     max-height: 98%;
     background: white;
@@ -835,7 +895,6 @@ nav.main-menu {
     overflow-y: scroll;
     overflow-x: hidden;
     display:none;
-    opacity: 0;
     z-index: $WINDOW-Z-INDEX;
     h4 {
         font-weight: bold;
@@ -857,15 +916,25 @@ nav.main-menu {
     .my-dialog-body {
         margin: 10px;
         opacity: 0;
+        ul {
+            margin: initial;
+            padding-left: 40px;
+        }
     }
     li a:hover {
         text-decoration: underline;
     }
     li {
+        list-style-type: decimal;
+        margin: initial;
+        padding: initial;
+        position: relative;
+        line-height: initial;
         margin-bottom: 10px;
         position: relative;
         left: 500px;
         opacity: 0;
+        line-height: 25px;
     }
 }
 

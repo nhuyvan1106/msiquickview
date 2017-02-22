@@ -1,2 +1,4 @@
 cd /path/to/where/msiquickview-1.0.0.war/resides
-asadmin deploy --contextroot msiquickview msiquickview-1.0.0.war
+asadmin
+undeploy msiquickview
+deploy --contextroot msiquickview msiquickview-1.0.0.war

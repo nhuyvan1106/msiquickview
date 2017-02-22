@@ -1,12 +1,14 @@
 /src/test/
 /src/main/webapp/login.jsp
+/src/main/webapp/protected/index.jsp
 /src/main/webapp/protected/admin-console-fragment.min.html
 /src/main/webapp/protected/edit-account-details-form-fragment.min.html
 /src/main/webapp/protected/publications-fragment.min.html
 /src/main/webapp/protected/usage-guide-fragment.min.html
 /src/main/webapp/front-end-frameworks/css/
-src/main/webapp/front-end-frameworks/javascript/main.min.js
-src/main/webapp/front-end-frameworks/javascript/pnnl.min.js
+/src/main/webapp/front-end-frameworks/javascript/main.min.js
+/src/main/webapp/front-end-frameworks/javascript/pnnl.min.js
+/src/main/webapp/front-end-frameworks/external/saveSvgAsPng.min.js
 nb-configuration.xml
 log.out
 mysql.txt
