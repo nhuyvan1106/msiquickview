@@ -77,10 +77,6 @@ public class Account implements Serializable, Cloneable {
     @Basic(optional = false)
     @Column(name = "last_accessed_time")
     private long lastAccessedTime;
-    
-    @Basic(optional = false)
-    @Column(name = "edit_username_attempt")
-    private short editUsernameAttempt;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "username", fetch = FetchType.LAZY)
     private List<AccountSecurityQuestion> accountSecurityQuestionList;
@@ -88,7 +84,6 @@ public class Account implements Serializable, Cloneable {
     public Account() {
         this.status = Status.ACTIVE;
         this.userRole = Role.REGULAR;
-        editUsernameAttempt = 0;
         lastAccessedTime = 0;
     }
 
@@ -166,14 +161,6 @@ public class Account implements Serializable, Cloneable {
     public void setLastAccessedTime(long lastAccessedTime) {
         this.lastAccessedTime = lastAccessedTime;
     }
-
-    public short getEditUsernameAttempt() {
-        return editUsernameAttempt;
-    }
-
-    public void setEditUsernameAttempt(short editUsernameAttempt) {
-        this.editUsernameAttempt = editUsernameAttempt;
-    }
     
     public List<AccountSecurityQuestion> getAccountSecurityQuestionList() {
         return accountSecurityQuestionList;
@@ -212,7 +199,6 @@ public class Account implements Serializable, Cloneable {
         newAccount.setUserRole(this.userRole);
         newAccount.setStatus(this.status);
         newAccount.setLastAccessedTime(this.lastAccessedTime);
-        newAccount.setEditUsernameAttempt(this.editUsernameAttempt);
         this.accountSecurityQuestionList.stream().forEach(e -> e.setUsername(newAccount));
         newAccount.setAccountSecurityQuestionList(this.accountSecurityQuestionList);
         return newAccount;
