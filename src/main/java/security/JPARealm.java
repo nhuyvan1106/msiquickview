@@ -1,21 +1,17 @@
 package security;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import security.services.JPAAccountService;
 import security.models.Account;
-import java.util.logging.*;
 import javax.naming.*;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.*;
-import org.apache.shiro.authz.AuthorizationInfo;
-import org.apache.shiro.authz.SimpleAuthorizationInfo;
+import org.apache.shiro.authz.*;
 import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
-import security.exceptions.ForeignHostException;
+import org.slf4j.LoggerFactory;
 import security.models.Account.Status;
 
 public class JPARealm extends AuthorizingRealm {
@@ -27,9 +23,9 @@ public class JPARealm extends AuthorizingRealm {
             super.setAuthenticationCachingEnabled(true);
             super.setCredentialsMatcher(new Sha256PasswordMatcher());
             InitialContext ctx = new InitialContext();
-            userBean = (JPAAccountService)ctx.lookup("java:global/msiquickview/JPAAccountService");
+            userBean = (JPAAccountService)ctx.lookup("java:global/msiquickview-1.0.0/JPAAccountService");
         } catch (NamingException ex) {
-            Logger.getLogger(JPARealm.class.getName()).log(Level.SEVERE, null, ex);
+            LoggerFactory.getLogger(JPARealm.class.getName()).error(ex.getMessage());
         }
     }
 
@@ -53,8 +49,8 @@ public class JPARealm extends AuthorizingRealm {
         if (storedAccount.getStatus() == Status.LOCKED)
             throw new LockedAccountException();
         boolean credentialsMatchResult = compareCredentials(token.getCredentials(), storedAccount);
-        if (!((HostAuthenticationToken)token).getHost().equals(storedAccount.getHost()) && credentialsMatchResult)
-            throw new ForeignHostException(token.getPrincipal().toString(), storedAccount.getUsername());
+//        if (!((HostAuthenticationToken)token).getHost().equals(storedAccount.getHost()) && credentialsMatchResult)
+//            throw new ForeignHostException(token.getPrincipal().toString(), storedAccount.getUsername());
         if (!credentialsMatchResult)
             throw new AuthenticationException();
         storedAccount.setLastAccessedTime(new Date().getTime());

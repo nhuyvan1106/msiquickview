@@ -3,15 +3,11 @@ package endpoints;
 import com.mathworks.toolbox.javabuilder.*;
 import endpoints.annotations.RequiresAuthentication;
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.nio.file.*;
 import static java.nio.file.StandardOpenOption.*;
 import java.rmi.*;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.*;
 import static java.util.stream.Collectors.*;
 import javax.annotation.*;
@@ -68,9 +64,9 @@ public class UploaderEndpoint {
         }
         java.nio.file.Path cdfHdfDir = datasetDir.resolve(folder);
         if (!Files.exists(cdfHdfDir)) {
-            Files.createDirectories(cdfHdfDir.resolve("rois"));
+            Files.createDirectories(datasetDir.resolve("rois"));
             Stream.of("cdf", "hdf", "images", "excel", "optical", "rois/roiImages", "rois/points", "cluster", "overlays", "imageData")
-                    .forEach(e -> cdfHdfDir.resolve(e).toFile().mkdir());
+                    .forEach(e -> mkdir(datasetDir.resolve(e)));
         }
         if (opticalImage != null) {
             saveFile(cdfHdfDir.resolve("optical/" + opticalImage.getContentDisposition().getFileName()), opticalImage.getValueAs(InputStream.class));
@@ -123,8 +119,7 @@ public class UploaderEndpoint {
                 bWriter.newLine();
             }
         }
-        ApplicationResource.Settings settings = new ApplicationResource.Settings();
-        if (settings.isPushImageDataToES()) {
+        if (ApplicationResource.Settings.isPushImageDataToES()) {
             pool.submit(() -> pushToES(esRequestBody));
         }
         return Response.ok().build();
@@ -190,9 +185,9 @@ public class UploaderEndpoint {
             System.out.println("DATA: " + esRequestBody);
             connection.disconnect();
         } catch (MalformedURLException ex) {
-            Logger.getLogger(UploaderEndpoint.class.getName()).log(Level.SEVERE, null, ex);
+            LoggerFactory.getLogger(UploaderEndpoint.class.getName()).error(ex.getMessage());
         } catch (IOException ex) {
-            Logger.getLogger(UploaderEndpoint.class.getName()).log(Level.SEVERE, null, ex);
+            LoggerFactory.getLogger(UploaderEndpoint.class.getName()).error(ex.getMessage());
         }
     }
 }

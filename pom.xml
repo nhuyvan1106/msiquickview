@@ -6,7 +6,7 @@
     <artifactId>msiquickview</artifactId>
     <version>1.0.0</version>
     <packaging>war</packaging>
-    <name>msiquickview</name>
+    <name>msiquickview-1.0.0</name>
     
     <dependencies>
         <!-- Dependencies provided by glassfish -->
@@ -69,12 +69,6 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>6.0.5</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>2.8.6</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
@@ -186,7 +180,6 @@
                         front-end-frameworks/javascript/external/saveSvgAsPng.js,
                         front-end-frameworks/scss/,
                         protected/admin-console-fragment.html,
-                        protected/index.uncompressed.jsp,
                         protected/edit-account-details-form-fragment.html,
                         protected/publications-fragment.html,
                         protected/usage-guide-fragment.html

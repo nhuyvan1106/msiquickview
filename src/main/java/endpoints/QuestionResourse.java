@@ -1,18 +1,13 @@
 package endpoints;
 
-import java.io.IOException;
-import java.util.List;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import utils.JsonGeneratorWrapper;
-import javax.naming.NamingException;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import security.models.SecurityQuestion;
-import security.services.JPASecurityQuestionService;
+import java.io.*;
+import java.util.*;
+import javax.inject.*;
+import javax.json.*;
+import javax.naming.*;
+import javax.ws.rs.*;
+import security.models.*;
+import security.services.*;
 
 @Path("questions")
 @Singleton
@@ -20,23 +15,23 @@ public class QuestionResourse {
 
     @Inject
     private JPASecurityQuestionService questionService;
-    @Context
-    private HttpServletResponse response;
-    
+
     @GET
-    public Response getQuestions() throws NamingException, IOException {
-        System.out.println(response);
-        return JsonGeneratorWrapper.newJsonObject(response)
-                .addArray("payload", json -> writeArray(json, questionService.findAll()))
-                .done(Response.ok().build());
+    public JsonObject getQuestions() throws NamingException, IOException {
+        return Json.createObjectBuilder()
+                .add("payload", toJsonArray(questionService.findAll()))
+                .build();
     }
 
-    private void writeArray(JsonGeneratorWrapper json, List<SecurityQuestion> questions) {
-        System.out.println("json: " + json);
-        System.out.println("questions: " + questions);
-        questions.forEach(question -> json.addEmbeddedObject()
+    private JsonArrayBuilder toJsonArray(List<SecurityQuestion> questions) {
+        return questions.stream()
+                .map(this::toObjectBuilder)
+                .collect(Json::createArrayBuilder, JsonArrayBuilder::add, JsonArrayBuilder::add);
+    }
+
+    private JsonObjectBuilder toObjectBuilder(SecurityQuestion question) {
+        return Json.createObjectBuilder()
                 .add("primaryKey", question.getId())
-                .add("questionContent", question.getQuestion())
-                .buildEmbeddedObject());
+                .add("questionContent", question.getQuestion());
     }
 }

@@ -1,19 +1,6 @@
 /* global d3 */
 var pnnl = {
-    /*********** DATA LOADING RELATED MODULE ***********/
     data: {
-        /*
-         * @param {integer} offset Total number of elements read so far in the intensity/mass values arrays
-         * @param {string} direction Fetch next 20 or previous 20. Accepted values are "forward" or "backward
-         * @param {integer} start Where to start fetching our new batch of 20 inclusive
-         * @param {integer} end Where to end fetching our new batch of 20 exclusive
-         * @param {function} successCallback Called when server returns result successfully, this function is passed 
-         *                                   an array of JSON objects e.g [ {x: x_value, y: y_value },...]where x_value
-         *                                   is an element from intensity values array and y_value is from mass values array.
-         * @param {function} errorCallback  Called when an error occurs on the server side. It is passed the jQuery XHR object, the
-         *                                  error object, and the error message;
-         * @returns {undefined}
-         */
         fetch: function (url, requestParams, successCallback, errorCallback) {
             $.ajax(url, {
                 method: 'GET',
@@ -35,7 +22,6 @@ var pnnl = {
             return index !== -1 ? fileName.substring(index + 1) : fileName;
         }
     },
-    /*********** DRAWING-RELATED MODULE ***********/
     draw: {
         /*
          * @param {Object} config Must look like this 
@@ -157,13 +143,13 @@ var pnnl = {
                 throw new Error('Dialog id is required.');
             var __dialogFragment = document.createDocumentFragment();
             var __dialog = pnnl.utils.createElem('div', {
-                'className': id + ' app-dialog' + (classes ? ' ' + classes : ''),
-                'id': id
+                className: id + ' app-dialog' + (classes ? ' ' + classes : ''),
+                id: id
             });
             __dialogFragment.appendChild(__dialog);
 
             var dialogHeader = pnnl.utils.createElem('div', {
-                'className': 'app-dialog-header'
+                className: 'app-dialog-header'
             });
             __dialog.appendChild(dialogHeader);
 
@@ -199,7 +185,7 @@ var pnnl = {
                     if (headerTitle)
                         dialogHeader.removeChild(headerTitle);
                     var headerIcon = pnnl.utils.createElem('i', {
-                        'className': 'fa fa-2x app-dialog-header-icon' + ' ' + faHeaderIcon
+                        className: 'fa fa-2x app-dialog-header-icon' + ' ' + faHeaderIcon
                     });
                     dialogHeader.appendChild(headerIcon);
                     return this;
@@ -219,8 +205,8 @@ var pnnl = {
                     if (headerIcon)
                         dialogHeader.removeChild(headerIcon);
                     var headerTitle = pnnl.utils.createElem('span', {
-                        'className': 'app-dialog-header-title',
-                        'textContent': title
+                        className: 'app-dialog-header-title',
+                        textContent: title
                     });
                     dialogHeader.appendChild(headerTitle);
                     return this;
@@ -235,8 +221,8 @@ var pnnl = {
                     if (!faIcon)
                         faIcon = 'fa fa-lg fa-close';
                     var closeBtn = pnnl.utils.createElem('i', {
-                        'className': 'app-dialog-close-btn' + ' ' + faIcon,
-                        'onclick': function () {
+                        className: 'app-dialog-close-btn' + ' ' + faIcon,
+                        onclick: function () {
                             if (thisDialog.__onClosedCallback)
                                 thisDialog.__onClosedCallback.call(thisDialog, '#' + thisDialog.__dialog.id);
                             thisDialog.hide();
@@ -408,7 +394,9 @@ var pnnl = {
                         .show()
                         .find('.app-dialog-body')
                         .html(body);
-            $('.context-menu-dialog li').click(function() {
+            $('.context-menu-dialog li').click(function(event) {
+                event.stopImmediatePropagation();
+                $('.context-menu-dialog').hide();
                 clickFunction.call(this);
             });
         }

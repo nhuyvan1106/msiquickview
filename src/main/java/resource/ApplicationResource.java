@@ -1,10 +1,7 @@
 package resource;
 
-import com.fasterxml.jackson.core.JsonFactory;
-
-public class ApplicationResource {
+public final class ApplicationResource {
     
-    public static final JsonFactory JSON_FACTORY = new JsonFactory();
     public static final String FILE_STORAGE_LOCATION = "msi_quickview";
 
     public static class Settings {
@@ -20,6 +17,6 @@ public class ApplicationResource {
         }
     }
 
-    protected ApplicationResource() {
+    private ApplicationResource() {
     }
 }

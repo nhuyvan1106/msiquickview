@@ -7,7 +7,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <link rel="stylesheet" type="text/css" href="front-end-frameworks/external/bootstrap-3.3.7-dist/css/bootstrap.min.css"/>
         <link rel="stylesheet" type="text/css" href="front-end-frameworks/external/font-awesome-4.7.0/css/font-awesome.min.css"/>
-        <script type="text/javascript" src="front-end-frameworks/javascript/pnnl.js"></script>
+        <script type="text/javascript" src="front-end-frameworks/javascript/pnnl.min.js"></script>
         <script type="text/javascript" src="front-end-frameworks/external/d3/d3.4.0.0.min.js"></script>
         <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
         <link rel="stylesheet" type="text/css" href="front-end-frameworks/css/main.css"/>
@@ -132,7 +132,7 @@
                                             })
                                             .length === $newAccountForm.find("input").length;
                                     if (isFormValid) {
-                                        $.ajax("/msiquickview/accounts/registration", {
+                                        $.ajax("/msiquickview/app/accounts/registration", {
                                             method: "POST",
                                             contentType: "application/json",
                                             data: JSON.stringify({
@@ -155,7 +155,7 @@
                                                 , 5000);
                                             },
                                             success: function () {
-                                                window.open("/Java-Matlab-Integration", "_self");
+                                                window.open("/msiquickview", "_self");
                                             }
                                         });
                                     }
@@ -166,8 +166,8 @@
                             .setOnOpenCallback(function () {
                                 $(".security-questions-container > div > a")
                                         .click(function (event) {
-                                            event.preventDefault();
                                             pnnl.utils.filterOutSelectedQuestions(this);
+                                            event.stopImmediatePropagation();
                                         })
                                         .find('span')
                                         .attr('id', 'none');
@@ -178,7 +178,7 @@
                                         .focusout(function () {
                                             var usernameInputElem = this;
                                             if (usernameInputElem.dataset.state === "valid")
-                                                $.ajax("/msiquickview/accounts/exists", {
+                                                $.ajax("/msiquickview/app/accounts/exists", {
                                                     method: "POST",
                                                     data: {username: usernameInputElem.value},
                                                     success: function () {

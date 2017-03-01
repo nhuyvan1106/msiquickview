@@ -27,7 +27,7 @@
                 id: 'uploaded-files-container'
             });
             // Used to hold the partial update request body that is sent the the /_update endpoint
-            var esRequestBody = { doc: {}, upsert: {} };
+            var esRequestBody = {doc: {}, upsert: {}};
             filesToUpload.forEach(function (file) {
                 esRequestBody.doc[file.name] = notes;
                 esRequestBody.upsert[file.name] = notes;
@@ -59,7 +59,6 @@
                 ['folder', fileType],
                 ['esRequestBody', JSON.stringify(esRequestBody)]
             ];
-            console.log(params[2][1]);
             filesToUpload.forEach(function (file) {
                 params.push(['files', file]);
             });
@@ -67,8 +66,7 @@
                 $(document.documentElement)
                         .off('contextmenu')
                         .contextmenu(function (event) {
-                            pnnl.dialog.showContextDialog(event, '', function (event) {
-                                event.stopImmediatePropagation();
+                            pnnl.dialog.showContextDialog(event, '', function () {
                                 switch (this.id) {
                                     case 'hide-dialog':
                                         $('#uploaded-files-container').removeClass('slide-to-right')
@@ -84,7 +82,9 @@
                         });
                 $('#uploaded-files-container input')
                         .change(function () {
-                            sessionStorage.setItem('fileNames', filesToUpload.map(function(file) { return file.name; }));
+                            sessionStorage.setItem('fileNames', filesToUpload.map(function (file) {
+                                return file.name;
+                            }));
                             pnnl.draw.drawSpinner();
                             pnnl.draw.drawOverlay();
                             loadData(datasetName, this.value);
@@ -136,7 +136,7 @@
             var onSuccess;
             var onError;
             var cleanupCallback;
-            var esRequestBody = { doc: {}, upsert: {} };
+            var esRequestBody = {doc: {}, upsert: {}};
 
             esRequestBody.doc[excelFilename] = notes;
             esRequestBody.upsert[excelFilename] = notes;
@@ -416,7 +416,6 @@
             opticalName: document.querySelector('#left-image').alt,
             regularName: document.querySelector('#right-image').alt
         };
-        console.log(clickCoords);
         clickCoords = null;
     });
     $('.warp-window .clear').click(function () {
@@ -864,7 +863,7 @@
                             var url = '/msiquickview/app/uploader/images/generated';
                             var datasetName = image.dataset.datasetName;
                             datasetName = datasetName ? datasetName : $('#selected-dataset').text();
-                            var esRequestBody = { doc: { } };
+                            var esRequestBody = {doc: {}};
                             esRequestBody.doc[imageName + '_.png'] = dataArray;
                             var params = [
                                 ['datasetName', datasetName],
@@ -875,7 +874,6 @@
                             dataArray.forEach(function (imageDataPerRow) {
                                 params.push(['rawImageData', imageDataPerRow.join(',')]);
                             });
-                            console.log(dataArray);
                             var successCallback = function () {
                                 pnnl.dialog.showToast(null, 'Image saved successfully');
                             };
@@ -896,10 +894,6 @@
         $.ajax('/msiquickview/app/directory/browse/' + (datasetName ? datasetName : ''), {
             method: 'GET',
             success: function (data) {
-                if (data.empty) {
-                    pnnl.dialog.showToast(new Error('Directory Emtpty'), data.message);
-                    return;
-                }
                 var payload = data.payload;
                 updateDatasetMenu(data.datasets, payload.dataset);
                 populateList('#cdf-tab-content ul', payload.cdf, true);
@@ -923,21 +917,23 @@
                         .prop('checked', true)
                         .change();
             },
-            'error': function () {
-                errorCallback('Something went wrong<br/>Please contact admin to report the error');
+            error: function (xhr) {
+                errorCallback(xhr.responseJSON.message);
             }
         });
     }
+    // populate the files for each tab: cdf, hdf, excel
     function populateList(selector, data, clickable) {
         var ul = d3.select(selector);
-        if (ul.size() === 0 && data.length === 0) {
-            ul.append('div')
-                    .attr('class', 'empty-content')
-                    .text('This folder is empty')
-                    .style('text-align', 'center');
+        if (data.length === 0) {
+            if (ul.selectAll('li').size() === 0) {
+                ul.append('div')
+                        .attr('class', 'empty-content')
+                        .text('This folder is empty')
+                        .style('text-align', 'center');
+            }
             return;
-        } else if (data.length === 0)
-            return;
+        }
         ul.select('.empty-content').remove();
         var joined = ul.selectAll('li').data(data);
         joined.exit().remove();
@@ -968,7 +964,6 @@
                             return this.value;
                         }).get();
                         sessionStorage.setItem('fileNames', fileNames);
-                        console.log(this);
                         loadData($('#dataset-selection-toggler #selected-dataset').text(), this.value);
                     })
                     .attr('value', function (d) {
@@ -988,10 +983,22 @@
         d3.select(tab)
                 .attr('data-current-quantity', imageData.length)
                 .attr('data-total-quantity', imageCount);
-        var d3imageTabContent = d3.select(imageTabContentId);
-        d3imageTabContent.select('.empty-content').remove();
         $('#current').text(imageData.length);
-        $('#total').text(imageNames.length);
+        $('#total').text(imageCount);
+        var d3imageTabContent = d3.select(imageTabContentId);
+        // imageCount = total images in the given folder
+        if (imageCount === 0) {
+            d3imageTabContent.append('p')
+                    .attr('class', 'empty-content-message')
+                    .style('text-align', 'center')
+                    .style('width', '100%')
+                    .text('This folder is empty');
+            return;
+        }
+        // No new images found, so just return
+        if (imageNames.length === 0)
+            return;
+        d3imageTabContent.select('.empty-content-message').remove();
         imageData = imageData.map(function (data) {
             return 'data:image/png;base64,' + data;
         });
@@ -999,13 +1006,6 @@
                 .selectAll('.image-container')
                 .data(imageData);
         containers.exit().remove();
-        if (imageNames.length === 0)
-            d3.select(tab + '-content')
-                    .append('p')
-                    .attr('class', 'empty-content')
-                    .style('text-align', 'center')
-                    .style('width', '100%')
-                    .text('This folder is empty');
         containers.select('img')
                 .attr('src', function (d) {
                     return d;
@@ -1021,7 +1021,7 @@
                 .append('div')
                 .attr('class', 'image-container');
         enter.append('img')
-                .classed(imageClassName ? imageClassName : '', true)
+                .classed(imageClassName, true)
                 .attr('src', function (d) {
                     return d;
                 })
@@ -1038,11 +1038,9 @@
                         d3.event.preventDefault();
                         return;
                     }
-                    console.log(this);
                     var body = '<li id="select-roi">Select Region of Interest</li>';
                     var img = this;
                     pnnl.dialog.showContextDialog(d3.event, body, function () {
-                        console.log(this);
                         switch (this.id) {
                             case 'hide-dialog':
                                 $('#uploaded-files-container').removeClass('slide-to-right')
@@ -1054,7 +1052,6 @@
                                 break;
                             case 'select-roi':
                                 var dim = getNaturalImageSize(img);
-                                console.log(dim);
                                 drawROI(d3.select(img.parentElement), $(img), dim.height, dim.width);
                                 break;
                         }
@@ -1156,7 +1153,6 @@
     }
 
     function drawROI(imageContainer, $image, numRows, numCols) {
-        console.log($image);
         $('.roi-metadata').fadeOut().find('form').get(0).reset();
         $('.validation-error-dialog').remove();
         var coordPairs = null;
@@ -1313,7 +1309,7 @@
                 ['roiImageName', $('.roi-metadata #roi-name').val()],
                 ['datasetName', $image.data().datasetName ? $image.data().datasetName : $('#selected-dataset').text()]
             ];
-            var esRequestBody = { doc: { } };
+            var esRequestBody = {doc: {}};
             var roiDescription = $('.roi-metadata #roi-description').val();
             roiDescription = roiDescription ? roiDescription : '';
             esRequestBody.doc['roi-' + params[2][1]] = params[0][1];

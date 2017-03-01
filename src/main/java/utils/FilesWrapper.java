@@ -1,14 +1,10 @@
 package utils;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
+import java.nio.channels.*;
 import java.nio.file.*;
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.WRITE;
+import static java.nio.file.StandardOpenOption.*;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.slf4j.*;
@@ -64,5 +60,14 @@ public final class FilesWrapper {
             return true;
         }
         return false;
+    }
+    public static boolean mkdir(Path dir) {
+        try {
+            Files.createDirectory(dir);
+            return true;
+        } catch (IOException ex) {
+            LOGGER.error(ex.getMessage());
+            return false;
+        }
     }
 }

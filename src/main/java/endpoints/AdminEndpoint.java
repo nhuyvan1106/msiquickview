@@ -5,41 +5,35 @@ import java.io.IOException;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import javax.json.JsonObject;
+import javax.inject.*;
+import javax.json.*;
 import javax.naming.NamingException;
-import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Context;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import javax.ws.rs.core.Response;
 import security.models.Account;
 import security.models.SecurityQuestion;
 import security.services.*;
-import utils.JsonGeneratorWrapper;
+import static utils.JsonWrapper.*;
 
 @Path("admin")
 @RequiresAdmin
 @Singleton
+@Produces(APPLICATION_JSON)
 public class AdminEndpoint {
 
     @Inject
     private JPASecurityQuestionService questionService;
     @Inject
     private JPAAccountService accountService;
-    @Context
-    private HttpServletResponse response;
-    
+
     /*
      * ****************** QUESTIONS RELATED OPERATIONS *******************
      */
     @Path("accounts")
     @GET
-    public Response getAccounts(@QueryParam("excludes") String excludes, @QueryParam("statusFilter") String statusFilter) throws NamingException, IOException {
+    public JsonObject getAccounts(@QueryParam("excludes") String excludes, @QueryParam("statusFilter") String statusFilter) throws NamingException, IOException {
         Predicate<Account>[] filter = new Predicate[1];
-        System.out.println(response);
         filter[0] = account -> true;
         switch (statusFilter) {
             case "ACTIVE":
@@ -54,30 +48,30 @@ public class AdminEndpoint {
         }
         List<Account> accounts = accountService.findAll()
                 .stream()
-                .filter(account -> filter[0].test(account) && account.getUserRole() != Account.Role.ADMIN && excludes.indexOf(account.getUsername()) == -1)
+                .filter(account -> filter[0].test(account) && account.getUserRole() != Account.Role.ADMIN && !excludes.contains(account.getUsername()))
                 .limit(10)
                 .collect(Collectors.toList());
 
-        return JsonGeneratorWrapper.newJsonObject(response)
-                .addArray("payload", json -> accounts.forEach(account -> writeJson(json, account)))
+        return Json.createObjectBuilder()
+                .add("payload", createJsonArray(toJsonList(accounts)))
                 .add("total", accountService.count())
-                .done(Response.ok().build());
+                .build();
     }
 
     @Path("accounts/{username}")
     @Consumes(APPLICATION_JSON)
     @GET
-    public Response getAccount(@PathParam("username") String username) throws NamingException, IOException {
+    public JsonObject getAccount(@PathParam("username") String username) throws NamingException, IOException {
         Account account = accountService.find(username);
         if (account == null || account.getUserRole() == Account.Role.ADMIN) {
-            return JsonGeneratorWrapper.newJsonObject(response)
+            return Json.createObjectBuilder()
                     .add("found", false)
-                    .done(Response.ok().build());
-        }
-        else
-            return writeJson(JsonGeneratorWrapper.newJsonObject(response), account)
+                    .build();
+        } else {
+            return toJsonObjectBuilder(account)
                     .add("found", true)
-                    .done(Response.ok().build());
+                    .build();
+        }
     }
 
     @Path("accounts/{username}")
@@ -108,13 +102,13 @@ public class AdminEndpoint {
      */
     @Path("questions")
     @POST
-    public Response addQuestionAndGet(@FormParam("questionContent") String questionContent) throws NamingException, IOException {
+    public JsonObject addQuestionAndGet(@FormParam("questionContent") String questionContent) throws NamingException, IOException {
         SecurityQuestion question = new SecurityQuestion(questionContent);
         questionService.create(question);
-        return JsonGeneratorWrapper.newJsonObject(response)
+        return Json.createObjectBuilder()
                 .add("primaryKey", question.getId())
                 .add("questionContent", questionContent)
-                .done(Response.ok().build());
+                .build();
     }
 
     @Path("questions/{questionId}")
@@ -135,14 +129,18 @@ public class AdminEndpoint {
         return Response.noContent().build();
     }
 
-    private JsonGeneratorWrapper writeJson(JsonGeneratorWrapper json, Account account) {
-        json.addEmbeddedObject()
+    private JsonObjectBuilder[] toJsonList(List<Account> accounts) {
+        return accounts.stream()
+                .map(this::toJsonObjectBuilder)
+                .toArray(JsonObjectBuilder[]::new);
+    }
+
+    private JsonObjectBuilder toJsonObjectBuilder(Account account) {
+        return Json.createObjectBuilder()
                 .add("primaryKey", account.getUsername())
                 .add("email", account.getEmail())
                 .add("role", account.getUserRole().toString())
                 .add("status", account.getStatus().toString())
-                .add("lastAccessedTime", account.getLastAccessedTime())
-                .buildEmbeddedObject();
-        return json;
+                .add("lastAccessedTime", account.getLastAccessedTime());
     }
 }

@@ -99,6 +99,9 @@ a:hover {
     cursor: pointer;
 }
 
+.form-group {
+    position: relative;
+}
 .pnl-dropdown-menu-right {
     flex-grow: 3;
     & > div > a {

@@ -1,29 +1,25 @@
 package endpoints;
 
-import endpoints.annotations.RequiresAuthentication;
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.json.JsonObject;
-import javax.naming.NamingException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import endpoints.annotations.*;
+import java.util.*;
+import java.util.stream.*;
+import javax.enterprise.context.*;
+import javax.inject.*;
+import javax.json.*;
+import javax.servlet.http.*;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.*;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import utils.JsonGeneratorWrapper;
-import org.apache.shiro.SecurityUtils;
+import static javax.ws.rs.core.MediaType.*;
+import org.apache.shiro.*;
 import org.apache.shiro.authc.*;
-import org.apache.shiro.crypto.SecureRandomNumberGenerator;
-import org.apache.shiro.crypto.hash.Sha256Hash;
-import org.apache.shiro.subject.Subject;
+import org.apache.shiro.crypto.*;
+import org.apache.shiro.crypto.hash.*;
+import org.apache.shiro.subject.*;
 import security.models.Account;
 import security.HostAuthenticationToken;
-import security.models.AccountSecurityQuestion;
+import security.models.*;
 import security.services.*;
+import static utils.JsonWrapper.*;
 
 @Path("accounts")
 @RequestScoped
@@ -37,14 +33,11 @@ public class AccountManagerEndpoint {
 
     @Inject
     private JPASecurityQuestionService questionService;
-    
-    @Context
-    private HttpServletResponse response;
-    
+
     @POST
     @Consumes(value = APPLICATION_JSON)
     @Path("registration")
-    public Response newAccount(@Context HttpServletRequest request, JsonObject data) throws NamingException {
+    public Response newAccount(@Context HttpServletRequest request, JsonObject data) {
         char[] password = data.getString("password").toCharArray();
         String salt = new SecureRandomNumberGenerator().nextBytes().toBase64();
         Sha256Hash hash = new Sha256Hash(password, salt, 1024);
@@ -71,25 +64,25 @@ public class AccountManagerEndpoint {
     @Path("{username}")
     @GET
     @RequiresAuthentication
-    public Response getAccount() throws NamingException, IOException {
+    @Produces(APPLICATION_JSON)
+    public JsonObject getAccount() {
         Account storedAccount = getCurrentUser();
-        return JsonGeneratorWrapper.newJsonObject(response)
+        return Json.createObjectBuilder()
                 .add("primaryKey", storedAccount.getUsername())
                 .add("email", storedAccount.getEmail())
-                .addArray("questions", json -> writeArray(json, storedAccount.getAccountSecurityQuestionList()))
-                .done(Response.ok().build());
+                .add("questions", createJsonArray(toJsonObjectBuilderList(storedAccount.getAccountSecurityQuestionList())))
+                .build();
     }
 
     @Path("{username}")
     @PUT
     @Consumes(APPLICATION_JSON)
     @RequiresAuthentication
-    public Response editAccountDetail(@PathParam("username") String username, JsonObject payload) throws NamingException {
+    public Response editAccountDetail(@PathParam("username") String username, JsonObject payload) {
         Account currentUser = getCurrentUser();
         if (currentUser == null) {
             return Response.notModified().build();
         }
-
         for (String key : payload.keySet()) {
             switch (key) {
                 case "email":
@@ -113,7 +106,7 @@ public class AccountManagerEndpoint {
     @POST
     @Consumes(APPLICATION_JSON)
     @RequiresAuthentication
-    public Response securityCheckBeforeEdit(JsonObject payload) throws NamingException {
+    public Response securityCheckBeforeEdit(JsonObject payload) {
         Account currentUser = getCurrentUser();
         char[] password = payload.getString("password").toCharArray();
         List<JsonObject> answers = payload.getJsonArray("answers").getValuesAs(JsonObject.class);
@@ -126,7 +119,7 @@ public class AccountManagerEndpoint {
 
     @Path("exists")
     @POST
-    public Response isExisitingAccount(@FormParam("username") String username) throws NamingException {
+    public Response isExisitingAccount(@FormParam("username") String username) {
         Account account = accountService.find(username);
         if (account != null) {
             return Response.ok().build();
@@ -152,13 +145,13 @@ public class AccountManagerEndpoint {
                 .equals(new Sha256Hash(answer.getString("answer"), salt, 1024).toBase64());
     }
 
-    private void writeArray(JsonGeneratorWrapper json, List<AccountSecurityQuestion> accountSecurityQuestionList) {
-        accountSecurityQuestionList.forEach(e -> {
-            json.addEmbeddedObject()
-                    .add("accountQuestionPrimaryKey", e.getId())
-                    .add("questionContent", questionService.find(e.getQuestionId()).getQuestion())
-                    .add("questionId", e.getQuestionId())
-                    .buildEmbeddedObject();
-        });
+    private JsonObjectBuilder[] toJsonObjectBuilderList(List<AccountSecurityQuestion> accountSecurityQuestionList) {
+        return accountSecurityQuestionList.stream()
+                .map(e
+                        -> Json.createObjectBuilder()
+                        .add("accountQuestionPrimaryKey", e.getId())
+                        .add("questionContent", questionService.find(e.getQuestionId()).getQuestion())
+                        .add("questionId", e.getQuestionId()))
+                .toArray(JsonObjectBuilder[]::new);
     }
 }

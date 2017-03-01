@@ -1,6 +1,5 @@
 /src/test/
 /src/main/webapp/login.jsp
-/src/main/webapp/protected/index.jsp
 /src/main/webapp/protected/admin-console-fragment.min.html
 /src/main/webapp/protected/edit-account-details-form-fragment.min.html
 /src/main/webapp/protected/publications-fragment.min.html
