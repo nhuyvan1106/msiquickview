@@ -7,7 +7,7 @@
                 <span class="menu-item-title">Manage Users</span>
             </a>
             <div id="user-search">
-                <input autofocus class="" type="text" id="username" placeholder="Search a specific user or leave blank"/>
+                <input class="" type="text" id="username" placeholder="Search a specific user or leave blank"/>
                 <div class='search-by-status form-group app-dropdown-menu'>
                     <div>
                         <a href='' onclick='return false;' class='btn btn-default'>
@@ -22,7 +22,7 @@
                         </ul>
                     </div>
                 </div>
-                <button class="btn btn-primary" id="search">Load More</button>
+                <button class="btn btn-primary" id="search">Search</button>
             </div>
         </li>
         <li class="menu-item-container">
@@ -41,7 +41,7 @@
             </a>
         </li>
         <li class="menu-item-container">
-            <input type="radio" name="admin-console-menu" value="" onclick="this.checked = false;$('.admin-console').fadeOut()"/>
+            <input type="radio" name="admin-console-menu" onclick="this.checked = false;$('.admin-console').fadeOut();$('body').css('overflow-y', 'initial')"/>
             <a class="menu-item" id="home">
                 <i class="fa fa-home menu-item-icon" aria-hidden="true"></i>
                 <span class="menu-item-title">Home Page</span>
@@ -115,4 +115,4 @@
 <script>
     d3.select(document.head).append("link").attr("rel", "stylesheet").attr("href", "front-end-frameworks/css/admin-console.css");
 </script>
-<script src="front-end-frameworks/javascript/admin-console.js"></script>
+<script src="front-end-frameworks/javascript/admin-console.min.js"></script>

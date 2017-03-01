@@ -109,18 +109,6 @@ var pnnl = {
                     .text(config.y);
 
         },
-        drawOverlay: function () {
-            $('.overlay').fadeIn('slow').prependTo('body');
-        },
-        drawSpinner: function () {
-            $('.spinner').fadeIn().css('top', ($(window).height() / 3 + pnnl.utils.getScrollTop()) + 'px');
-        },
-        removeSpinnerOverlay: function () {
-            $('.spinner, .overlay').fadeOut();
-            $('.validation-error-dialog, .hint-dialog').fadeOut(400, function () {
-                $(this).remove();
-            });
-        },
         /*
          * @param {number} x The new x coordinate of the indicator line to move to relative to the y axis.
          */
@@ -296,18 +284,18 @@ var pnnl = {
                     return this;
                 },
                 /*
-                 * @param {boolean} shouldDrawOverlay required. Should the overlay be drawn
+                 * @param {boolean} shouldShowOverlay required. Should the overlay be drawn
                  * @param {function} showBehavior Optional. How to show the dialog
                  * @returns undefined
                  */
-                show: function (shouldDrawOverlay, showBehavior) {
+                show: function (shouldShowOverlay, showBehavior) {
                     if (typeof arguments[0] !== 'boolean')
-                        throw new Error('shouldDrawOverlay argument must be a boolean');
+                        throw new Error('shouldShowOverlay argument must be a boolean');
                     document.body.appendChild(this.__dialogFragment);
                     if (this.__onOpenCallback)
                         this.__onOpenCallback.call(this, '#' + this.__dialog.id);
-                    if (shouldDrawOverlay)
-                        pnnl.draw.drawOverlay();
+                    if (shouldShowOverlay)
+                        pnnl.utils.showOverlay();
 
                     if (showBehavior)
                         showBehavior.call(this, '#' + this.__dialog.id);
@@ -319,7 +307,7 @@ var pnnl = {
                  * @returns undefined
                  */
                 hide: function (hideBehavior) {
-                    pnnl.draw.removeSpinnerOverlay();
+                    pnnl.utils.removeSpinnerOverlay();
                     if (this.__onClosedCallback)
                         this.__onClosedCallback.call(this, '#' + this.__dialog.id);
                     if (hideBehavior)
@@ -351,7 +339,7 @@ var pnnl = {
             }
         },
         showToast: function (error, message, showDuration) {
-            pnnl.draw.removeSpinnerOverlay();
+            pnnl.utils.removeSpinnerOverlay();
             pnnl.dialog.createDialog('toast')
                     .setDialogBody(message)
                     .remove('.app-dialog-header')
@@ -394,7 +382,7 @@ var pnnl = {
                         .show()
                         .find('.app-dialog-body')
                         .html(body);
-            $('.context-menu-dialog li').click(function(event) {
+            $('.context-menu-dialog li').click(function (event) {
                 event.stopImmediatePropagation();
                 $('.context-menu-dialog').hide();
                 clickFunction.call(this);
@@ -506,7 +494,8 @@ var pnnl = {
                                             .attr('id', questionObj.primaryKey)
                                             .text(this.textContent)
                                             .data('for');
-                                    document.querySelector('#' + answerInputElemSelector).removeAttribute('disabled');
+                                    if (answerInputElemSelector)
+                                        document.querySelector('#' + answerInputElemSelector).removeAttribute('disabled');
                                     $securityQuestionsContainer.find('ul')
                                             .fadeOut();
                                 });
@@ -573,6 +562,20 @@ var pnnl = {
                     elem[key] = props[key];
                 });
             return elem;
+        },
+        showOverlay: function (showSpinner) {
+            $('.overlay').fadeIn('slow');
+            if (showSpinner)
+                pnnl.utils.showSpinner();
+        },
+        showSpinner: function () {
+            $('.spinner').fadeIn().css('top', (screen.availHeight / 3 + pnnl.utils.getScrollTop()) + 'px');
+        },
+        removeSpinnerOverlay: function () {
+            $('.spinner, .overlay').fadeOut();
+            $('.validation-error-dialog, .hint-dialog').fadeOut(400, function () {
+                $(this).remove();
+            });
         }
     }
 };

@@ -36,7 +36,6 @@ label {
         border-right: 1px solid rgba(200,200,200,0.5);;
         width: 45px;
         position: absolute;
-        left: 47px;
     }
     .form-control {
         border: 2px solid rgba(200,200,200,0.5);
@@ -49,7 +48,6 @@ label {
         margin-left: 50px;
         color: rgb(205,205,205);
         display:inline;
-        left: 50px;
     }
     label:hover {
         cursor: text;
@@ -90,7 +88,6 @@ label {
         display: block;
         span {
             width: 70% !important;
-            padding-left: 10px;
         }
         i {
             float: right;

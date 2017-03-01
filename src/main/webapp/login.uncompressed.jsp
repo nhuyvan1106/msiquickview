@@ -33,7 +33,7 @@
                         <i class="fa fa-key" aria-hidden="true" style="transform:rotate(135deg)"></i>
                         Submit
                     </button><br/>
-                    <a href="" style="text-decoration:underline" onclick="event.preventDefault()" id="create-new-account">Create a new account</a>
+                    <a href="" style="text-decoration:underline" id="create-new-account">Create a new account</a>
                     <p style="color:red"><strong>
                             <c:if test="${requestScope.loginFailureMsg != null}">
                                 Something went wrong. ${requestScope.loginFailureMsg}
@@ -60,8 +60,9 @@
                     localStorage.setItem("password", $(".login-form #password").val());
                 });
                 animateLabels(".login-form");
-                $("#create-new-account").click(function () {
-                    pnnl.draw.removeSpinnerOverlay();
+                $("#create-new-account").click(function (event) {
+                    event.preventDefault();
+                    pnnl.utils.showOverlay();
                     var body = "<form name='new-account-form' action='' class='new-account-form'>" +
                             "<div class='form-group'>" +
                             "<span><i class='fa fa-user fa-lg' aria-hidden='true'></i></span>" +

@@ -177,6 +177,7 @@
                         login.uncompressed.jsp,
                         front-end-frameworks/javascript/main.js,
                         front-end-frameworks/javascript/pnnl.js,
+                        front-end-frameworks/javascript/admin-console.js,
                         front-end-frameworks/javascript/external/saveSvgAsPng.js,
                         front-end-frameworks/scss/,
                         protected/admin-console-fragment.html,

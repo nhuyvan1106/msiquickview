@@ -85,8 +85,7 @@
                             sessionStorage.setItem('fileNames', filesToUpload.map(function (file) {
                                 return file.name;
                             }));
-                            pnnl.draw.drawSpinner();
-                            pnnl.draw.drawOverlay();
+                            pnnl.utils.showOverlay(true);
                             loadData(datasetName, this.value);
                             document.documentElement.click();
                         })
@@ -198,8 +197,7 @@
             var limit = parseInt(this.id);
             if (current + limit > total)
                 limit = total - current;
-            pnnl.draw.drawOverlay();
-            pnnl.draw.drawSpinner();
+            pnnl.utils.showOverlay(true);
             $.ajax('/msiquickview/app/directory/more/' + $('#selected-dataset').text() + '/images', {
                 data: {
                     limit: limit,
@@ -218,7 +216,7 @@
                     $('#total').text(data.total);
                     $('#load-more-toggler').attr('disabled', data.total === current ? 'disabled' : null);
                     appendImages(data, '#' + $currentImageTab.val());
-                    pnnl.draw.removeSpinnerOverlay();
+                    pnnl.utils.removeSpinnerOverlay();
                 },
                 error: function () {
                     errorCallback('Something went wrong<br/>Please contact admin to report the error');
@@ -555,8 +553,7 @@
             pnnl.draw.moveIndicatorBar(moveTo);
             if (currentIndex % 20 === 0 && currentIndex !== 0 /*&& currentIndex !== resultData.length - 1*/) {
                 var url = '/msiquickview/app/data/graph/more';
-                pnnl.draw.drawOverlay();
-                pnnl.draw.drawSpinner();
+                pnnl.utils.showOverlay(true);
                 var fileName = sessionStorage.getItem('fileName');
                 var requestParams = {
                     fileName: fileName,
@@ -575,7 +572,7 @@
                             totalElementsRead + resultData.pointCount[currentIndex]));
                     totalElementsRead += resultData.pointCount[currentIndex];
                     offset += resultData.pointCount[currentIndex];
-                    pnnl.draw.removeSpinnerOverlay();
+                    pnnl.utils.removeSpinnerOverlay();
                 };
                 pnnl.data.fetch(url, requestParams, onSuccess, errorCallback);
             } else {
@@ -598,8 +595,7 @@
                 drawIntensityMassChart(resultData.intensityMass.slice(totalElementsRead - resultData.pointCount[currentIndex], totalElementsRead));
             } else {
                 var url = '/msiquickview/app/data/graph/more';
-                pnnl.draw.drawSpinner();
-                pnnl.draw.drawOverlay();
+                pnnl.utils.showOverlay(true);
                 var fileName = sessionStorage.getItem('fileName');
                 var requestParams = {
                     fileName: fileName,
@@ -616,7 +612,7 @@
                     totalElementsRead = intensityMass.length;
                     currentIndex--;
                     drawIntensityMassChart(intensityMass.slice(totalElementsRead - resultData.pointCount[currentIndex], totalElementsRead));
-                    pnnl.draw.removeSpinnerOverlay();
+                    pnnl.utils.removeSpinnerOverlay();
                 }, errorCallback);
             }
         }
@@ -675,8 +671,7 @@
                                                                 .addClass('slide-from-right');
                                                         break;
                                                     case 'generate-image':
-                                                        pnnl.draw.drawSpinner();
-                                                        pnnl.draw.drawOverlay();
+                                                        pnnl.utils.showOverlay(true);
                                                         var fileNames = sessionStorage.getItem('fileNames');
                                                         var datasetName = document.querySelector('.panels .options').dataset.datasetName;
                                                         $.ajax('/msiquickview/app/data/ion-image',
@@ -690,7 +685,7 @@
                                                                         upperBound: range[1]
                                                                     },
                                                                     success: function (data) {
-                                                                        pnnl.draw.removeSpinnerOverlay();
+                                                                        pnnl.utils.removeSpinnerOverlay();
                                                                         var config = {
                                                                             idName: 'ion-image-container',
                                                                             className: 'ion-image',
@@ -769,7 +764,7 @@
             pnnl.draw.drawLineGraph(config, data.scanTime.map(function (e, i) {
                 return {x: e, y: data.totalIntensity[i] / Math.pow(10, 8)};
             }));
-            pnnl.draw.removeSpinnerOverlay();
+            pnnl.utils.removeSpinnerOverlay();
         }
     }
     // Global HTTP request response error handling
@@ -858,8 +853,7 @@
                             drawROI(d3.select('#' + config.idName), $(image), numRows, numCols);
                             break;
                         case 'save-image':
-                            pnnl.draw.drawSpinner();
-                            pnnl.draw.drawOverlay();
+                            pnnl.utils.showOverlay(true);
                             var url = '/msiquickview/app/uploader/images/generated';
                             var datasetName = image.dataset.datasetName;
                             datasetName = datasetName ? datasetName : $('#selected-dataset').text();
@@ -877,7 +871,7 @@
                             var successCallback = function () {
                                 pnnl.dialog.showToast(null, 'Image saved successfully');
                             };
-                            pnnl.utils.sendFormData(url, params, successCallback, errorCallback, pnnl.draw.removeSpinnerOverlay);
+                            pnnl.utils.sendFormData(url, params, successCallback, errorCallback, pnnl.utils.removeSpinnerOverlay);
                             break;
                     }
                 });
@@ -955,8 +949,7 @@
                     .attr('class', 'file')
                     .attr('title', 'Plot graph for this file')
                     .on('change', function () {
-                        pnnl.draw.drawOverlay();
-                        pnnl.draw.drawSpinner();
+                        pnnl.utils.showOverlay(true);
                         // when the user selects generate ion image context menu item
                         // we need to obtain the list of cdf or hdf file names to use to generate the image
                         // because each file represents a row, so we store these files in session storage for easy retrieval

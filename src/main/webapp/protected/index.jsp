@@ -22,7 +22,6 @@
     </head>
     <body>
         <div class="overlay" style="display:none;position:fixed;top:0;width:100%;margin:0;height:100%;z-index:20;background:rgba(0,256,256,0.25)"></div>
-
         <div class="wrapper">
             <header>
                 <div class="menu-toggler-container">
@@ -523,26 +522,25 @@
                                                         };
                                                     });
                                             if (Object.keys(editedInputElems).length > 0) {
-                                                pnnl.draw.drawOverlay();
-                                                pnnl.draw.drawSpinner();
+                                                pnnl.utils.showOverlay(true);
                                                 $.ajax("/msiquickview/app/accounts/<%= org.apache.shiro.SecurityUtils.getSubject().getPrincipal()%>", {
                                                     contentType: "application/json",
                                                     method: "PUT",
                                                     data: JSON.stringify(editedInputElems),
                                                     success: function () {
-                                                        pnnl.draw.removeSpinnerOverlay();
+                                                        pnnl.utils.removeSpinnerOverlay();
                                                         pnnl.dialog.showToast(null, "Account details updated successfully.<br/>You will be automatically signed out in 5 seconds");
                                                         setTimeout(function () {
                                                             document.querySelector("#logout").click();
                                                         }, 5000);
                                                     },
                                                     error: function () {
-                                                        pnnl.draw.removeSpinnerOverlay();
+                                                        pnnl.utils.removeSpinnerOverlay();
                                                         pnnl.dialog.showToast(new Error("Internal Server Error"), "Something went wrong. Please try again or contact site admin.");
                                                     }
                                                 });
                                             } else {
-                                                pnnl.draw.removeSpinnerOverlay();
+                                                pnnl.utils.removeSpinnerOverlay();
                                                 pnnl.dialog.showToast(null, 'Nothing was updated');
                                             }
                                             this.hide();
@@ -583,8 +581,7 @@
                                             pnnl.validation.initValidationForInput('#edit-account-details-form input[id*="answer"', [new RegExp("^[a-zA-Z0-9\\s]{4,}$")], "Valid answer must contain letters, numbers, and spaces only and be at least 4 characters long");
 
                                             $("#security-check-form #security-check").click(function () {
-                                                pnnl.draw.drawSpinner();
-                                                pnnl.draw.drawOverlay();
+                                                pnnl.utils.showOverlay(true);
                                                 if (!pnnl.validation.validateNotEmpty("security-check-form"))
                                                     return;
                                                 var payload = {
@@ -596,14 +593,14 @@
                                                 };
                                                 $.ajax("/msiquickview/app/accounts/<%= org.apache.shiro.SecurityUtils.getSubject().getPrincipal()%>/authentication", {method: "POST", contentType: "application/json", data: JSON.stringify(payload)})
                                                         .then(function () {
-                                                            pnnl.draw.removeSpinnerOverlay();
+                                                            pnnl.utils.removeSpinnerOverlay();
                                                             $('#edit-account-details-form input[type="password"').prop("disabled", false);
                                                             pnnl.dialog.showToast(null, "Security checks were successful. You can now edit your account details.");
                                                             document.forms["security-check-form"].setAttribute("data-state", "valid");
                                                             $(dialogId + ' .positive-btn').attr('disabled', null);
                                                         })
                                                         .catch(function () {
-                                                            pnnl.draw.removeSpinnerOverlay();
+                                                            pnnl.utils.removeSpinnerOverlay();
                                                             pnnl.dialog.showToast(new Error("Authentication Failed"), "Some of the answers did not match what we have in our records. Please try again.");
                                                             $('#edit-account-details-dialog .positive-btn').attr('disabled', 'disabled');
                                                         });
@@ -764,7 +761,7 @@
                         $("footer #pub").click(function (event) {
                             event.stopImmediatePropagation();
                             var successCallback = function (pubFragment) {
-                                pnnl.draw.removeSpinnerOverlay();
+                                pnnl.utils.removeSpinnerOverlay();
                                 var d3publicationContainer = d3.select('.publications');
                                 if (pubFragment)
                                     d3publicationContainer.html(pubFragment);
@@ -832,6 +829,7 @@
                         $("#show-admin-console").click(function () {
                             var $adminConsoleContainer = $('.admin-console');
                             var successCallback = function (fragment) {
+                                $('body').css('overflow-y', 'hidden');
                                 if (fragment)
                                     $adminConsoleContainer.html(fragment);
                                 $adminConsoleContainer.fadeIn();
@@ -843,21 +841,20 @@
                         function getHtmlFragment(fragmentName, successCallback, $container) {
                             if (arguments.length !== 3)
                                 throw new Error('Incorrect number of parameters passed. Required fragmentName, successCallback, retrievePredicate');
-                            pnnl.draw.drawOverlay();
-                            pnnl.draw.drawSpinner();
+                            pnnl.utils.showOverlay(true);
                             if ($container.children().length === 0)
                                 $.ajax('/msiquickview/protected/' + fragmentName)
                                         .then(function (html) {
                                             successCallback(html);
-                                            pnnl.draw.removeSpinnerOverlay();
+                                            pnnl.utils.removeSpinnerOverlay();
                                             $container.fadeIn();
                                         })
                                         .catch(function () {
-                                            pnnl.draw.removeSpinnerOverlay();
+                                            pnnl.utils.removeSpinnerOverlay();
                                         });
                             else {
                                 successCallback();
-                                pnnl.draw.removeSpinnerOverlay();
+                                pnnl.utils.removeSpinnerOverlay();
                             }
                         }
                     })(jQuery);

@@ -70,7 +70,7 @@ body {
     counter-reset: questionIndex;
 }
 body * {
-    transition: background-color 0.2s linear, box-shadow 0.2s linear;
+    transition: background-color 0.2s linear, box-shadow 0.2s linear, color 0.1s linear;
 }
 ::-webkit-scrollbar {
     -webkit-appearance: none;
